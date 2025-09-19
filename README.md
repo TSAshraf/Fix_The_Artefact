@@ -1,4 +1,4 @@
-# Fix The Pot
+# Fix The Artefact
 
 A Java based game where you get to play through different civilisations with jigsaws based on their artefacts.
 
