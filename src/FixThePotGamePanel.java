@@ -166,8 +166,14 @@ public class FixThePotGamePanel extends JPanel {
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5)); // New panel with flow layout
         controlPanel.setOpaque(false); // Makes it transparent so that it blends into the background
 
-        // Create controls
-        restartButton = new JButton("Restart");
+        // Restart Button
+        // Load and scale the Restart icon
+        ImageIcon restartIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/restart.png");
+        Image origRestart = restartIcon.getImage();
+        Image scaledRestart = origRestart.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledRestartIcon = new ImageIcon(scaledRestart);
+        restartButton = new JButton(scaledRestartIcon); // Create restart button with scaled image
+        restartButton.setToolTipText("Restart Jigsaw");
         restartButton.addActionListener(e -> {
             puzzlePanel.restartGame(); // Restarts the game
             elapsedSeconds = 0; // Resetting the Timer
@@ -176,7 +182,12 @@ public class FixThePotGamePanel extends JPanel {
         });
 
         // Show Completed Button
-        showCompletedButton = new JButton("Show Completed");
+        // Load and scale the Collections icon
+        ImageIcon show_completedIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/show_completed.png");
+        Image origShow_completed = show_completedIcon.getImage();
+        Image scaledShow_completed = origShow_completed.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledShow_completedIcon = new ImageIcon(scaledShow_completed);
+        showCompletedButton = new JButton(scaledShow_completedIcon);
         showCompletedButton.setToolTipText("Show a completed Image of the Jigsaw");
         showCompletedButton.addActionListener(e -> {
             BufferedImage completeImage = puzzlePanel.getPotImage(); // Get the completed Jigsaw image
@@ -191,7 +202,12 @@ public class FixThePotGamePanel extends JPanel {
         });
 
         // Jigsaw Split Button
-        jigsawSplitButton = new JButton("Jigsaw Split");
+        // Load and scale the Collections icon
+        ImageIcon jigsaw_splitIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/jigsaw_split.jpeg");
+        Image origJigsaw_split = jigsaw_splitIcon.getImage();
+        Image scaledJigsaw_split = origJigsaw_split.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledJigsaw_splitIcon = new ImageIcon(scaledJigsaw_split);
+        jigsawSplitButton = new JButton(scaledJigsaw_splitIcon);
         jigsawSplitButton.setToolTipText("Pick the amount of Jigsaw Pieces");
         jigsawSplitButton.addActionListener(e -> {
             String[] options = {"Easy (2x2)", "Medium (3x3)", "Hard (4x4)", "Custom"}; // Display options to user
@@ -227,7 +243,14 @@ public class FixThePotGamePanel extends JPanel {
         });
 
         // Next Jigsaw Button
-        nextJigsawButton = new JButton("Next Jigsaw");
+        // Load and scale the Jigsaw icon
+        ImageIcon nextIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/right.png");
+        Image origNext = nextIcon.getImage();
+        Image scaledNext = origNext.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledNextIcon = new ImageIcon(scaledNext);
+        // Create button with scaled image
+        nextJigsawButton = new JButton(scaledNextIcon);
+        nextJigsawButton.setToolTipText("Next Jigsaw");
         nextJigsawButton.setEnabled(false); // Disable button until the puzzle is solved
         nextJigsawButton.addActionListener(e -> { // Move to the next image in the combo box
             int itemCount = imageComboBox.getItemCount();
@@ -241,7 +264,13 @@ public class FixThePotGamePanel extends JPanel {
         });
 
         // Previous Jigsaw Button
-        previousJigsawButton = new JButton("Previous Jigsaw");
+        // Load and scale the Jigsaw icon
+        ImageIcon leftIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/left.png");
+        Image origLeft = leftIcon.getImage();
+        Image scaledLeft = origLeft.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledLeftIcon = new ImageIcon(scaledLeft);
+        previousJigsawButton = new JButton(scaledLeftIcon); // Create previous button with scaled image
+        previousJigsawButton.setToolTipText("Previous Jigsaw");
         previousJigsawButton.addActionListener(e -> { // Move to the previous image in the combo box
             int itemCount = imageComboBox.getItemCount();
             if (itemCount <= 1) return; // No previous puzzle if there's only 0 or 1 items
@@ -252,8 +281,14 @@ public class FixThePotGamePanel extends JPanel {
             puzzlePanel.setImage(selectedPath);
         });
 
-        // Extra Info Button
-        extraInfoButton = new JButton("Extra Info");
+        // Information Button
+        // Load and scale the Restart icon
+        ImageIcon informationIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/information.png");
+        Image origInformation = informationIcon.getImage();
+        Image scaledInformation = origInformation.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledInformationIcon = new ImageIcon(scaledInformation);
+        extraInfoButton = new JButton(scaledInformationIcon);
+        extraInfoButton.setToolTipText("Extra Information");
         extraInfoButton.addActionListener(e -> { // Retrieve and display extra information for the current image
             String selectedImage = (String) imageComboBox.getSelectedItem();
             if (selectedImage != null && imageInfoMap.containsKey(selectedImage)) {
@@ -344,8 +379,13 @@ public class FixThePotGamePanel extends JPanel {
             }
         });
 
-        // Back to Collections button.
-        backToCollectionsButton = new JButton("Back to Collections"); // Text displayed on Button
+        // Collection's Button
+        // Load and scale the Collections icon
+        ImageIcon collectionsIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/collections.png");
+        Image origCollections = collectionsIcon.getImage();
+        Image scaledCollections = origCollections.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledCollectionsIcon = new ImageIcon(scaledCollections);
+        backToCollectionsButton = new JButton(scaledCollectionsIcon); // Menu Icon button
         backToCollectionsButton.setToolTipText("Return to collection selection"); // Hover over information
         backToCollectionsButton.addActionListener(e -> { // Notify the listener to switch back to the collection screen
             if (gamePanelListener != null) {
@@ -354,7 +394,12 @@ public class FixThePotGamePanel extends JPanel {
         });
 
         // Choose Jigsaw Button
-        chooseJigsawButton = new JButton("Choose Jigsaw"); // Text displayed on Button
+        // Load and scale the Jigsaw icon
+        ImageIcon chooseIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/choose.png");
+        Image origChoose = chooseIcon.getImage();
+        Image scaledChoose = origChoose.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledChooseIcon = new ImageIcon(scaledChoose);
+        chooseJigsawButton = new JButton(scaledChooseIcon); // Text displayed on Button
         chooseJigsawButton.setToolTipText("Click to select a jigsaw level"); // Hover over information
         chooseJigsawButton.addActionListener(e -> { // Pop up menu of all available jigsaws
             JPopupMenu popup = new JPopupMenu();
@@ -374,6 +419,7 @@ public class FixThePotGamePanel extends JPanel {
         });
 
         // Add all controls to the panel.
+        controlPanel.add(previousJigsawButton);
         controlPanel.add(backToCollectionsButton);
         controlPanel.add(musicToggleButton);
         controlPanel.add(extraInfoButton);
@@ -381,7 +427,6 @@ public class FixThePotGamePanel extends JPanel {
         controlPanel.add(timerButton);
         controlPanel.add(showCompletedButton);
         controlPanel.add(jigsawSplitButton);
-        controlPanel.add(previousJigsawButton);
         controlPanel.add(nextJigsawButton);
         controlPanel.add(chooseJigsawButton);
         add(controlPanel, BorderLayout.SOUTH); // Add control panel to the bottom of the screen
