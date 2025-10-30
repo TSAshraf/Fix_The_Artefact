@@ -166,6 +166,25 @@ public class FixThePotGamePanel extends JPanel {
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5)); // New panel with flow layout
         controlPanel.setOpaque(false); // Makes it transparent so that it blends into the background
 
+        // Previous Jigsaw Button
+        // Load and scale the Jigsaw icon
+        ImageIcon leftIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/left.png");
+        Image origLeft = leftIcon.getImage();
+        Image scaledLeft = origLeft.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledLeftIcon = new ImageIcon(scaledLeft);
+        previousJigsawButton = new JButton(scaledLeftIcon); // Create previous button with scaled image
+        previousJigsawButton.setToolTipText("Previous Jigsaw");
+        previousJigsawButton.addActionListener(e -> { // Move to the previous image in the combo box
+            int itemCount = imageComboBox.getItemCount();
+            if (itemCount <= 1) return; // No previous puzzle if there's only 0 or 1 items
+            int currentIndex = imageComboBox.getSelectedIndex();
+            int prevIndex = (currentIndex - 1 + itemCount) % itemCount;
+            imageComboBox.setSelectedIndex(prevIndex);
+            String selectedPath = (String) imageComboBox.getItemAt(prevIndex);
+            puzzlePanel.setImage(selectedPath);
+        });
+
+
         // Restart Button
         // Load and scale the Restart icon
         ImageIcon restartIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/restart.png");
@@ -180,6 +199,7 @@ public class FixThePotGamePanel extends JPanel {
             timerButton.setText("Time: 0 s"); // Reset the Timer
             nextJigsawButton.setEnabled(false); // Part of resetting the game
         });
+
 
         // Show Completed Button
         // Load and scale the Collections icon
@@ -200,6 +220,7 @@ public class FixThePotGamePanel extends JPanel {
                 JOptionPane.showMessageDialog(FixThePotGamePanel.this, "Image not available");
             }
         });
+
 
         // Jigsaw Split Button
         // Load and scale the Collections icon
@@ -242,44 +263,6 @@ public class FixThePotGamePanel extends JPanel {
             puzzlePanel.setDifficulty(rows, cols); // Apply the chosen difficulty
         });
 
-        // Next Jigsaw Button
-        // Load and scale the Jigsaw icon
-        ImageIcon nextIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/right.png");
-        Image origNext = nextIcon.getImage();
-        Image scaledNext = origNext.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledNextIcon = new ImageIcon(scaledNext);
-        // Create button with scaled image
-        nextJigsawButton = new JButton(scaledNextIcon);
-        nextJigsawButton.setToolTipText("Next Jigsaw");
-        nextJigsawButton.setEnabled(false); // Disable button until the puzzle is solved
-        nextJigsawButton.addActionListener(e -> { // Move to the next image in the combo box
-            int itemCount = imageComboBox.getItemCount();
-            if (itemCount <= 1) return; // No next puzzle if there's only 0 or 1 items
-            int currentIndex = imageComboBox.getSelectedIndex();
-            int nextIndex = (currentIndex + 1) % itemCount;
-            imageComboBox.setSelectedIndex(nextIndex);
-            String selectedPath = (String) imageComboBox.getItemAt(nextIndex);
-            puzzlePanel.setImage(selectedPath);
-            nextJigsawButton.setEnabled(false); // Disable button until the next puzzle is solved
-        });
-
-        // Previous Jigsaw Button
-        // Load and scale the Jigsaw icon
-        ImageIcon leftIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/left.png");
-        Image origLeft = leftIcon.getImage();
-        Image scaledLeft = origLeft.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledLeftIcon = new ImageIcon(scaledLeft);
-        previousJigsawButton = new JButton(scaledLeftIcon); // Create previous button with scaled image
-        previousJigsawButton.setToolTipText("Previous Jigsaw");
-        previousJigsawButton.addActionListener(e -> { // Move to the previous image in the combo box
-            int itemCount = imageComboBox.getItemCount();
-            if (itemCount <= 1) return; // No previous puzzle if there's only 0 or 1 items
-            int currentIndex = imageComboBox.getSelectedIndex();
-            int prevIndex = (currentIndex - 1 + itemCount) % itemCount;
-            imageComboBox.setSelectedIndex(prevIndex);
-            String selectedPath = (String) imageComboBox.getItemAt(prevIndex);
-            puzzlePanel.setImage(selectedPath);
-        });
 
         // Information Button
         // Load and scale the Restart icon
@@ -336,9 +319,10 @@ public class FixThePotGamePanel extends JPanel {
             }
         });
 
+
         // Timer Button Code
         timerButton = new JButton("Time: 0 s");
-        timerButton.setPreferredSize(new Dimension(100, 32));
+        timerButton.setPreferredSize(new Dimension(100, 36));
         timerButton.setToolTipText("Start/Stop"); // Hover over information
         timerButton.setFocusPainted(false);
         timerButton.addActionListener(e -> { // start or stop based on its current state
@@ -353,31 +337,55 @@ public class FixThePotGamePanel extends JPanel {
             }
         });
 
-        // Music Button Code
-        musicPlayer = new MusicPlayer("/Users/taashfeen/Desktop/Jigsaw Game/src/Music/Lukrembo - Bread (freetouse.com).mp3"); // Music file path
-        musicPlayer.play();
-        revalidate();
 
-        // Load and scale the music note icon
+        // Music Button Code
+        String[] musicTracks = { // List of music tracks
+                "Lukrembo - Bread (freetouse.com).mp3",
+                "John-Bartmann-Another-Grappa-Monsieur_(chosic.com).mp3",
+                "scott-buckley-permafrost(chosic.com).mp3",
+                "John-Bartmann-Allez-Allez(chosic.com).mp3"
+        };
+        currentTrackname = musicTracks[0];
+        musicPlayer = new MusicPlayer(musicFolderPath + currentTrackname); // Music file path
+        musicPlayer.play(); // Play the music track
+
+        // Mute/ Unmute Music Button
         ImageIcon musicIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/music note.png");
         Image origImage = musicIcon.getImage();
         Image scaledImage = origImage.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
-
-        // Create music toggle button
-        musicToggleButton = new JButton(scaledIcon); // Sets the Music button to the Scaled Music Note image
-        musicToggleButton.setPreferredSize(new Dimension(28, 28));
-        musicToggleButton.setToolTipText("Toggle Music"); // Hover over information
-        musicToggleButton.setOpaque(true);
-        musicToggleButton.setContentAreaFilled(true);
-        musicToggleButton.setBackground(new Color(230, 230, 230));
-        musicToggleButton.setBorder(new javax.swing.border.LineBorder(Color.GRAY, 2, true));
-        musicToggleButton.setFocusPainted(false);
+        musicToggleButton = new JButton(scaledIcon); // Creates the Music button as the Scaled Music Note image
+        musicToggleButton.setToolTipText("Mute/Unmute"); // Hover over information
         musicToggleButton.addActionListener(e -> { // toggle play/pause for the music
             if (musicPlayer != null) {
                 musicPlayer.togglePlayPause();
             }
         });
+        // Track Selector
+        ImageIcon trackIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/up.png");
+        Image origTrack = trackIcon.getImage();
+        Image scaledTrack = origTrack.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledTrackIcon = new ImageIcon(scaledTrack);
+        JButton chooseTrackButton = new JButton(scaledTrackIcon);
+        chooseTrackButton.setToolTipText("Select a music track");
+        chooseTrackButton.addActionListener(e -> {
+            JPopupMenu popup = new JPopupMenu();
+            for (String trackName : musicTracks) {
+                JMenuItem item = new JMenuItem((trackName));
+                item.addActionListener(ae -> {
+                    if (musicPlayer != null) {
+                        musicPlayer.stopPlayback();
+                    }
+                    currentTrackname = trackName;
+                    musicPlayer = new MusicPlayer(musicFolderPath + trackName);
+                    musicPlayer.play();
+                });
+                popup.add(item);
+            }
+            popup.show(chooseTrackButton, 0, chooseTrackButton.getHeight());
+        });
+
+
 
         // Collection's Button
         // Load and scale the Collections icon
@@ -418,17 +426,39 @@ public class FixThePotGamePanel extends JPanel {
             popup.show(chooseJigsawButton, 0, chooseJigsawButton.getHeight()); // Display the pop up menu
         });
 
+        // Next Jigsaw Button
+        // Load and scale the Jigsaw icon
+        ImageIcon nextIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/right.png");
+        Image origNext = nextIcon.getImage();
+        Image scaledNext = origNext.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledNextIcon = new ImageIcon(scaledNext);
+        // Create button with scaled image
+        nextJigsawButton = new JButton(scaledNextIcon);
+        nextJigsawButton.setToolTipText("Next Jigsaw");
+        nextJigsawButton.setEnabled(false); // Disable button until the puzzle is solved
+        nextJigsawButton.addActionListener(e -> { // Move to the next image in the combo box
+            int itemCount = imageComboBox.getItemCount();
+            if (itemCount <= 1) return; // No next puzzle if there's only 0 or 1 items
+            int currentIndex = imageComboBox.getSelectedIndex();
+            int nextIndex = (currentIndex + 1) % itemCount;
+            imageComboBox.setSelectedIndex(nextIndex);
+            String selectedPath = (String) imageComboBox.getItemAt(nextIndex);
+            puzzlePanel.setImage(selectedPath);
+            nextJigsawButton.setEnabled(false); // Disable button until the next puzzle is solved
+        });
+
         // Add all controls to the panel.
         controlPanel.add(previousJigsawButton);
         controlPanel.add(backToCollectionsButton);
         controlPanel.add(musicToggleButton);
+        controlPanel.add(chooseTrackButton);
         controlPanel.add(extraInfoButton);
         controlPanel.add(restartButton);
         controlPanel.add(timerButton);
         controlPanel.add(showCompletedButton);
         controlPanel.add(jigsawSplitButton);
-        controlPanel.add(nextJigsawButton);
         controlPanel.add(chooseJigsawButton);
+        controlPanel.add(nextJigsawButton);
         add(controlPanel, BorderLayout.SOUTH); // Add control panel to the bottom of the screen
     }
 
