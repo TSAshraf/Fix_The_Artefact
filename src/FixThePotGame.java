@@ -143,6 +143,7 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
                 // Bring selected piece to front.
                 pieces.remove(piece);
                 pieces.add(piece);
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Changes to hand cursor
                 repaint();
                 break;
             }
@@ -155,6 +156,7 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
         if (selectedPiece != null) {
             selectedPiece.x = e.getX() - offsetX;
             selectedPiece.y = e.getY() - offsetY;
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); // Changes to hand cursor
             repaint();
         }
     }
@@ -192,6 +194,7 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
             selectedPiece = null;
             repaint();
         }
+        setCursor(Cursor.getDefaultCursor()); // Changes to default cursor
     }
 
     // Unused mouse events
