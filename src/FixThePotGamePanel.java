@@ -10,14 +10,20 @@ import java.io.File;
 
 // Is the main panel for the "Fix the pot game", extension of JPanel
 public class FixThePotGamePanel extends JPanel {
+    private InfoOverlayPanel infoOverlay;
+    private JLayeredPane layeredPane;
+    private JComponent glassPaneRef;
+    private InfoOverlayPanel persistentOverlay;
+    private JButton previousJigsawButton; // Button to move to previous Jigsaw
     private FixThePotGame puzzlePanel; // Puzzle panel where game is played
     private JButton restartButton; // Button to Restart (reconstruct) the jigsaw
     private JButton showCompletedButton; // Button to show the completed image
     private JButton jigsawSplitButton; // Button to let the user choose Jigsaw Difficulty
     private JButton nextJigsawButton; // Button to move to next jigsaw
-    private JButton previousJigsawButton; // Button to move to previous Jigsaw
     private JButton extraInfoButton; // Button to open Extra information and view sources
     private JButton musicToggleButton; // Button to the music on/off
+    private String currentTrackname;
+    private JComboBox<String> musicComboBox; // Combobox to select images (Jigsaw Puzzles)
     private JButton chooseJigsawButton;  // Button to choose a jigsaw
     private JComboBox<String> imageComboBox; // Combobox to select images (Jigsaw Puzzles)
     private JButton backToCollectionsButton; // Button to return to the collections panel
@@ -29,6 +35,7 @@ public class FixThePotGamePanel extends JPanel {
     private MusicPlayer musicPlayer; // Music player instance
     private BufferedImage originalBackground; // Original background image (used in play screen and main menU)
     private BufferedImage blurredBackground; // Blurred background for game screen
+    private String musicFolderPath = "/Users/taashfeen/Desktop/Jigsaw Game/src/Music/";
 
     private String[] imageOptions = {
             // File paths for Ancient Cyprus Jigsaw Images
@@ -133,14 +140,38 @@ public class FixThePotGamePanel extends JPanel {
         setOpaque(false); // Set opacity
         loadBackgroundImages(); // Load background image and create blurred background.
         createPuzzlePanel(); // Create the puzzle panel.
-        puzzlePanel.setPuzzleSolvedListener(() -> nextJigsawButton.setEnabled(true)); // Register puzzle solved listener
         buildControlPanel(); // Build the control panel (all buttons and controls in one row)
         initializeExtraInfoMap(); // Initialize the extra info map.
         setupTimer(); // Set up the timer
         // Set initial image
         imageComboBox.setSelectedIndex(0);
         puzzlePanel.setImage(imageOptions[0]);
+        puzzlePanel.setPuzzleSolvedListener(() -> nextJigsawButton.setEnabled(true)); // Register puzzle solved listener
         revalidate();
+        SwingUtilities.invokeLater(() -> {
+            JFrame f = (JFrame) SwingUtilities.getWindowAncestor(FixThePotGamePanel.this);
+            if (f != null) {
+                JRootPane rp = f.getRootPane();
+                glassPaneRef = (JComponent) rp.getGlassPane();
+                glassPaneRef.setLayout(null);       // absolute positioning
+                glassPaneRef.setVisible(false);     // it's normally hidden
+
+                persistentOverlay = new InfoOverlayPanel();
+                // default starting position on screen:
+                persistentOverlay.setLocation(40, 40);
+                // NOTE: we don't add it yet, Info button will add+show it
+            }
+        });
+    }
+
+    // Call this whenever we switch puzzles
+    private void hideInfoOverlay() {
+        if (glassPaneRef != null) {
+            glassPaneRef.setVisible(false);      // hide the whole overlay layer
+            glassPaneRef.remove(persistentOverlay); // make sure the card is not still attached
+            glassPaneRef.revalidate();
+            glassPaneRef.repaint();
+        }
     }
 
     // Method to load background images, and use BlurUtil class to created blurred version for the game screen
@@ -158,7 +189,47 @@ public class FixThePotGamePanel extends JPanel {
         puzzlePanel = new FixThePotGame();
         puzzlePanel.setOpaque(false); // Transparent to blend in with background
         puzzlePanel.setPreferredSize(new Dimension(800, 500));
-        add(puzzlePanel, BorderLayout.CENTER); // Centered
+
+        // Create a layered pane so we can float the info card above the puzzle
+        layeredPane = new JLayeredPane();
+        layeredPane.setOpaque(false);
+
+        // We'll size/position puzzlePanel manually inside layeredPane
+        // Give it an initial bound; we'll also fix this on resize in doLayout()
+        puzzlePanel.setBounds(0, 0, 800, 500);
+
+        layeredPane.add(puzzlePanel, JLayeredPane.DEFAULT_LAYER);
+
+        // Add layeredPane (not puzzlePanel) to the main panel center
+        add(layeredPane, BorderLayout.CENTER);
+    }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+
+        // Make layeredPane fill the center area
+        if (layeredPane != null) {
+            // Calculate the bounds BorderLayout gave it
+            // Since we called add(layeredPane, BorderLayout.CENTER), BorderLayout
+            // already sized it during super.doLayout(), so just sync children.
+            Dimension lpSize = layeredPane.getSize();
+
+            // Puzzle panel fills the whole layeredPane
+            if (puzzlePanel != null) {
+                puzzlePanel.setBounds(0, 0, lpSize.width, lpSize.height);
+            }
+
+            // If overlay is visible, keep it 24px from bottom-left
+            if (infoOverlay != null) {
+                int cardW = infoOverlay.getWidth();
+                int cardH = infoOverlay.getHeight();
+                int x = 24;
+                int y = lpSize.height - cardH - 24;
+                if (y < 24) y = 24;
+                infoOverlay.setLocation(x, y);
+            }
+        }
     }
 
     // Builds the control panel containing all the buttons and controls
@@ -182,6 +253,7 @@ public class FixThePotGamePanel extends JPanel {
             imageComboBox.setSelectedIndex(prevIndex);
             String selectedPath = (String) imageComboBox.getItemAt(prevIndex);
             puzzlePanel.setImage(selectedPath);
+            hideInfoOverlay();
         });
 
 
@@ -265,47 +337,97 @@ public class FixThePotGamePanel extends JPanel {
 
 
         // Information Button
-        // Load and scale the Restart icon
+        // Load and scale the Information icon
         ImageIcon informationIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/information.png");
         Image origInformation = informationIcon.getImage();
         Image scaledInformation = origInformation.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
         ImageIcon scaledInformationIcon = new ImageIcon(scaledInformation);
+
         extraInfoButton = new JButton(scaledInformationIcon);
         extraInfoButton.setToolTipText("Extra Information");
-        extraInfoButton.addActionListener(e -> { // Retrieve and display extra information for the current image
-            String selectedImage = (String) imageComboBox.getSelectedItem();
-            if (selectedImage != null && imageInfoMap.containsKey(selectedImage)) {
-                ImageInfo info = imageInfoMap.get(selectedImage);
-                // Create an ImageIcon from the selected image file
-                ImageIcon puzzleIcon = new ImageIcon(selectedImage);
-                Image orig = puzzleIcon.getImage();
-                Image scaled = orig.getScaledInstance(200, 200, Image.SCALE_SMOOTH); // Scale the image, set to 200*200 pixels
-                puzzleIcon = new ImageIcon(scaled);
-                // Show a dialog with the extra information and an option to "Read More"
-                int option = JOptionPane.showOptionDialog(
-                        FixThePotGamePanel.this,
-                        info.getDescription(),
-                        "Extra Information",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.INFORMATION_MESSAGE,
-                        puzzleIcon,   // Use the custom icon from the selected image
-                        new String[]{"Read More", "Close"},
-                        "Close"
-                );
-                // Open the provided URL if the user choose "Read More"
-                if (option == JOptionPane.YES_OPTION) {
-                    try {
-                        Desktop.getDesktop().browse(new URI(info.getUrl()));
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        // If the link doesn't work, then that is displayed
-                        JOptionPane.showMessageDialog(FixThePotGamePanel.this, "Unable to open link.");
-                    }
+
+        extraInfoButton.addActionListener(e -> {
+            // If the overlay system isn't ready yet, fall back to JOptionPane
+            if (glassPaneRef == null || persistentOverlay == null) {
+                String selectedImage = (String) imageComboBox.getSelectedItem();
+                if (selectedImage == null || !imageInfoMap.containsKey(selectedImage)) {
+                    JOptionPane.showMessageDialog(
+                            FixThePotGamePanel.this,
+                            "No extra information available."
+                    );
+                    return;
                 }
-            } else {
-                // If no information is available, then that will be displayed
-                JOptionPane.showMessageDialog(FixThePotGamePanel.this, "No extra information available.");
+
+                ImageInfo info = imageInfoMap.get(selectedImage);
+
+                JOptionPane.showMessageDialog(
+                        FixThePotGamePanel.this,
+                        info.getDescription(), // raw museum HTML-ish text as emergency fallback
+                        "Extra Information",
+                        JOptionPane.INFORMATION_MESSAGE,
+                        new ImageIcon(selectedImage)
+                );
+                return;
             }
+
+            // TOGGLE: if it's already visible, hide it and bail
+            if (persistentOverlay.isVisible()) {
+                persistentOverlay.close();      // hides overlay and repaints parent
+                if (glassPaneRef != null) {
+                    glassPaneRef.repaint();
+                }
+                return;
+            }
+
+            // Otherwise we are OPENING / REFRESHING the overlay content
+
+            String selectedImage = (String) imageComboBox.getSelectedItem();
+            if (selectedImage == null || !imageInfoMap.containsKey(selectedImage)) {
+                JOptionPane.showMessageDialog(
+                        FixThePotGamePanel.this,
+                        "No extra information available."
+                );
+                return;
+            }
+
+            ImageInfo info = imageInfoMap.get(selectedImage);
+
+            // Build scaled preview icon for the overlay header image
+            ImageIcon raw = new ImageIcon(selectedImage);
+            Image scaledImg = raw.getImage().getScaledInstance(304, 110, Image.SCALE_SMOOTH);
+            ImageIcon previewIcon = new ImageIcon(scaledImg);
+
+            // Title to display in overlay
+            String titleText = "Artifact: " + getDisplayName(selectedImage);
+
+            // FULL rich description from the map (HTML-ish, with <br>, etc.)
+            // We pass it straight to updateContent(); InfoOverlayPanel.cleanDescription()
+            // will convert all of it into readable text with line breaks.
+            String fullMuseumDescription = info.getDescription();
+
+            // Push content into overlay
+            persistentOverlay.updateContent(
+                    previewIcon,            // ImageIcon for header image
+                    titleText,              // Title
+                    fullMuseumDescription,  // Full description (not truncated)
+                    info.getUrl()           // Learn more URL
+            );
+
+            // Ensure overlay is attached to the glassPane
+            if (persistentOverlay.getParent() != glassPaneRef) {
+                glassPaneRef.add(persistentOverlay);
+
+                // First-time size fallback
+                if (persistentOverlay.getWidth() == 0 || persistentOverlay.getHeight() == 0) {
+                    // match our InfoOverlayPanel START_W / START_H defaults
+                    persistentOverlay.setSize(480, 420);
+                }
+            }
+
+            // Make sure glassPane is visible, and show overlay
+            glassPaneRef.setVisible(true);
+            persistentOverlay.setVisible(true);
+            glassPaneRef.repaint();
         });
 
         // Image Combo Box Button
@@ -420,6 +542,7 @@ public class FixThePotGamePanel extends JPanel {
                 item.addActionListener(ae -> { // When selected, update the combo box and puzzle panel
                     imageComboBox.setSelectedIndex(index);
                     puzzlePanel.setImage((String) imageComboBox.getItemAt(index));
+                    hideInfoOverlay();
                 });
                 popup.add(item);
             }
@@ -445,6 +568,7 @@ public class FixThePotGamePanel extends JPanel {
             String selectedPath = (String) imageComboBox.getItemAt(nextIndex);
             puzzlePanel.setImage(selectedPath);
             nextJigsawButton.setEnabled(false); // Disable button until the next puzzle is solved
+            hideInfoOverlay();
         });
 
         // Add all controls to the panel.
