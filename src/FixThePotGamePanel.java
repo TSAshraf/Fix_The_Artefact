@@ -36,6 +36,9 @@ public class FixThePotGamePanel extends JPanel {
     private BufferedImage originalBackground; // Original background image (used in play screen and main menU)
     private BufferedImage blurredBackground; // Blurred background for game screen
     private String musicFolderPath = "/Users/taashfeen/Desktop/Jigsaw Game/src/Music/";
+    private ImageOverlay completedOverlay; // Overlay panel for displaying the full completed image
+    private ImagePeek completedPeek; // Small preview panel shown when hovering over the button
+    private javax.swing.Timer peekHideTimer; // Timer used to delay hiding the small preview after mouse exit
 
     private String[] imageOptions = {
             // File paths for Ancient Cyprus Jigsaw Images
@@ -232,6 +235,43 @@ public class FixThePotGamePanel extends JPanel {
         }
     }
 
+    // Creates the overlay and preview components if they don't already exist
+    private void initCompletedOverlays() {
+        if (completedOverlay != null) return; // already initialized
+
+        // Safely get the window's layered pane
+        JRootPane root = SwingUtilities.getRootPane(FixThePotGamePanel.this);
+        if (root == null) return; // guard in case panel isn't attached yet
+        JLayeredPane layered = root.getLayeredPane();
+
+        // Small, frameless floating overlay (toggled by the button)
+        completedOverlay = new ImageOverlay();
+        layered.add(completedOverlay, JLayeredPane.POPUP_LAYER);
+        completedOverlay.setVisible(false); // size/position handled when shown
+
+        // Small preview shown temporarily on hover
+        completedPeek = new ImagePeek();
+        layered.add(completedPeek, JLayeredPane.POPUP_LAYER);
+        completedPeek.setVisible(false);
+
+        // Keep overlay within bounds if the window resizes while it's visible
+        layered.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override public void componentResized(java.awt.event.ComponentEvent e) {
+                if (!completedOverlay.isVisible()) return;
+                Dimension s = layered.getSize();
+                Point p = completedOverlay.getLocation();
+                Dimension d = completedOverlay.getSize();
+                int nx = Math.max(0, Math.min(p.x, s.width - d.width));
+                int ny = Math.max(0, Math.min(p.y, s.height - d.height));
+                completedOverlay.setLocation(nx, ny);
+            }
+        });
+
+        // Delay hiding the hover preview slightly after mouse exit
+        peekHideTimer = new javax.swing.Timer(250, e -> completedPeek.setVisible(false));
+        peekHideTimer.setRepeats(false);
+    }
+    
     // Builds the control panel containing all the buttons and controls
     private void buildControlPanel() {
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5)); // New panel with flow layout
@@ -274,22 +314,69 @@ public class FixThePotGamePanel extends JPanel {
 
 
         // Show Completed Button
-        // Load and scale the Collections icon
         ImageIcon show_completedIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/show_completed.png");
         Image origShow_completed = show_completedIcon.getImage();
         Image scaledShow_completed = origShow_completed.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
         ImageIcon scaledShow_completedIcon = new ImageIcon(scaledShow_completed);
         showCompletedButton = new JButton(scaledShow_completedIcon);
-        showCompletedButton.setToolTipText("Show a completed Image of the Jigsaw");
+        showCompletedButton.setToolTipText("Show the completed image of the jigsaw");
+        // Hover → show small preview
+        showCompletedButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                initCompletedOverlays();
+                BufferedImage img = puzzlePanel.getPotImage();
+                if (img != null) {
+                    completedPeek.setImage(img, 220, 160);
+
+                    JRootPane root = SwingUtilities.getRootPane(FixThePotGamePanel.this);
+                    if (root == null) return; // not attached to a window yet
+                    JLayeredPane layered = root.getLayeredPane();
+
+                    int pad = 12;
+                    Dimension pref = completedPeek.getPreferredSize();
+                    completedPeek.setBounds(
+                            pad,
+                            layered.getHeight() - pref.height - pad,
+                            pref.width,
+                            pref.height
+                    );
+                    completedPeek.setVisible(true);
+                    if (peekHideTimer != null) peekHideTimer.stop();
+                }
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                if (peekHideTimer != null) peekHideTimer.restart();
+            }
+        });
+        // Click → toggle small floating overlay
         showCompletedButton.addActionListener(e -> {
-            BufferedImage completeImage = puzzlePanel.getPotImage(); // Get the completed Jigsaw image
-            if (completeImage != null) {
-                // Displays the completed image in a popup
-                ImageIcon icon = new ImageIcon(completeImage);
-                JOptionPane.showMessageDialog(FixThePotGamePanel.this, "", "Completed Image", JOptionPane.INFORMATION_MESSAGE, icon);
-            } else {
-                // Notify user is the image isn't available
+            initCompletedOverlays();
+            BufferedImage completeImage = puzzlePanel.getPotImage();
+            if (completeImage == null) {
                 JOptionPane.showMessageDialog(FixThePotGamePanel.this, "Image not available");
+                return;
+            }
+
+            boolean show = !completedOverlay.isVisible();
+            if (show) {
+                completedOverlay.setImage(completeImage);
+
+                // Center the small overlay within the window
+                JRootPane root = SwingUtilities.getRootPane(FixThePotGamePanel.this);
+                if (root != null) {
+                    JLayeredPane layered = root.getLayeredPane();
+                    // ImageOverlay has centerIn(Dimension) in the frameless version
+                    completedOverlay.centerIn(layered.getSize());
+                }
+
+                completedOverlay.setVisible(true);
+                completedOverlay.requestFocusInWindow();
+                completedPeek.setVisible(false);
+            } else {
+                completedOverlay.setVisible(false);
             }
         });
 
