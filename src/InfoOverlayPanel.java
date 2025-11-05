@@ -1,6 +1,8 @@
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -8,7 +10,7 @@ import java.net.URI;
 
 public class InfoOverlayPanel extends JPanel {
 
-    // layout / sizing constants
+    // ---- layout / sizing constants ----
     private static final int MARGIN = 20;
 
     // starting size
@@ -19,7 +21,7 @@ public class InfoOverlayPanel extends JPanel {
     private static final int MIN_W = 320;
     private static final int MIN_H = 220;
 
-    // preferred preview height before clamping
+    // preferred preview height before clamping (fallback when no image yet)
     private static final int PREVIEW_H = 160;
 
     // preview box shouldn't be taller than 30% of panel height
@@ -30,8 +32,14 @@ public class InfoOverlayPanel extends JPanel {
     // how close to an edge counts as resize grab
     private static final int RESIZE_MARGIN = 10;
 
-    // UI components
-    private JLabel imageLabel;
+    // responsive layout breakpoints / metrics
+    private static final int SIDE_BY_SIDE_BREAKPOINT = 720; // px width to switch to two columns
+    private static final double SIDE_IMAGE_FRACTION = 0.42; // fraction of width for image column
+    private static final int TITLE_H = 32;
+    private static final int BUTTON_W = 200, BUTTON_H = 40;
+
+    // === UI components ===
+    private BannerImage banner;     // aspect-preserving banner
     private JLabel titleLabel;
     private JTextArea descArea;
     private JScrollPane scrollPane;
@@ -70,22 +78,19 @@ public class InfoOverlayPanel extends JPanel {
         setBorder(new LineBorder(new Color(220, 220, 220, 180), 2));
         setOpaque(true);
 
-        // IMAGE PREVIEW (top)
-        imageLabel = new JLabel();
-        imageLabel.setOpaque(true);
-        imageLabel.setBackground(new Color(30, 30, 30));
-        imageLabel.setBorder(BorderFactory.createLineBorder(new Color(60, 60, 60)));
-        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        imageLabel.setVerticalAlignment(SwingConstants.CENTER);
-        add(imageLabel);
+        // === IMAGE BANNER ===
+        banner = new BannerImage();
+        banner.setOpaque(false);
+        banner.setAllowUpscale(true); // ✅ allow enlarging to fill the column (still aspect-correct)
+        add(banner);
 
-        // TITLE (under image)
+        // === TITLE ===
         titleLabel = new JLabel("Artifact Title");
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("Serif", Font.BOLD, 22));
         add(titleLabel);
 
-        // DESCRIPTION (scrollable)
+        // === DESCRIPTION ===
         descArea = new JTextArea();
         descArea.setEditable(false);
         descArea.setOpaque(false);
@@ -104,7 +109,7 @@ public class InfoOverlayPanel extends JPanel {
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(scrollPane);
 
-        // LEARN MORE BUTTON (bottom-left)
+        // === LEARN MORE BUTTON (bottom-right) ===
         learnMoreButton = new JButton("Learn more");
         learnMoreButton.setFocusPainted(false);
         learnMoreButton.setFont(new Font("SansSerif", Font.BOLD, 18));
@@ -177,7 +182,7 @@ public class InfoOverlayPanel extends JPanel {
                 Rectangle newBounds = new Rectangle(startBounds);
 
                 if (dragMode == DragMode.MOVE) {
-                    // 1:1 cursor movement using SCREEN coordinates (no lag, no shake)
+                    // 1:1 cursor movement using SCREEN coordinates
                     Point curMouseScreen = e.getLocationOnScreen();
                     int dxScreen = curMouseScreen.x - pressMouseScreen.x;
                     int dyScreen = curMouseScreen.y - pressMouseScreen.y;
@@ -196,14 +201,10 @@ public class InfoOverlayPanel extends JPanel {
                     int dy = e.getY() - pressPoint.y;
 
                     switch (dragMode) {
-                        case RESIZE_E -> {
-                            newBounds.width = startBounds.width + dx;
-                        }
-                        case RESIZE_S -> {
-                            newBounds.height = startBounds.height + dy;
-                        }
+                        case RESIZE_E -> newBounds.width  = startBounds.width  + dx;
+                        case RESIZE_S -> newBounds.height = startBounds.height + dy;
                         case RESIZE_SE -> {
-                            newBounds.width = startBounds.width + dx;
+                            newBounds.width  = startBounds.width  + dx;
                             newBounds.height = startBounds.height + dy;
                         }
                         case RESIZE_W -> {
@@ -270,6 +271,14 @@ public class InfoOverlayPanel extends JPanel {
         addMouseListener(dragAndResize);
         addMouseMotionListener(dragAndResize);
 
+        // re-layout + re-render when the panel itself resizes (programmatically)
+        addComponentListener(new ComponentAdapter() {
+            @Override public void componentResized(ComponentEvent e) {
+                layoutChildrenForCurrentSize();   // ✅ ensure bounds update
+                banner.repaint();
+            }
+        });
+
         // initial layout
         layoutChildrenForCurrentSize();
         lastW = getWidth();
@@ -278,167 +287,117 @@ public class InfoOverlayPanel extends JPanel {
 
     /**
      * Decide where everything sits given current panel size.
-     * Rules:
-     * - We cap the image height so it can't eat the whole panel.
-     * - We always reserve space for the "Learn more" button at the bottom.
-     * - The scrollPane fills ALL the vertical space between title and button.
-     * - If the text overflows, the scroll bar appears. So text is never lost.
      */
     private void layoutChildrenForCurrentSize() {
         int w = getWidth();
         int h = getHeight();
 
-        // --- image box height logic ---
-        int maxImgHByFraction = (int) Math.round(h * PREVIEW_MAX_FRACTION);
+        // Common margins
+        int x0 = MARGIN;
+        int y0 = MARGIN;
+        int x1 = w - MARGIN;
+        int y1 = h - MARGIN;
 
-        int imgH = PREVIEW_H;
-        imgH = Math.min(imgH, maxImgHByFraction);
-        imgH = Math.max(imgH, PREVIEW_MIN_PX);
-        imgH = Math.min(imgH, h - 140); // never let it take literally everything in tiny panels
+        // Title height
+        int titleH = TITLE_H;
 
-        int imgX = MARGIN;
-        int imgY = MARGIN;
-        int imgW = w - 2 * MARGIN;
-        imageLabel.setBounds(imgX, imgY, imgW, imgH);
+        // Button (bottom-right)
+        int btnW = BUTTON_W, btnH = BUTTON_H;
+        int btnX = x1 - btnW;
+        int btnY = y1 - btnH;
 
-        // title below image
-        int titleX = MARGIN;
-        int titleY = imgY + imgH + 10;
-        int titleW = w - 2 * MARGIN;
-        int titleH = 32;
-        titleLabel.setBounds(titleX, titleY, titleW, titleH);
+        if (w >= SIDE_BY_SIDE_BREAKPOINT) {
+            // --- SIDE-BY-SIDE LAYOUT ---
+            int imageW = (int) Math.round(w * SIDE_IMAGE_FRACTION);
+            int imageH = (btnY - y0); // fills down to just above the button
 
-        // learn more button at bottom-left
-        int buttonW = 200;
-        int buttonH = 40;
-        int buttonX = MARGIN;
-        int buttonY = h - MARGIN - buttonH;
-        if (buttonY < titleY + titleH + 10) {
-            // in a super-short panel, don't let the button overlap title
-            buttonY = titleY + titleH + 10;
+            // Left column: image fills column; letterboxed (no crop / no warp)
+            banner.setBounds(x0, y0, imageW, imageH); // ✅ use full column (no "- x0" / "- y0")
+
+            // Right column
+            int textX = x0 + imageW + MARGIN;
+            int textW = x1 - textX;
+            titleLabel.setBounds(textX, y0, textW, titleH);
+
+            int scrollY = y0 + titleH + 10;
+            int scrollH = (btnY - 10) - scrollY;
+            if (scrollH < 40) scrollH = 40;
+            scrollPane.setBounds(textX, scrollY, textW, scrollH);
+
+            learnMoreButton.setBounds(btnX, btnY, btnW, btnH);
+        } else {
+            // --- STACKED LAYOUT ---
+            int maxImgHByFraction = (int) Math.round(h * PREVIEW_MAX_FRACTION);
+            int imgH = PREVIEW_H;
+            imgH = Math.min(imgH, maxImgHByFraction);
+            imgH = Math.max(imgH, PREVIEW_MIN_PX);
+            imgH = Math.min(imgH, h - 140);
+
+            banner.setBounds(x0, y0, x1 - x0, imgH);
+
+            int titleY = y0 + imgH + 10;
+            titleLabel.setBounds(x0, titleY, x1 - x0, titleH);
+
+            learnMoreButton.setBounds(btnX, btnY, btnW, btnH);
+
+            int scrollY = titleY + titleH + 10;
+            int scrollH = btnY - 10 - scrollY;
+            if (scrollH < 40) scrollH = 40;
+            scrollPane.setBounds(x0, scrollY, x1 - x0, scrollH);
         }
-        learnMoreButton.setBounds(buttonX, buttonY, buttonW, buttonH);
-
-        // scrollPane fills from under title down to just above the button
-        int scrollX = MARGIN;
-        int scrollY = titleY + titleH + 10;
-        int scrollW = w - 2 * MARGIN;
-        int scrollH = buttonY - 10 - scrollY; // stop slightly above button
-        if (scrollH < 40) {
-            scrollH = 40; // always leave at least some visible text area
-        }
-        scrollPane.setBounds(scrollX, scrollY, scrollW, scrollH);
-    }
-
-    /**
-     * Scale the preview image to fit cleanly in its box while keeping aspect ratio.
-     */
-    private ImageIcon createScaledIconKeepAspect(Image srcImage, int maxW, int maxH) {
-        int imgW = srcImage.getWidth(null);
-        int imgH = srcImage.getHeight(null);
-
-        if (imgW <= 0 || imgH <= 0) {
-            return new ImageIcon(srcImage);
-        }
-
-        double scaleW = (double) maxW / imgW;
-        double scaleH = (double) maxH / imgH;
-        double scale = Math.min(scaleW, scaleH);
-
-        int newW = (int) Math.round(imgW * scale);
-        int newH = (int) Math.round(imgH * scale);
-
-        BufferedImage resized = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = resized.createGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.drawImage(srcImage, 0, 0, newW, newH, null);
-        g2.dispose();
-
-        return new ImageIcon(resized);
     }
 
     /**
      * Update the overlay's content.
      * descArea ALWAYS gets full text. No truncation.
-     * If it's long, the JScrollPane scrolls.
      */
     public void updateContent(ImageIcon fullImageIcon,
                               String title,
                               String description,
                               String url) {
-
-        // title
         titleLabel.setText(title != null ? title : "Artifact Information");
 
-        // full description (cleaned from HTML-ish blocks)
         if (description == null) description = "";
         descArea.setText(cleanDescription(description));
         descArea.setCaretPosition(0);
 
-        // url for learn more
         moreInfoUrl = url;
 
-        // scaled image into the preview box
+        // Let the banner do the aspect-preserving fit. No pre-scaling needed.
         if (fullImageIcon != null && fullImageIcon.getImage() != null) {
-            int boxW = imageLabel.getWidth();
-            int boxH = imageLabel.getHeight();
-            if (boxW <= 0 || boxH <= 0) {
-                // if updateContent is called before first layout,
-                // fall back to intended dimensions
-                boxW = getWidth() - 2 * MARGIN;
-                boxH = PREVIEW_H;
-            }
-
-            ImageIcon scaled = createScaledIconKeepAspect(
-                    fullImageIcon.getImage(),
-                    boxW - 4,
-                    boxH - 4
-            );
-            imageLabel.setIcon(scaled);
+            banner.setImage(toBuffered(fullImageIcon.getImage()));
         } else {
-            imageLabel.setIcon(null);
+            banner.setImage(null);
         }
 
-        // relayout just in case size changed earlier
         layoutChildrenForCurrentSize();
         lastW = getWidth();
         lastH = getHeight();
-
         repaint();
     }
 
-    /**
-     * Convert museum HTML-ish description into readable multiline plain text.
-     */
-    private String cleanDescription(String raw) {
-        String s = raw;
-
-        // <br> → newline
-        s = s.replaceAll("(?i)<br\\s*/?>", "\n");
-
-        // block-ish tags → newline boundaries
-        s = s.replaceAll("(?i)</?(div|p|ul|ol|li|h1|h2|h3|h4|h5|h6)[^>]*>", "\n");
-
-        // strip any other <...>
-        s = s.replaceAll("<[^>]+>", "");
-
-        // normalize
-        s = s.replace("\r", "");
-
-        // collapse 3+ newlines -> 2
-        s = s.replaceAll("\n{3,}", "\n\n");
-
-        // trim
-        s = s.trim();
-
-        return s;
+    private BufferedImage toBuffered(Image img) {
+        if (img instanceof BufferedImage bi) return bi;
+        int w = Math.max(1, img.getWidth(null));
+        int h = Math.max(1, img.getHeight(null));
+        BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = out.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.drawImage(img, 0, 0, null);
+        g2.dispose();
+        return out;
     }
 
-    /**
-     * Open "Learn more" URL in browser.
-     */
+    private String cleanDescription(String raw) {
+        String s = raw == null ? "" : raw;
+        s = s.replaceAll("(?i)<br\\s*/?>", "\n");
+        s = s.replaceAll("(?i)</?(div|p|ul|ol|li|h1|h2|h3|h4|h5|h6)[^>]*>", "\n");
+        s = s.replaceAll("<[^>]+>", "");
+        s = s.replace("\r", "");
+        s = s.replaceAll("\n{3,}", "\n\n");
+        return s.trim();
+    }
+
     private void openMoreInfoUrl() {
         if (moreInfoUrl == null || moreInfoUrl.isEmpty()) return;
         try {
@@ -449,30 +408,77 @@ public class InfoOverlayPanel extends JPanel {
         }
     }
 
-    /**
-     * Show the overlay on the given glass pane at (x,y).
-     * If it's not already a child of that glass pane, add it.
-     */
+    /** Open at current location. */
     public void open(JComponent glassPane, int x, int y) {
-        if (getParent() != glassPane) {
-            glassPane.add(this);
-        }
-
+        if (getParent() != glassPane) glassPane.add(this);
         setLocation(x, y);
+        glassPane.setVisible(true);
+        setVisible(true);
+        glassPane.repaint();
+    }
+
+    /** Convenience: open sized to trigger side-by-side and right-aligned. */
+    public void openRightAligned(JComponent glassPane) {
+        if (getParent() != glassPane) glassPane.add(this);
+
+        int gpW = glassPane.getWidth();
+        int gpH = glassPane.getHeight();
+
+        int targetW = Math.max(SIDE_BY_SIDE_BREAKPOINT + 40, (int)(gpW * 0.70)); // ensure breakpoint
+        int targetH = Math.min(gpH - 2 * MARGIN, (int)(gpH * 0.75));
+
+        setSize(Math.min(targetW, gpW - 2 * MARGIN), Math.max(MIN_H, targetH));
+        setLocation(gpW - getWidth() - MARGIN, MARGIN);
 
         glassPane.setVisible(true);
         setVisible(true);
         glassPane.repaint();
     }
 
-    /**
-     * Hide overlay without destroying it.
-     */
     public void close() {
         setVisible(false);
         Container p = getParent();
-        if (p != null) {
-            p.repaint();
+        if (p != null) p.repaint();
+    }
+
+    // === Aspect-preserving banner component ===
+    private static final class BannerImage extends JComponent {
+        private BufferedImage img;
+        private boolean allowUpscale = false;
+
+        void setImage(BufferedImage b) { this.img = b; revalidate(); repaint(); }
+        void setAllowUpscale(boolean allow) { this.allowUpscale = allow; }
+
+        @Override public Dimension getPreferredSize() { return new Dimension(480, 160); }
+
+        @Override protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            int cw = getWidth(), ch = getHeight();
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            // If you want NO letterbox fill, comment the next two lines.
+            // g2.setColor(new Color(0,0,0,120));
+            // g2.fillRect(0, 0, cw, ch);
+
+            if (img != null) {
+                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+                int iw = img.getWidth();
+                int ih = img.getHeight();
+                double sx = cw / (double) iw;
+                double sy = ch / (double) ih;
+                double s = Math.min(sx, sy);
+                if (!allowUpscale) s = Math.min(1.0, s);
+
+                int w = Math.max(1, (int)Math.round(iw * s));
+                int h = Math.max(1, (int)Math.round(ih * s));
+                int x = (cw - w) / 2;
+                int y = (ch - h) / 2;
+
+                g2.drawImage(img, x, y, w, h, null);
+            }
+            g2.dispose();
         }
     }
 }

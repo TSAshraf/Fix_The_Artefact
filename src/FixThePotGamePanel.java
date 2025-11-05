@@ -347,22 +347,17 @@ public class FixThePotGamePanel extends JPanel {
         extraInfoButton.setToolTipText("Extra Information");
 
         extraInfoButton.addActionListener(e -> {
-            // If the overlay system isn't ready yet, fall back to JOptionPane
+            // Fallback if overlay not ready
             if (glassPaneRef == null || persistentOverlay == null) {
                 String selectedImage = (String) imageComboBox.getSelectedItem();
                 if (selectedImage == null || !imageInfoMap.containsKey(selectedImage)) {
-                    JOptionPane.showMessageDialog(
-                            FixThePotGamePanel.this,
-                            "No extra information available."
-                    );
+                    JOptionPane.showMessageDialog(FixThePotGamePanel.this, "No extra information available.");
                     return;
                 }
-
                 ImageInfo info = imageInfoMap.get(selectedImage);
-
                 JOptionPane.showMessageDialog(
                         FixThePotGamePanel.this,
-                        info.getDescription(), // raw museum HTML-ish text as emergency fallback
+                        info.getDescription(),
                         "Extra Information",
                         JOptionPane.INFORMATION_MESSAGE,
                         new ImageIcon(selectedImage)
@@ -370,61 +365,41 @@ public class FixThePotGamePanel extends JPanel {
                 return;
             }
 
-            // TOGGLE: if it's already visible, hide it and bail
+            // Toggle close
             if (persistentOverlay.isVisible()) {
-                persistentOverlay.close();      // hides overlay and repaints parent
-                if (glassPaneRef != null) {
-                    glassPaneRef.repaint();
-                }
+                persistentOverlay.close();
+                if (glassPaneRef != null) glassPaneRef.repaint();
                 return;
             }
 
-            // Otherwise we are OPENING / REFRESHING the overlay content
-
+            // Open/refresh
             String selectedImage = (String) imageComboBox.getSelectedItem();
             if (selectedImage == null || !imageInfoMap.containsKey(selectedImage)) {
-                JOptionPane.showMessageDialog(
-                        FixThePotGamePanel.this,
-                        "No extra information available."
-                );
+                JOptionPane.showMessageDialog(FixThePotGamePanel.this, "No extra information available.");
                 return;
             }
-
             ImageInfo info = imageInfoMap.get(selectedImage);
 
-            // Build scaled preview icon for the overlay header image
-            ImageIcon raw = new ImageIcon(selectedImage);
-            Image scaledImg = raw.getImage().getScaledInstance(304, 110, Image.SCALE_SMOOTH);
-            ImageIcon previewIcon = new ImageIcon(scaledImg);
+            // IMPORTANT: pass the full-res image; let the banner scale it.
+            ImageIcon previewIcon = new ImageIcon(selectedImage);
 
-            // Title to display in overlay
             String titleText = "Artifact: " + getDisplayName(selectedImage);
-
-            // FULL rich description from the map (HTML-ish, with <br>, etc.)
-            // We pass it straight to updateContent(); InfoOverlayPanel.cleanDescription()
-            // will convert all of it into readable text with line breaks.
             String fullMuseumDescription = info.getDescription();
 
-            // Push content into overlay
             persistentOverlay.updateContent(
-                    previewIcon,            // ImageIcon for header image
-                    titleText,              // Title
-                    fullMuseumDescription,  // Full description (not truncated)
-                    info.getUrl()           // Learn more URL
+                    previewIcon,
+                    titleText,
+                    fullMuseumDescription,
+                    info.getUrl()
             );
 
-            // Ensure overlay is attached to the glassPane
             if (persistentOverlay.getParent() != glassPaneRef) {
                 glassPaneRef.add(persistentOverlay);
-
-                // First-time size fallback
                 if (persistentOverlay.getWidth() == 0 || persistentOverlay.getHeight() == 0) {
-                    // match our InfoOverlayPanel START_W / START_H defaults
                     persistentOverlay.setSize(480, 420);
                 }
             }
 
-            // Make sure glassPane is visible, and show overlay
             glassPaneRef.setVisible(true);
             persistentOverlay.setVisible(true);
             glassPaneRef.repaint();
