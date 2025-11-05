@@ -39,6 +39,8 @@ public class FixThePotGamePanel extends JPanel {
     private ImageOverlay completedOverlay; // Overlay panel for displaying the full completed image
     private ImagePeek completedPeek; // Small preview panel shown when hovering over the button
     private javax.swing.Timer peekHideTimer; // Timer used to delay hiding the small preview after mouse exit
+    private SplitChooserOverlay splitOverlay; // Easy/Med/Hard/Custom popover
+    private RowsColsOverlay rowsColsOverlay; // Holds the small rows/cols picker overlay
 
     private String[] imageOptions = {
             // File paths for Ancient Cyprus Jigsaw Images
@@ -382,44 +384,45 @@ public class FixThePotGamePanel extends JPanel {
 
 
         // Jigsaw Split Button
-        // Load and scale the Collections icon
-        ImageIcon jigsaw_splitIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/jigsaw_split.jpeg");
-        Image origJigsaw_split = jigsaw_splitIcon.getImage();
-        Image scaledJigsaw_split = origJigsaw_split.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledJigsaw_splitIcon = new ImageIcon(scaledJigsaw_split);
-        jigsawSplitButton = new JButton(scaledJigsaw_splitIcon);
+        ImageIcon jigsawSplitIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/jigsaw_split.jpeg");
+        Image scaledJigsawSplit = jigsawSplitIcon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        jigsawSplitButton = new JButton(new ImageIcon(scaledJigsawSplit));
         jigsawSplitButton.setToolTipText("Pick the amount of Jigsaw Pieces");
+
         jigsawSplitButton.addActionListener(e -> {
-            String[] options = {"Easy (2x2)", "Medium (3x3)", "Hard (4x4)", "Custom"}; // Display options to user
-            int choice = JOptionPane.showOptionDialog(FixThePotGamePanel.this,
-                    "Select puzzle split difficulty:", "Jigsaw Split",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
-                    null, options, options[0]);
-            int rows, cols;
-            // Set rows and columns for the jigsaw split based on user selection
-            if (choice == 0) {
-                rows = 2; cols = 2;
-            } else if (choice == 1) {
-                rows = 3; cols = 3;
-            } else if (choice == 2) {
-                rows = 4; cols = 4;
-            } else if (choice == 3) {
-                // Custom input for rows and columns
-                String rowsInput = JOptionPane.showInputDialog(FixThePotGamePanel.this, "Enter number of rows:");
-                String colsInput = JOptionPane.showInputDialog(FixThePotGamePanel.this, "Enter number of columns:");
-                try {
-                    rows = Integer.parseInt(rowsInput);
-                    cols = Integer.parseInt(colsInput);
-                } catch (NumberFormatException ex) {
-                    // Default to easy difficulty if input is invalid
-                    JOptionPane.showMessageDialog(FixThePotGamePanel.this, "Invalid input. Defaulting to Easy (2x2).");
-                    rows = 2; cols = 2;
-                }
-            } else {
-                // Cancel if no valid option is selected
+            if (splitOverlay == null) {
+                splitOverlay = new SplitChooserOverlay();
+
+                // When "Custom..." is clicked, close the split overlay first, then open the rows/cols panel
+                splitOverlay.setOnCustom(() -> {
+                    // Close the split overlay before showing the custom dialog
+                    splitOverlay.close();
+                    if (glassPaneRef != null) glassPaneRef.repaint();
+
+                    if (rowsColsOverlay == null) rowsColsOverlay = new RowsColsOverlay();
+
+                    // Open the rows/cols overlay for custom difficulty
+                    rowsColsOverlay.open(glassPaneRef, (rows, cols) -> {
+                        puzzlePanel.setDifficulty(rows, cols);
+                        rowsColsOverlay.close();
+                        if (glassPaneRef != null) glassPaneRef.repaint();
+                    });
+                });
+            }
+
+            // Toggle: close if already open
+            if (splitOverlay.isShowing()) {
+                splitOverlay.close();
+                if (glassPaneRef != null) glassPaneRef.repaint();
                 return;
             }
-            puzzlePanel.setDifficulty(rows, cols); // Apply the chosen difficulty
+
+            // Open the overlay picker (Easy / Medium / Hard handled here)
+            splitOverlay.openBottom(glassPaneRef, (rows, cols) -> {
+                puzzlePanel.setDifficulty(rows, cols);
+                splitOverlay.close();
+                if (glassPaneRef != null) glassPaneRef.repaint();
+            });
         });
 
 
