@@ -33,4 +33,11 @@ public class MusicPlayer {
             mediaPlayer.play();
         }
     }
+
+    // Stop the Audio
+    public void stopPlayback() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+        }
+    }
 }
