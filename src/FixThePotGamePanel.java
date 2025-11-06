@@ -8,21 +8,21 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import java.io.File;
 
-// Is the main panel for the "Fix the pot game", extension of JPanel
+// This is the main panel for the "Fix the pot game", extension of JPanel
 public class FixThePotGamePanel extends JPanel {
     private InfoOverlayPanel infoOverlay;
     private JLayeredPane layeredPane;
     private JComponent glassPaneRef;
     private InfoOverlayPanel persistentOverlay;
     private JButton previousJigsawButton; // Button to move to previous Jigsaw
-    private FixThePotGame puzzlePanel; // Puzzle panel where game is played
+    private FixThePotGame puzzlePanel; // Puzzle panel where the game is played
     private JButton restartButton; // Button to Restart (reconstruct) the jigsaw
     private JButton showCompletedButton; // Button to show the completed image
     private JButton jigsawSplitButton; // Button to let the user choose Jigsaw Difficulty
-    private JButton nextJigsawButton; // Button to move to next jigsaw
+    private JButton nextJigsawButton; // Button to move to the next jigsaw
     private JButton extraInfoButton; // Button to open Extra information and view sources
     private JButton musicToggleButton; // Button to the music on/off
-    private String currentTrackname;
+    private String currentTrackname; // Name of the current music tracj
     private JComboBox<String> musicComboBox; // Combobox to select images (Jigsaw Puzzles)
     private JButton chooseJigsawButton;  // Button to choose a jigsaw
     private JComboBox<String> imageComboBox; // Combobox to select images (Jigsaw Puzzles)
@@ -34,8 +34,8 @@ public class FixThePotGamePanel extends JPanel {
     private Map<String, ImageInfo> imageInfoMap; // Map for extra information about each image
     private MusicPlayer musicPlayer; // Music player instance
     private BufferedImage originalBackground; // Original background image (used in play screen and main menU)
-    private BufferedImage blurredBackground; // Blurred background for game screen
-    private String musicFolderPath = "/Users/taashfeen/Desktop/Jigsaw Game/src/Music/";
+    private BufferedImage blurredBackground; // Blurred background for game-screen
+    private String musicFolderPath = "/Users/taashfeen/Desktop/Jigsaw Game/src/Music/"; // Music folder path
     private ImageOverlay completedOverlay; // Overlay panel for displaying the full completed image
     private ImagePeek completedPeek; // Small preview panel shown when hovering over the button
     private javax.swing.Timer peekHideTimer; // Timer used to delay hiding the small preview after mouse exit
@@ -94,7 +94,7 @@ public class FixThePotGamePanel extends JPanel {
             "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statue of Bacchus.jpg",
             "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Sarcophagus.jpg",
 
-            // File paths for  Ancient Near East Jigsaw Images
+            // File paths for Ancient Near East Jigsaw Images
             "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Master of Animals Standard.jpg",
             "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/South Arabian Statue.jpg",
             "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Seated Goddess with a Child .jpeg",
@@ -273,7 +273,17 @@ public class FixThePotGamePanel extends JPanel {
         peekHideTimer = new javax.swing.Timer(250, e -> completedPeek.setVisible(false));
         peekHideTimer.setRepeats(false);
     }
-    
+
+    private String prettyTrackName(String file) {
+        String name = file.replace(".mp3", "");
+        // trim common source tags
+        name = name.replace("(chosic.com)", "")
+                .replace("(freetouse.com)", "")
+                .replace('_', ' ')
+                .trim();
+        return name;
+    }
+
     // Builds the control panel containing all the buttons and controls
     private void buildControlPanel() {
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5)); // New panel with flow layout
@@ -381,7 +391,6 @@ public class FixThePotGamePanel extends JPanel {
                 completedOverlay.setVisible(false);
             }
         });
-
 
         // Jigsaw Split Button
         ImageIcon jigsawSplitIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/jigsaw_split.jpeg");
@@ -525,53 +534,64 @@ public class FixThePotGamePanel extends JPanel {
         });
 
 
-        // Music Button Code
-        String[] musicTracks = { // List of music tracks
+        // ========== Music UI (overlay popover; non-modal) ==========
+
+        // 1) Track list (same as before)
+        String[] musicTracks = {
                 "Lukrembo - Bread (freetouse.com).mp3",
                 "John-Bartmann-Another-Grappa-Monsieur_(chosic.com).mp3",
                 "scott-buckley-permafrost(chosic.com).mp3",
                 "John-Bartmann-Allez-Allez(chosic.com).mp3"
         };
+
+        // Start the first track
         currentTrackname = musicTracks[0];
-        musicPlayer = new MusicPlayer(musicFolderPath + currentTrackname); // Music file path
-        musicPlayer.play(); // Play the music track
+        musicPlayer = new MusicPlayer(musicFolderPath + currentTrackname);
+        musicPlayer.play();
 
-        // Mute/ Unmute Music Button
+        // 2) Mute / Unmute button (unchanged look)
         ImageIcon musicIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/music note.png");
-        Image origImage = musicIcon.getImage();
-        Image scaledImage = origImage.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcon = new ImageIcon(scaledImage);
-        musicToggleButton = new JButton(scaledIcon); // Creates the Music button as the Scaled Music Note image
-        musicToggleButton.setToolTipText("Mute/Unmute"); // Hover over information
-        musicToggleButton.addActionListener(e -> { // toggle play/pause for the music
-            if (musicPlayer != null) {
-                musicPlayer.togglePlayPause();
-            }
-        });
-        // Track Selector
-        ImageIcon trackIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/up.png");
-        Image origTrack = trackIcon.getImage();
-        Image scaledTrack = origTrack.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledTrackIcon = new ImageIcon(scaledTrack);
-        JButton chooseTrackButton = new JButton(scaledTrackIcon);
-        chooseTrackButton.setToolTipText("Select a music track");
-        chooseTrackButton.addActionListener(e -> {
-            JPopupMenu popup = new JPopupMenu();
-            for (String trackName : musicTracks) {
-                JMenuItem item = new JMenuItem((trackName));
-                item.addActionListener(ae -> {
-                    if (musicPlayer != null) {
-                        musicPlayer.stopPlayback();
-                    }
-                    currentTrackname = trackName;
-                    musicPlayer = new MusicPlayer(musicFolderPath + trackName);
-                    musicPlayer.play();
-                });
-                popup.add(item);
-            }
-            popup.show(chooseTrackButton, 0, chooseTrackButton.getHeight());
+        Image scaledMusic = musicIcon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        musicToggleButton = new JButton(new ImageIcon(scaledMusic));
+        musicToggleButton.setToolTipText("Mute/Unmute");
+        musicToggleButton.addActionListener(e -> {
+            if (musicPlayer != null) musicPlayer.togglePlayPause();
         });
 
+        // 3) Track chooser button (the “up arrow”)
+        ImageIcon trackIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/up.png");
+        Image scaledTrack = trackIcon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        JButton chooseTrackButton = new JButton(new ImageIcon(scaledTrack));
+        chooseTrackButton.setToolTipText("Select a music track");
+
+        // Popover field (store on your panel class if you want to reuse)
+        final MusicChooserPopover[] musicPopoverRef = new MusicChooserPopover[1];
+
+        chooseTrackButton.addActionListener(e -> {
+            if (glassPaneRef == null) return;
+
+            // Toggle behavior
+            if (musicPopoverRef[0] != null && musicPopoverRef[0].isShowing()) {
+                musicPopoverRef[0].close();
+                glassPaneRef.repaint();
+                return;
+            }
+
+            // (Re)create when needed
+            musicPopoverRef[0] = new MusicChooserPopover();
+
+            // Open just above the arrow button
+            musicPopoverRef[0].openAbove(glassPaneRef, chooseTrackButton, musicTracks, pickedFile -> {
+                // swap track
+                if (musicPlayer != null) musicPlayer.stopPlayback();
+                currentTrackname = pickedFile;
+                musicPlayer = new MusicPlayer(musicFolderPath + pickedFile);
+                musicPlayer.play();
+
+                musicPopoverRef[0].close();
+                glassPaneRef.repaint();
+            });
+        });
 
 
         // Collection's Button
@@ -588,30 +608,48 @@ public class FixThePotGamePanel extends JPanel {
             }
         });
 
-        // Choose Jigsaw Button
-        // Load and scale the Jigsaw icon
+
+        // JIGSAW CHOOSER (popover)
         ImageIcon chooseIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/choose.png");
-        Image origChoose = chooseIcon.getImage();
-        Image scaledChoose = origChoose.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledChooseIcon = new ImageIcon(scaledChoose);
-        chooseJigsawButton = new JButton(scaledChooseIcon); // Text displayed on Button
-        chooseJigsawButton.setToolTipText("Click to select a jigsaw level"); // Hover over information
-        chooseJigsawButton.addActionListener(e -> { // Pop up menu of all available jigsaws
-            JPopupMenu popup = new JPopupMenu();
-            int itemCount = imageComboBox.getItemCount();
-            for (int i = 0; i < itemCount; i++) {
-                String imgPath = (String) imageComboBox.getItemAt(i);
-                String displayName = getDisplayName(imgPath); // Formats a display name
-                JMenuItem item = new JMenuItem(displayName);
-                int index = i;
-                item.addActionListener(ae -> { // When selected, update the combo box and puzzle panel
-                    imageComboBox.setSelectedIndex(index);
-                    puzzlePanel.setImage((String) imageComboBox.getItemAt(index));
-                    hideInfoOverlay();
-                });
-                popup.add(item);
+        Image scaledChoose = chooseIcon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        chooseJigsawButton = new JButton(new ImageIcon(scaledChoose));
+        chooseJigsawButton.setToolTipText("Click to select a jigsaw");
+
+        final JigsawChooserPopover[] jigsawPopoverRef = new JigsawChooserPopover[1];
+
+        chooseJigsawButton.addActionListener(e -> {
+            if (glassPaneRef == null) return;
+
+            if (jigsawPopoverRef[0] != null && jigsawPopoverRef[0].isShowing()) {
+                jigsawPopoverRef[0].close();
+                glassPaneRef.repaint();
+                return;
             }
-            popup.show(chooseJigsawButton, 0, chooseJigsawButton.getHeight()); // Display the pop up menu
+
+            int n = imageComboBox.getItemCount();
+            java.util.List<String> paths = new java.util.ArrayList<>();
+            java.util.List<String> display = new java.util.ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                String path = (String) imageComboBox.getItemAt(i);
+                paths.add(path);
+                display.add(getDisplayName(path));
+            }
+
+            jigsawPopoverRef[0] = new JigsawChooserPopover();
+
+            jigsawPopoverRef[0].openAbove(
+                    glassPaneRef,
+                    chooseJigsawButton,
+                    display,
+                    pickedIndex -> {
+                        if (pickedIndex < 0 || pickedIndex >= paths.size()) return;
+                        imageComboBox.setSelectedIndex(pickedIndex);
+                        puzzlePanel.setImage(paths.get(pickedIndex));
+                        hideInfoOverlay();
+                        jigsawPopoverRef[0].close();
+                        glassPaneRef.repaint();
+                    }
+            );
         });
 
         // Next Jigsaw Button
@@ -641,9 +679,9 @@ public class FixThePotGamePanel extends JPanel {
         controlPanel.add(backToCollectionsButton);
         controlPanel.add(musicToggleButton);
         controlPanel.add(chooseTrackButton);
-        controlPanel.add(extraInfoButton);
         controlPanel.add(restartButton);
         controlPanel.add(timerButton);
+        controlPanel.add(extraInfoButton);
         controlPanel.add(showCompletedButton);
         controlPanel.add(jigsawSplitButton);
         controlPanel.add(chooseJigsawButton);
