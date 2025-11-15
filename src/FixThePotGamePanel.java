@@ -41,6 +41,10 @@ public class FixThePotGamePanel extends JPanel {
     private javax.swing.Timer peekHideTimer; // Timer used to delay hiding the small preview after mouse exit
     private SplitChooserOverlay splitOverlay; // Easy/Med/Hard/Custom popover
     private RowsColsOverlay rowsColsOverlay; // Holds the small rows/cols picker overlay
+    private JButton zenModeButton; // Zen mode
+    private boolean zenMode = false; // Zen mode
+    private JComponent[] zenHideComponents; // Components to hide when Zen mode is on
+    private JPanel controlPanel;
 
     private String[] imageOptions = {
             // File paths for Ancient Cyprus Jigsaw Images
@@ -128,6 +132,7 @@ public class FixThePotGamePanel extends JPanel {
             "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Inner Coffin Box of Taenty.jpg",
             "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Game of Hounds and Jackals.jpeg"
     };
+
 
     // Listener Interface for Screen Navigation
     public interface GamePanelListener {
@@ -284,9 +289,10 @@ public class FixThePotGamePanel extends JPanel {
         return name;
     }
 
+
     // Builds the control panel containing all the buttons and controls
     private void buildControlPanel() {
-        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5)); // New panel with flow layout
+        controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5)); // New panel with flow layout
         controlPanel.setOpaque(false); // Makes it transparent so that it blends into the background
 
         // Previous Jigsaw Button
@@ -309,6 +315,8 @@ public class FixThePotGamePanel extends JPanel {
         });
 
 
+
+
         // Restart Button
         // Load and scale the Restart icon
         ImageIcon restartIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/restart.png");
@@ -323,6 +331,8 @@ public class FixThePotGamePanel extends JPanel {
             timerButton.setText("Time: 0 s"); // Reset the Timer
             nextJigsawButton.setEnabled(false); // Part of resetting the game
         });
+
+
 
 
         // Show Completed Button
@@ -363,8 +373,7 @@ public class FixThePotGamePanel extends JPanel {
                 if (peekHideTimer != null) peekHideTimer.restart();
             }
         });
-        // Click → toggle small floating overlay
-        showCompletedButton.addActionListener(e -> {
+        showCompletedButton.addActionListener(e -> { // Click → toggle small floating overlay
             initCompletedOverlays();
             BufferedImage completeImage = puzzlePanel.getPotImage();
             if (completeImage == null) {
@@ -674,12 +683,27 @@ public class FixThePotGamePanel extends JPanel {
             hideInfoOverlay();
         });
 
+        // Zen mode button
+        // Load and scale the Jigsaw icon
+        ImageIcon zenIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/zen.png");
+        Image origZen = zenIcon.getImage();
+        Image scaledZen = origZen.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
+        ImageIcon scaledZenIcon = new ImageIcon(scaledZen);
+        zenModeButton = new JButton(scaledZenIcon);
+        zenModeButton.setToolTipText("Toggle Zen mode (distraction-free)");
+        zenModeButton.setFocusPainted(false);
+        zenModeButton.setBackground(new Color(28, 28, 28));
+        zenModeButton.setForeground(Color.WHITE);
+        zenModeButton.addActionListener(e -> toggleZenMode());
+
+
         // Add all controls to the panel.
         controlPanel.add(previousJigsawButton);
         controlPanel.add(backToCollectionsButton);
         controlPanel.add(musicToggleButton);
         controlPanel.add(chooseTrackButton);
         controlPanel.add(restartButton);
+        controlPanel.add(zenModeButton); // or topButtonsPanel.add(zenModeButton);
         controlPanel.add(timerButton);
         controlPanel.add(extraInfoButton);
         controlPanel.add(showCompletedButton);
@@ -687,7 +711,65 @@ public class FixThePotGamePanel extends JPanel {
         controlPanel.add(chooseJigsawButton);
         controlPanel.add(nextJigsawButton);
         add(controlPanel, BorderLayout.SOUTH); // Add control panel to the bottom of the screen
+
+        // After all buttons are created (just before adding to controlPanel or right after)
+        zenHideComponents = new JComponent[] {
+                backToCollectionsButton,
+                musicToggleButton,
+                chooseTrackButton,
+                restartButton,
+                timerButton,
+                extraInfoButton,
+                showCompletedButton,
+                jigsawSplitButton,
+                chooseJigsawButton,
+                // you can add zenModeButton here too if you want it to vanish as well
+        };
     }
+
+
+    // Zen mode toggler
+    private void toggleZenMode() {
+        zenMode = !zenMode;
+        if (zenHideComponents != null) {
+            for (JComponent c : zenHideComponents) {
+                if (c != null) {
+                    c.setVisible(!zenMode);
+                }
+            }
+        }
+        if (zenMode) {
+            if (persistentOverlay != null) persistentOverlay.close();
+            if (completedOverlay != null) completedOverlay.close();
+            if (completedPeek != null) completedPeek.setVisible(false);
+        }
+        if (puzzlePanel != null) {
+            if (zenMode) {
+                puzzlePanel.setOpaque(true);
+                puzzlePanel.setBackground(new Color(28, 28, 28));
+            } else {
+                puzzlePanel.setOpaque(false);
+            }
+        }
+        // Apply Zen background to the bottom control panel too
+        if (controlPanel != null) {
+            if (zenMode) {
+                controlPanel.setOpaque(true);
+                controlPanel.setBackground(new Color(28, 28, 28)); // warm grey
+            } else {
+                controlPanel.setOpaque(false); // go back to transparent
+            }
+        }
+        if (zenModeButton != null) {
+            zenModeButton.setToolTipText(zenMode
+                    ? "Exit Zen mode and show controls"
+                    : "Toggle Zen mode (distraction-free)");
+        }
+        revalidate();
+        repaint();
+    }
+
+
 
     private void setupTimer() {
         elapsedSeconds = 0; // Set to 0
