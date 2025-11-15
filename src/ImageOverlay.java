@@ -199,4 +199,9 @@ public class ImageOverlay extends JPanel {
         int y = (containerSize.height - card.getHeight()) / 2;
         setLocation(Math.max(8, x), Math.max(8, y));
     }
+        public void close() {
+        setVisible(false);
+        Container p = getParent();
+        if (p != null) p.repaint();
+    }
 }
