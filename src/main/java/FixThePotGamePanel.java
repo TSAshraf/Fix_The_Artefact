@@ -1,15 +1,12 @@
-// Imports required for GUI, image handling, and file operations
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import java.io.File;
 
-// This is the main panel for the "Fix the pot game", extension of JPanel
-public class FixThePotGamePanel extends JPanel {
+public class FixThePotGamePanel extends JPanel { // This is the main panel for the "Fix the pot game", extension of JPanel
     private InfoOverlayPanel infoOverlay;
     private JLayeredPane layeredPane;
     private JComponent glassPaneRef;
@@ -35,7 +32,8 @@ public class FixThePotGamePanel extends JPanel {
     private MusicPlayer musicPlayer; // Music player instance
     private BufferedImage originalBackground; // Original background image (used in play screen and main menU)
     private BufferedImage blurredBackground; // Blurred background for game-screen
-    private String musicFolderPath = "/Users/taashfeen/Desktop/Jigsaw Game/src/Music/"; // Music folder path
+    private boolean musicPlaying = true; // first track auto-starts, so assume playing
+    private String musicFolderPath = "/Music/"; // Music folder path
     private ImageOverlay completedOverlay; // Overlay panel for displaying the full completed image
     private ImagePeek completedPeek; // Small preview panel shown when hovering over the button
     private javax.swing.Timer peekHideTimer; // Timer used to delay hiding the small preview after mouse exit
@@ -47,105 +45,88 @@ public class FixThePotGamePanel extends JPanel {
     private JPanel controlPanel;
 
     private String[] imageOptions = {
-            // File paths for Ancient Cyprus Jigsaw Images
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-1.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-2.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-3.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-4.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-5.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-1.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-2.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-3.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-4.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-5.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Pyxis-Lid.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Spindle-Whorl.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Temple-Boy.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Human-Remains-1.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/VotiveStatueHead.jpg",
-
-            // File paths for Ancient Greece Jigsaw Images
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Amour Helmet.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Wine Flask.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Wine Flask 2.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Amphora.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Drinking Vessel.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Krater.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Kylix.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Aryballos.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Aryballos 2.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Aryballos 3.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Rhyton.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Horse votive offering.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Fragments of deer figurine.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Wreath Shaped votive offering.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Loutrophoros.jpg",
-
-            // File paths for Rome Jigsaw Images
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Serapis with Cerberus.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Ash Chest.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Ash Chest 2.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Sculpture of Cybele .jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statue of Anchirroe .jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bust of Boy .jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bust of Trajan.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bowl 1 .jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bowl 2.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bowl 3.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bust of a Priest of Isis.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statue of Apollo.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statuette of Hermes.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statue of Bacchus.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Sarcophagus.jpg",
-
-            // File paths for Ancient Near East Jigsaw Images
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Master of Animals Standard.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/South Arabian Statue.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Seated Goddess with a Child .jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Plaque with horned lion-griffins.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Panel with Lion.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Standing Male Worshiper.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Head of a Ruler.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Helmet with Divine figures.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Statue of Gudea.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Enthroned Deity.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Shaft-hole axe head.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Openwork furniture plaque.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Kneeling Bull.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Headdress.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Stag Vessel.jpeg",
-
-            // File paths for  Ancient Egypt Jigsaw Images
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Shabti of Djedkhonsuefankh.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Figurine of a Pygmy Dance Leader.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Schist Statuette Fragment.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Offering Table.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Amulet of Jackal Headed Deity.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Composite Papyrus Capital.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Chariots with Court Ladies.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Wedjat Eye Amulet.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Artist's Sketch of a Sparrow.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Ring, signet.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Ring with Cat and Kittens.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Sarcophagus of Harkhebit.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Kneeling statue of Hatshepsut.jpeg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Inner Coffin Box of Taenty.jpg",
-            "/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Game of Hounds and Jackals.jpeg"
+            "/Ancient Cyprus/jug-1.jpg",
+            "/Ancient Cyprus/jug-2.jpg",
+            "/Ancient Cyprus/jug-3.jpg",
+            "/Ancient Cyprus/jug-4.jpg",
+            "/Ancient Cyprus/jug-5.jpg",
+            "/Ancient Cyprus/bowl-1.jpg",
+            "/Ancient Cyprus/bowl-2.jpg",
+            "/Ancient Cyprus/bowl-3.jpg",
+            "/Ancient Cyprus/bowl-4.jpg",
+            "/Ancient Cyprus/bowl-5.jpg",
+            "/Ancient Cyprus/Pyxis-Lid.jpg",
+            "/Ancient Cyprus/Spindle-Whorl.jpg",
+            "/Ancient Cyprus/Temple-Boy.jpg",
+            "/Ancient Cyprus/Human-Remains-1.jpg",
+            "/Ancient Cyprus/VotiveStatueHead.jpg",
+            "/Ancient Greece/Amour Helmet.jpg",
+            "/Ancient Greece/Wine Flask.jpg",
+            "/Ancient Greece/Wine Flask 2.jpg",
+            "/Ancient Greece/Amphora.jpg",
+            "/Ancient Greece/Drinking Vessel.jpg",
+            "/Ancient Greece/Krater.jpg",
+            "/Ancient Greece/Kylix.jpg",
+            "/Ancient Greece/Aryballos.jpg",
+            "/Ancient Greece/Aryballos 2.jpg",
+            "/Ancient Greece/Aryballos 3.jpg",
+            "/Ancient Greece/Rhyton.jpg",
+            "/Ancient Greece/Horse votive offering.jpg",
+            "/Ancient Greece/Fragments of deer figurine.jpg",
+            "/Ancient Greece/Wreath Shaped votive offering.jpg",
+            "/Ancient Greece/Loutrophoros.jpg",
+            "/Rome/Serapis with Cerberus.jpg",
+            "/Rome/Ash Chest.jpg",
+            "/Rome/Ash Chest 2.jpg",
+            "/Rome/Sculpture of Cybele .jpg",
+            "/Rome/Statue of Anchirroe .jpg",
+            "/Rome/Bust of Boy .jpg",
+            "/Rome/Bust of Trajan.jpg",
+            "/Rome/Bowl 1 .jpg",
+            "/Rome/Bowl 2.jpg",
+            "/Rome/Bowl 3.jpg",
+            "/Rome/Bust of a Priest of Isis.jpg",
+            "/Rome/Statue of Apollo.jpg",
+            "/Rome/Statuette of Hermes.jpg",
+            "/Rome/Statue of Bacchus.jpg",
+            "/Rome/Sarcophagus.jpg",
+            "/Ancient Near East/Master of Animals Standard.jpg",
+            "/Ancient Near East/South Arabian Statue.jpg",
+            "/Ancient Near East/Seated Goddess with a Child .jpeg",
+            "/Ancient Near East/Plaque with horned lion-griffins.jpeg",
+            "/Ancient Near East/Panel with Lion.jpeg",
+            "/Ancient Near East/Standing Male Worshiper.jpeg",
+            "/Ancient Near East/Head of a Ruler.jpeg",
+            "/Ancient Near East/Helmet with Divine figures.jpeg",
+            "/Ancient Near East/Statue of Gudea.jpeg",
+            "/Ancient Near East/Enthroned Deity.jpeg",
+            "/Ancient Near East/Shaft-hole axe head.jpeg",
+            "/Ancient Near East/Openwork furniture plaque.jpeg",
+            "/Ancient Near East/Kneeling Bull.jpeg",
+            "/Ancient Near East/Headdress.jpeg",
+            "/Ancient Near East/Stag Vessel.jpeg",
+            "/Ancient Egypt/Shabti of Djedkhonsuefankh.jpeg",
+            "/Ancient Egypt/Figurine of a Pygmy Dance Leader.jpeg",
+            "/Ancient Egypt/Schist Statuette Fragment.jpg",
+            "/Ancient Egypt/Offering Table.jpg",
+            "/Ancient Egypt/Amulet of Jackal Headed Deity.jpg",
+            "/Ancient Egypt/Composite Papyrus Capital.jpeg",
+            "/Ancient Egypt/Chariots with Court Ladies.jpeg",
+            "/Ancient Egypt/Wedjat Eye Amulet.jpeg",
+            "/Ancient Egypt/Artist's Sketch of a Sparrow.jpeg",
+            "/Ancient Egypt/Ring, signet.jpeg",
+            "/Ancient Egypt/Ring with Cat and Kittens.jpeg",
+            "/Ancient Egypt/Sarcophagus of Harkhebit.jpeg",
+            "/Ancient Egypt/Kneeling statue of Hatshepsut.jpeg",
+            "/Ancient Egypt/Inner Coffin Box of Taenty.jpg",
+            "/Ancient Egypt/Game of Hounds and Jackals.jpeg"
     };
 
-
-    // Listener Interface for Screen Navigation
-    public interface GamePanelListener {
-        void onBackToCollections();
-    }
+    public interface GamePanelListener {void onBackToCollections();} // Listener Interface for Screen Navigation
     private GamePanelListener gamePanelListener; // Listener instance
-    // Setter Interface for Screen Navigation
-    public void setGamePanelListener(GamePanelListener listener) {
-        this.gamePanelListener = listener;
-    }
+    public void setGamePanelListener(GamePanelListener listener) {this.gamePanelListener = listener;} // Setter Interface for Screen Navigation
 
-    // Sets up the game panel
-    public FixThePotGamePanel() {
+    public FixThePotGamePanel() { // Sets up the game panel
         setLayout(new BorderLayout()); // Set layout
         setOpaque(false); // Set opacity
         loadBackgroundImages(); // Load background image and create blurred background.
@@ -174,8 +155,7 @@ public class FixThePotGamePanel extends JPanel {
         });
     }
 
-    // Call this whenever we switch puzzles
-    private void hideInfoOverlay() {
+    private void hideInfoOverlay() { // Call this whenever we switch puzzles
         if (glassPaneRef != null) {
             glassPaneRef.setVisible(false);      // hide the whole overlay layer
             glassPaneRef.remove(persistentOverlay); // make sure the card is not still attached
@@ -187,11 +167,26 @@ public class FixThePotGamePanel extends JPanel {
     // Method to load background images, and use BlurUtil class to created blurred version for the game screen
     private void loadBackgroundImages() {
         try {
-            originalBackground = ImageIO.read(new File("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/Fantasy-Background.jpg"));
+            var in = FixThePotGamePanel.class.getResourceAsStream("/Starting/Fantasy-Background.jpg");
+            if (in == null) throw new RuntimeException("Missing resource: /Starting/Fantasy-Background.jpg");
+            originalBackground = ImageIO.read(in);
             blurredBackground = BlurUtil.blurImage(originalBackground, 5);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static ImageIcon icon(String resourcePath) {
+        java.net.URL url = FixThePotGamePanel.class.getResource(resourcePath);
+        if (url == null) throw new RuntimeException("Missing resource: " + resourcePath);
+        return new ImageIcon(url);
+    }
+
+    private static ImageIcon scaledIcon(String resourcePath, int w, int h) {
+        Image img = icon(resourcePath)
+                .getImage()
+                .getScaledInstance(w, h, Image.SCALE_SMOOTH);
+        return new ImageIcon(img);
     }
 
     // Create and configure puzzle panel
@@ -289,7 +284,6 @@ public class FixThePotGamePanel extends JPanel {
         return name;
     }
 
-
     // Builds the control panel containing all the buttons and controls
     private void buildControlPanel() {
         controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5)); // New panel with flow layout
@@ -297,10 +291,7 @@ public class FixThePotGamePanel extends JPanel {
 
         // Previous Jigsaw Button
         // Load and scale the Jigsaw icon
-        ImageIcon leftIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/left.png");
-        Image origLeft = leftIcon.getImage();
-        Image scaledLeft = origLeft.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledLeftIcon = new ImageIcon(scaledLeft);
+        ImageIcon scaledLeftIcon = scaledIcon("/Starting/left.png", 24, 24);
         previousJigsawButton = new JButton(scaledLeftIcon); // Create previous button with scaled image
         previousJigsawButton.setToolTipText("Previous Jigsaw");
         previousJigsawButton.addActionListener(e -> { // Move to the previous image in the combo box
@@ -314,15 +305,9 @@ public class FixThePotGamePanel extends JPanel {
             hideInfoOverlay();
         });
 
-
-
-
         // Restart Button
         // Load and scale the Restart icon
-        ImageIcon restartIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/restart.png");
-        Image origRestart = restartIcon.getImage();
-        Image scaledRestart = origRestart.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledRestartIcon = new ImageIcon(scaledRestart);
+        ImageIcon scaledRestartIcon = scaledIcon("/Starting/restart.png", 24, 24);
         restartButton = new JButton(scaledRestartIcon); // Create restart button with scaled image
         restartButton.setToolTipText("Restart Jigsaw");
         restartButton.addActionListener(e -> {
@@ -332,16 +317,11 @@ public class FixThePotGamePanel extends JPanel {
             nextJigsawButton.setEnabled(false); // Part of resetting the game
         });
 
-
-
-
         // Show Completed Button
-        ImageIcon show_completedIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/show_completed.png");
-        Image origShow_completed = show_completedIcon.getImage();
-        Image scaledShow_completed = origShow_completed.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledShow_completedIcon = new ImageIcon(scaledShow_completed);
+        ImageIcon scaledShow_completedIcon = scaledIcon("/Starting/show_completed.png", 24, 24);
         showCompletedButton = new JButton(scaledShow_completedIcon);
-        showCompletedButton.setToolTipText("Show the completed image of the jigsaw");
+        // Dynamic tooltip based on overlay visibility
+        updateShowCompletedTooltip();
         // Hover → show small preview
         showCompletedButton.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -352,7 +332,7 @@ public class FixThePotGamePanel extends JPanel {
                     completedPeek.setImage(img, 220, 160);
 
                     JRootPane root = SwingUtilities.getRootPane(FixThePotGamePanel.this);
-                    if (root == null) return; // not attached to a window yet
+                    if (root == null) return;
                     JLayeredPane layered = root.getLayeredPane();
 
                     int pad = 12;
@@ -367,44 +347,39 @@ public class FixThePotGamePanel extends JPanel {
                     if (peekHideTimer != null) peekHideTimer.stop();
                 }
             }
-
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
                 if (peekHideTimer != null) peekHideTimer.restart();
             }
         });
-        showCompletedButton.addActionListener(e -> { // Click → toggle small floating overlay
+        // Click → toggle small floating overlay
+        showCompletedButton.addActionListener(e -> {
             initCompletedOverlays();
             BufferedImage completeImage = puzzlePanel.getPotImage();
             if (completeImage == null) {
                 JOptionPane.showMessageDialog(FixThePotGamePanel.this, "Image not available");
                 return;
             }
-
             boolean show = !completedOverlay.isVisible();
             if (show) {
                 completedOverlay.setImage(completeImage);
-
                 // Center the small overlay within the window
                 JRootPane root = SwingUtilities.getRootPane(FixThePotGamePanel.this);
                 if (root != null) {
                     JLayeredPane layered = root.getLayeredPane();
-                    // ImageOverlay has centerIn(Dimension) in the frameless version
                     completedOverlay.centerIn(layered.getSize());
                 }
-
                 completedOverlay.setVisible(true);
                 completedOverlay.requestFocusInWindow();
                 completedPeek.setVisible(false);
             } else {
                 completedOverlay.setVisible(false);
             }
+            updateShowCompletedTooltip();
         });
 
         // Jigsaw Split Button
-        ImageIcon jigsawSplitIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/jigsaw_split.jpeg");
-        Image scaledJigsawSplit = jigsawSplitIcon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        jigsawSplitButton = new JButton(new ImageIcon(scaledJigsawSplit));
+        jigsawSplitButton = new JButton(scaledIcon("/Starting/jigsaw_split.jpeg", 24, 24));
         jigsawSplitButton.setToolTipText("Pick the amount of Jigsaw Pieces");
 
         jigsawSplitButton.addActionListener(e -> {
@@ -427,14 +402,12 @@ public class FixThePotGamePanel extends JPanel {
                     });
                 });
             }
-
             // Toggle: close if already open
             if (splitOverlay.isShowing()) {
                 splitOverlay.close();
                 if (glassPaneRef != null) glassPaneRef.repaint();
                 return;
             }
-
             // Open the overlay picker (Easy / Medium / Hard handled here)
             splitOverlay.openBottom(glassPaneRef, (rows, cols) -> {
                 puzzlePanel.setDifficulty(rows, cols);
@@ -443,23 +416,19 @@ public class FixThePotGamePanel extends JPanel {
             });
         });
 
-
         // Information Button
-        // Load and scale the Information icon
-        ImageIcon informationIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/information.png");
-        Image origInformation = informationIcon.getImage();
-        Image scaledInformation = origInformation.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledInformationIcon = new ImageIcon(scaledInformation);
-
+        ImageIcon scaledInformationIcon = scaledIcon("/Starting/information.png", 24, 24);
         extraInfoButton = new JButton(scaledInformationIcon);
-        extraInfoButton.setToolTipText("Extra Information");
-
+        updateInfoTooltip(); // Initialise tooltip based on current overlay state
         extraInfoButton.addActionListener(e -> {
-            // Fallback if overlay not ready
+            // Fallback if overlay system isn't ready yet
             if (glassPaneRef == null || persistentOverlay == null) {
                 String selectedImage = (String) imageComboBox.getSelectedItem();
                 if (selectedImage == null || !imageInfoMap.containsKey(selectedImage)) {
-                    JOptionPane.showMessageDialog(FixThePotGamePanel.this, "No extra information available.");
+                    JOptionPane.showMessageDialog(
+                            FixThePotGamePanel.this,
+                            "No extra information available."
+                    );
                     return;
                 }
                 ImageInfo info = imageInfoMap.get(selectedImage);
@@ -468,29 +437,32 @@ public class FixThePotGamePanel extends JPanel {
                         info.getDescription(),
                         "Extra Information",
                         JOptionPane.INFORMATION_MESSAGE,
-                        new ImageIcon(selectedImage)
+                        icon(selectedImage)
                 );
+
+                extraInfoButton.setToolTipText("Extra information (overlay not available)");
                 return;
             }
-
-            // Toggle close
+            // Toggle close if already visible
             if (persistentOverlay.isVisible()) {
                 persistentOverlay.close();
                 if (glassPaneRef != null) glassPaneRef.repaint();
+                updateInfoTooltip();
                 return;
             }
-
-            // Open/refresh
+            // Open / refresh overlay
             String selectedImage = (String) imageComboBox.getSelectedItem();
             if (selectedImage == null || !imageInfoMap.containsKey(selectedImage)) {
-                JOptionPane.showMessageDialog(FixThePotGamePanel.this, "No extra information available.");
+                JOptionPane.showMessageDialog(
+                        FixThePotGamePanel.this,
+                        "No extra information available."
+                );
                 return;
             }
             ImageInfo info = imageInfoMap.get(selectedImage);
 
-            // IMPORTANT: pass the full-res image; let the banner scale it.
-            ImageIcon previewIcon = new ImageIcon(selectedImage);
-
+            // Pass full-res image; banner panel will scale it correctly
+            ImageIcon previewIcon = icon(selectedImage);
             String titleText = "Artifact: " + getDisplayName(selectedImage);
             String fullMuseumDescription = info.getDescription();
 
@@ -511,6 +483,7 @@ public class FixThePotGamePanel extends JPanel {
             glassPaneRef.setVisible(true);
             persistentOverlay.setVisible(true);
             glassPaneRef.repaint();
+            updateInfoTooltip();
         });
 
         // Image Combo Box Button
@@ -528,9 +501,9 @@ public class FixThePotGamePanel extends JPanel {
         // Timer Button Code
         timerButton = new JButton("Time: 0 s");
         timerButton.setPreferredSize(new Dimension(100, 36));
-        timerButton.setToolTipText("Start/Stop"); // Hover over information
         timerButton.setFocusPainted(false);
-        timerButton.addActionListener(e -> { // start or stop based on its current state
+        updateTimerTooltip();
+        timerButton.addActionListener(e -> {
             if (timerRunning) {
                 timer.stop();
                 timerButton.setText("Paused: " + elapsedSeconds + " s");
@@ -540,11 +513,10 @@ public class FixThePotGamePanel extends JPanel {
                 timerButton.setText("Time: " + elapsedSeconds + " s");
                 timerRunning = true;
             }
+            updateTimerTooltip();
         });
 
-
         // ========== Music UI (overlay popover; non-modal) ==========
-
         // 1) Track list (same as before)
         String[] musicTracks = {
                 "Lukrembo - Bread (freetouse.com).mp3",
@@ -559,26 +531,22 @@ public class FixThePotGamePanel extends JPanel {
         musicPlayer.play();
 
         // 2) Mute / Unmute button (unchanged look)
-        ImageIcon musicIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/music note.png");
-        Image scaledMusic = musicIcon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        musicToggleButton = new JButton(new ImageIcon(scaledMusic));
-        musicToggleButton.setToolTipText("Mute/Unmute");
+        musicToggleButton = new JButton(scaledIcon("/Starting/music note.png", 24, 24));
+        updateMusicTooltip();
         musicToggleButton.addActionListener(e -> {
-            if (musicPlayer != null) musicPlayer.togglePlayPause();
+            if (musicPlayer != null) {
+                musicPlayer.togglePlayPause();
+                musicPlaying = !musicPlaying;
+                updateMusicTooltip();
+            }
         });
 
         // 3) Track chooser button (the “up arrow”)
-        ImageIcon trackIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/up.png");
-        Image scaledTrack = trackIcon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        JButton chooseTrackButton = new JButton(new ImageIcon(scaledTrack));
+        JButton chooseTrackButton = new JButton(scaledIcon("/Starting/up.png", 24, 24));
         chooseTrackButton.setToolTipText("Select a music track");
-
-        // Popover field (store on your panel class if you want to reuse)
-        final MusicChooserPopover[] musicPopoverRef = new MusicChooserPopover[1];
-
+        final MusicChooserPopover[] musicPopoverRef = new MusicChooserPopover[1]; // Popover field (store on your panel class if you want to reuse)
         chooseTrackButton.addActionListener(e -> {
             if (glassPaneRef == null) return;
-
             // Toggle behavior
             if (musicPopoverRef[0] != null && musicPopoverRef[0].isShowing()) {
                 musicPopoverRef[0].close();
@@ -605,10 +573,7 @@ public class FixThePotGamePanel extends JPanel {
 
         // Collection's Button
         // Load and scale the Collections icon
-        ImageIcon collectionsIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/collections.png");
-        Image origCollections = collectionsIcon.getImage();
-        Image scaledCollections = origCollections.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledCollectionsIcon = new ImageIcon(scaledCollections);
+        ImageIcon scaledCollectionsIcon = scaledIcon("/Starting/collections.png", 24, 24);
         backToCollectionsButton = new JButton(scaledCollectionsIcon); // Menu Icon button
         backToCollectionsButton.setToolTipText("Return to collection selection"); // Hover over information
         backToCollectionsButton.addActionListener(e -> { // Notify the listener to switch back to the collection screen
@@ -619,16 +584,11 @@ public class FixThePotGamePanel extends JPanel {
 
 
         // JIGSAW CHOOSER (popover)
-        ImageIcon chooseIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/choose.png");
-        Image scaledChoose = chooseIcon.getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        chooseJigsawButton = new JButton(new ImageIcon(scaledChoose));
+        chooseJigsawButton = new JButton(scaledIcon("/Starting/choose.png", 24, 24));
         chooseJigsawButton.setToolTipText("Click to select a jigsaw");
-
         final JigsawChooserPopover[] jigsawPopoverRef = new JigsawChooserPopover[1];
-
         chooseJigsawButton.addActionListener(e -> {
             if (glassPaneRef == null) return;
-
             if (jigsawPopoverRef[0] != null && jigsawPopoverRef[0].isShowing()) {
                 jigsawPopoverRef[0].close();
                 glassPaneRef.repaint();
@@ -663,10 +623,7 @@ public class FixThePotGamePanel extends JPanel {
 
         // Next Jigsaw Button
         // Load and scale the Jigsaw icon
-        ImageIcon nextIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/right.png");
-        Image origNext = nextIcon.getImage();
-        Image scaledNext = origNext.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledNextIcon = new ImageIcon(scaledNext);
+        ImageIcon scaledNextIcon = scaledIcon("/Starting/right.png", 24, 24);
         // Create button with scaled image
         nextJigsawButton = new JButton(scaledNextIcon);
         nextJigsawButton.setToolTipText("Next Jigsaw");
@@ -685,17 +642,13 @@ public class FixThePotGamePanel extends JPanel {
 
         // Zen mode button
         // Load and scale the Jigsaw icon
-        ImageIcon zenIcon = new ImageIcon("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/zen.png");
-        Image origZen = zenIcon.getImage();
-        Image scaledZen = origZen.getScaledInstance(24, 24, Image.SCALE_SMOOTH);
-        ImageIcon scaledZenIcon = new ImageIcon(scaledZen);
+        ImageIcon scaledZenIcon = scaledIcon("/Starting/zen.png", 24, 24);
         zenModeButton = new JButton(scaledZenIcon);
         zenModeButton.setToolTipText("Toggle Zen mode (distraction-free)");
         zenModeButton.setFocusPainted(false);
         zenModeButton.setBackground(new Color(28, 28, 28));
         zenModeButton.setForeground(Color.WHITE);
         zenModeButton.addActionListener(e -> toggleZenMode());
-
 
         // Add all controls to the panel.
         controlPanel.add(previousJigsawButton);
@@ -727,6 +680,25 @@ public class FixThePotGamePanel extends JPanel {
         };
     }
 
+    // --- Tooltip helpers for toggle-style buttons ---
+    private void updateMusicTooltip() {
+        if (musicToggleButton == null) return;
+        musicToggleButton.setToolTipText(musicPlaying ? "Mute music" : "Unmute music");
+    }
+    private void updateTimerTooltip() {
+        if (timerButton == null) return;
+        timerButton.setToolTipText(timerRunning ? "Pause timer" : "Start timer");
+    }
+    private void updateInfoTooltip() {
+        if (extraInfoButton == null) return;
+        boolean showing = persistentOverlay != null && persistentOverlay.isVisible();
+        extraInfoButton.setToolTipText(showing ? "Hide extra information" : "Show extra information");
+    }
+    private void updateShowCompletedTooltip() {
+        if (showCompletedButton == null) return;
+        boolean showing = completedOverlay != null && completedOverlay.isVisible();
+        showCompletedButton.setToolTipText(showing ? "Hide completed image" : "Show completed image");
+    }
 
     // Zen mode toggler
     private void toggleZenMode() {
@@ -791,7 +763,7 @@ public class FixThePotGamePanel extends JPanel {
         imageInfoMap = new HashMap<>();
 
         // Ancient Cyprus Collection 15/15
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-1.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/jug-1.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2250 BC ~ 2150 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -799,7 +771,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The jar has a conical base and is decorated in Red Polished I type of Red Polished slip all over its body.",
                 "https://www.liverpoolmuseums.org.uk/artifact/jug-1"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-2.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/jug-2.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2075 BC ~ 2000 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -808,7 +780,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The handle has a zig zag incised decoration on it and there are two round protruding circles on each side of the neck by the top handle.",
                 "https://www.liverpoolmuseums.org.uk/artifact/jug-2"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-3.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/jug-3.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2075 BC ~ 2000 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -818,7 +790,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The ware has a rich brown surface, the clay is well mixed with a grit straw and fired buff, the core on the body has grey tones.",
                 "https://www.liverpoolmuseums.org.uk/artifact/jug-3"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-4.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/jug-4.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2075 BC ~ 2000 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -828,7 +800,7 @@ public class FixThePotGamePanel extends JPanel {
                 "slip has fallen off.",
                 "https://www.liverpoolmuseums.org.uk/artifact/jug-4"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-5.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/jug-5.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 850 BC ~ 750 BC<br>" +
                 "Culture: Cypro-Geometric<br>" +
@@ -837,7 +809,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The decoration is flaky and has lost its shine. Half of the flat spout is missing.",
                 "https://www.liverpoolmuseums.org.uk/artifact/jug-5"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-1.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/bowl-1.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2150 BC ~ 2100 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -848,7 +820,7 @@ public class FixThePotGamePanel extends JPanel {
                 "One of the lugs has two holes while the other lug is almost unformed.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-1"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-2.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/bowl-2.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2250 BC ~ 2150 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -865,7 +837,7 @@ public class FixThePotGamePanel extends JPanel {
                 "their regional identity through material culture.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-2"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-3.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/bowl-3.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2250 BC ~ 2150 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -879,7 +851,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The interior of the bowl is black.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-3"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-4.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/bowl-4.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2250 BC ~ 2150 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -888,7 +860,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The colour of the slip at the lower part of the bowl ranges from red to dark brown/red especially in the area close to the spout.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-4"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-5.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/bowl-5.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2150 BC ~ 2100 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -897,7 +869,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The interior of the bowl is black and there are a few cracks on its body and a small part missing.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-5"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Pyxis-Lid.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/Pyxis-Lid.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 1300 BC<br>" +
                 "Culture: Late Cypriot IIB<br>" +
@@ -911,7 +883,7 @@ public class FixThePotGamePanel extends JPanel {
                 "One piece has come loose of the mount. Large parts of the opposite sides are missing.",
                 "https://www.liverpoolmuseums.org.uk/artifact/pyxis-box-lid"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Spindle-Whorl.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/Spindle-Whorl.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 1300 BC<br>" +
                 "Culture: Late Cypriot IIB<br>" +
@@ -920,7 +892,7 @@ public class FixThePotGamePanel extends JPanel {
                 "In between these two bands there is band of long narrow petals. Half of the circumference is broken. The underside is plain.",
                 "https://www.liverpoolmuseums.org.uk/artifact/spindle-whorl-11"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Human-Remains-1.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/Human-Remains-1.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 1250 BC - 1190 BC<br>" +
                 "Culture: Cypriot<br>" +
@@ -928,7 +900,7 @@ public class FixThePotGamePanel extends JPanel {
                 "From the excavations of Kouklia: Evreti Tomb 3A.",
                 "https://www.liverpoolmuseums.org.uk/artifact/human-and-animal-remains-skeletal"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Temple-Boy.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/Temple-Boy.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 400 BC – 300 BC<br>" +
                 "Culture: Cypriot<br>" +
@@ -940,7 +912,7 @@ public class FixThePotGamePanel extends JPanel {
                 "Most of the details of the body and the clothing have faded.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statuette-of-temple-boy-6"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/VotiveStatueHead.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Cyprus/VotiveStatueHead.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 600 BC – 500 BC<br>" +
                 "Culture:  Cypriot<br>" +
@@ -953,7 +925,7 @@ public class FixThePotGamePanel extends JPanel {
         ));
 
         // Ancient Greece Collection 15/15
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Amour Helmet.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Amour Helmet.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 550 BC – 450 BC<br>" +
                 "Culture: Corinthian<br>" +
@@ -964,7 +936,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The helmet has no nail holes or inscriptions or signs of bending in the cheek guards that would indicate it is from a sanctuary. ",
                 "https://www.liverpoolmuseums.org.uk/artifact/armour-helmet"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Wine Flask.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Wine Flask.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 360 – 330 BC<br>" +
                 "Culture: Campanian, Ancient Greek<br>" +
@@ -977,7 +949,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The oinochoe is broken has a repaired rim and minor abrasions.",
                 "https://www.liverpoolmuseums.org.uk/artifact/wine-flask"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Wine Flask 2.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Wine Flask 2.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: about 730 BC<br>" +
                 "Culture: Attic<br>" +
@@ -993,7 +965,7 @@ public class FixThePotGamePanel extends JPanel {
                 "Ahlberg (1967) interprets the objects as 'pomegranate-vases', with one point turned up, the other down.",
                 "https://www.liverpoolmuseums.org.uk/artifact/wine-flask-1"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Amphora.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Amphora.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 4th Century BC<br>" +
                 "Culture: Campanian, Ancient Greek<br>" +
@@ -1001,7 +973,7 @@ public class FixThePotGamePanel extends JPanel {
                 "Side 1: Satyr with thyrsus and tambourine. Side 2: draped and diademed female.",
                 "https://www.liverpoolmuseums.org.uk/artifact/amphora-15"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Drinking Vessel.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Drinking Vessel.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: Late 5th Century BC – Early 4th Century BC<br>" +
                 "Culture: Apulian<br>" +
@@ -1017,7 +989,7 @@ public class FixThePotGamePanel extends JPanel {
                 "While in the upper left area there is an elaborate ribbon. By the rim there is a thin frieze of joined half egg decoration.",
                 "https://www.liverpoolmuseums.org.uk/artifact/drinking-vessel-12"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Krater.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Krater.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 4th Century BC<br>" +
                 "Culture: Apulian<br>" +
@@ -1027,7 +999,7 @@ public class FixThePotGamePanel extends JPanel {
                 "In Greek mythology, maenads were the female followers of the god Dionysus.",
                 "https://www.liverpoolmuseums.org.uk/artifact/krater-2"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Kylix.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Kylix.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: about 530 BC<br>" +
                 "Culture: Attic<br>" +
@@ -1037,7 +1009,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The use of a Gorgon mask was a common feature on the inside of drinking vessels, probably intended to ward off the evil eye.",
                 "https://www.liverpoolmuseums.org.uk/artifact/kylix"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Aryballos.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Aryballos.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: about 550 BC<br>" +
                 "Culture: Corinthian<br>" +
@@ -1048,7 +1020,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The handle also has inverted arrows decoration in brown but has significantly faded.",
                 "https://www.liverpoolmuseums.org.uk/artifact/aryballos-15"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Aryballos 2.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Aryballos 2.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 665 BC – 620 BC<br>" +
                 "Culture: Greek<br>" +
@@ -1060,7 +1032,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The flat shaped top has a thick brown circular band outlined by thinner red circular bands.",
                 "https://www.liverpoolmuseums.org.uk/artifact/aryballos-17"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Aryballos 3.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Aryballos 3.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 626 BC – 600 BC<br>" +
                 "Culture: Corinthian<br>" +
@@ -1070,7 +1042,7 @@ public class FixThePotGamePanel extends JPanel {
                 "indicate that it may be from the Early Corinthian phase.",
                 "https://www.liverpoolmuseums.org.uk/artifact/aryballos-25"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Rhyton.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Rhyton.jpg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 4th Century BC<br>" +
                 "Culture: Greek<br>" +
@@ -1097,14 +1069,14 @@ public class FixThePotGamePanel extends JPanel {
                 "of the face in between the eyes as well as the muzzle also have thick applied white paint. There are several cracks at the sides of the mouth.",
                 "https://www.liverpoolmuseums.org.uk/artifact/rhyton-0"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Horse votive offering.jpg", new ImageInfo( "<html>" +
+        imageInfoMap.put("/Ancient Greece/Horse votive offering.jpg", new ImageInfo( "<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 6th Century BC<br>" +
                 "Culture: Laconian<br>" +
                 "A horse votive offering from the Sanctuary of Artemis Orthia. The horse is in profile to its right and has all its legs complete.",
                 "https://www.liverpoolmuseums.org.uk/artifact/horse-votive-offering"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Fragments of deer figurine.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Fragments of deer figurine.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 6th Century BC to mid 4th Century BC<br>" +
                 "Culture: Laconian<br>" +
@@ -1112,13 +1084,13 @@ public class FixThePotGamePanel extends JPanel {
                 "(or possibly another sanctuary site in Lakonia). The deer faces to its right. Deer are associated with the hunting goddess Artemis.",
                 "https://www.liverpoolmuseums.org.uk/artifact/fragments-of-deer-figurine"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Wreath Shaped votive offering.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Wreath Shaped votive offering.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 6th Century BC to mid 4th Century BC<br>" +
                 "Culture: Laconian<br>" +
                 "Votive offering of a wreath type from the Sanctuary of Artemis Orthia in Sparta (or possibly another sanctuary site in Lakonia).",
                 "https://www.liverpoolmuseums.org.uk/artifact/wreath-shaped-votive-offering"));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Loutrophoros.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Greece/Loutrophoros.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: Late 4th Century BC<br>" +
                 "Culture: Apulian<br>" +
@@ -1138,7 +1110,7 @@ public class FixThePotGamePanel extends JPanel {
         ));
 
         // Ancient Egypt 15/15
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Shabti of Djedkhonsuefankh.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Shabti of Djedkhonsuefankh.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1070 – 945 BC<br>" +
                 "Culture: Ancient Egypt, Third Intermediate Period<br>" +
@@ -1150,7 +1122,7 @@ public class FixThePotGamePanel extends JPanel {
                 "and a few with the common shabti formula.",
                 "https://www.metmuseum.org/art/collection/search/561086"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Figurine of a Pygmy Dance Leader.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Figurine of a Pygmy Dance Leader.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1950 – 1885 BC<br>" +
                 "Culture: Ancient Egypt, Middle Kingdom<br>" +
@@ -1161,7 +1133,7 @@ public class FixThePotGamePanel extends JPanel {
                 " fastened around their bases. This piece may represent their leader.",
                 "https://www.metmuseum.org/art/collection/search/546440"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Schist Statuette Fragment.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Schist Statuette Fragment.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1550 - 1069 BC<br>" +
                 "Culture: Ancient Egypt, New Kingdom<br>" +
@@ -1172,7 +1144,7 @@ public class FixThePotGamePanel extends JPanel {
                 " Charles Stoess, in 1869.",
                 "https://www.liverpoolmuseums.org.uk/artifact/figure-3"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Offering Table.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Offering Table.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 200 BC<br>" +
                 "Culture: Meroitic Period<br>" +
@@ -1180,7 +1152,7 @@ public class FixThePotGamePanel extends JPanel {
                 "The pattern on the surface is in relief and includes curling lotus flowers. The six pieces fit together to form one corner.",
                 "https://www.liverpoolmuseums.org.uk/artifact/offering-table"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Amulet of Jackal Headed Deity.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Amulet of Jackal Headed Deity.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 664 – 525 BC<br>" +
                 "Culture: Ancient Egypt, Late Period<br>" +
@@ -1189,7 +1161,7 @@ public class FixThePotGamePanel extends JPanel {
                 " A loop at the back would have allowed the amulet to be threaded and worn.",
                 "https://www.liverpoolmuseums.org.uk/artifact/amulet-of-jackal-headed-deity"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Composite Papyrus Capital.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Composite Papyrus Capital.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 380 – 343 BC<br>" +
                 "Culture: Ancient Egypt, Late Period<br>" +
@@ -1200,7 +1172,7 @@ public class FixThePotGamePanel extends JPanel {
                 " The capital still shows remnants of its original paint.",
                 "https://www.metmuseum.org/art/collection/search/551898"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Chariots with Court Ladies.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Chariots with Court Ladies.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1353 – 1336 BC<br>" +
                 "Culture: Ancient Egypt, New Kingdom, Amarna Period<br>" +
@@ -1208,7 +1180,7 @@ public class FixThePotGamePanel extends JPanel {
                 "as their drivers race to keep up with the royal family in their chariots.",
                 "https://www.metmuseum.org/art/collection/search/544889"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Wedjat Eye Amulet.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Wedjat Eye Amulet.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1070 – 664 BC<br>" +
                 "Culture: Ancient Egypt<br>" +
@@ -1218,14 +1190,14 @@ public class FixThePotGamePanel extends JPanel {
                 "This combination alludes to various ancient Egyptian stories that involve the eye of the sun god Re.",
                 "https://www.metmuseum.org/art/collection/search/561047"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Artist's Sketch of a Sparrow.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Artist's Sketch of a Sparrow.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1479 – 1458 BC<br>" +
                 "Culture: Ancient Egypt, New Kingdom<br>" +
                 "Description: A sketch of a Sparrow on a rock.",
                 "https://www.metmuseum.org/art/collection/search/548890"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Ring, signet.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Ring, signet.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1353 -1323 BC<br>" +
                 "Culture: Ancient Egypt, New Kingdom, Amarna Period<br>" +
@@ -1234,7 +1206,7 @@ public class FixThePotGamePanel extends JPanel {
                 " ascended the throne.",
                 "https://www.metmuseum.org/art/collection/search/549202"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Ring with Cat and Kittens.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Ring with Cat and Kittens.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1295 – 664 BC<br>" +
                 "Culture: Ancient Egypt, Ramesside/Third Intermediate Period<br>" +
@@ -1246,7 +1218,7 @@ public class FixThePotGamePanel extends JPanel {
                 "this one is a superb example. Such rings were most likely created to celebrate various festivals held in honour of the deities depicted on the rings.",
                 "https://www.metmuseum.org/art/collection/search/744564"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Sarcophagus of Harkhebit.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Sarcophagus of Harkhebit.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 595 – 526 BC<br>" +
                 "Culture: Ancient Egypt, Late Period<br>" +
@@ -1259,7 +1231,7 @@ public class FixThePotGamePanel extends JPanel {
                 " sarcophagus was purchased from the Egyptian government by the Metropolitan Museum.",
                 "https://www.metmuseum.org/art/collection/search/548211"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Kneeling statue of Hatshepsut.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Kneeling statue of Hatshepsut.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1479 – 1458 BC<br>" +
                 "Culture: New Kingdom, Ancient Egypt<br>" +
@@ -1275,7 +1247,7 @@ public class FixThePotGamePanel extends JPanel {
                 " the same enigmatic amulet suspended on a necklace of tubular beads that is represented on one of the statues representing Hatshepsut as a woman. ",
                 "https://www.metmuseum.org/art/collection/search/544447"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Inner Coffin Box of Taenty.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Inner Coffin Box of Taenty.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1069 – 664 BC<br>" +
                 "Culture: Third Intermediate Period, Ancient Egypt<br>" +
@@ -1288,7 +1260,7 @@ public class FixThePotGamePanel extends JPanel {
                 " seen the rather good mummy case of one “Antï”, and excellent mummy within which has not been disturbed in any way. Date about XX Dyn.",
                 "https://www.liverpoolmuseums.org.uk/artifact/inner-coffin-box-of-taenty"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Game of Hounds and Jackals.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Egypt/Game of Hounds and Jackals.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1814 – 1805 BC<br>" +
                 "Culture: Middle Kingdom, Ancient Egypt<br>" +
@@ -1306,7 +1278,7 @@ public class FixThePotGamePanel extends JPanel {
         ));
 
         // Ancient Near East Collection 15/15
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Master of Animals Standard.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Master of Animals Standard.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1000 BC – 600 BC<br>" +
                 "Culture: Iron Age<br>" +
@@ -1320,7 +1292,7 @@ public class FixThePotGamePanel extends JPanel {
                 " ‘master-of-animals’ iconography).",
                 "https://www.liverpoolmuseums.org.uk/artifact/master-of-animals-standard"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/South Arabian Statue.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/South Arabian Statue.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 BC – 1 BC<br>" +
                 "Culture: Iron Age South Arabian<br>" +
@@ -1335,7 +1307,7 @@ public class FixThePotGamePanel extends JPanel {
                 " local dialects developed.",
                 "https://www.liverpoolmuseums.org.uk/artifact/south-arabian-statue"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Seated Goddess with a Child .jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Seated Goddess with a Child .jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 14th – 13th Century BC<br>" +
                 "Culture: Hittite<br>" +
@@ -1348,7 +1320,7 @@ public class FixThePotGamePanel extends JPanel {
                 "gold and then attached. The chair on which they are seated is backless and has lion paws.",
                 "https://www.metmuseum.org/art/collection/search/327401"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Plaque with horned lion-griffins.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Plaque with horned lion-griffins.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 6th – 4th Century BC<br>" +
                 "Culture: Achaemenid Persian<br>" +
@@ -1362,7 +1334,7 @@ public class FixThePotGamePanel extends JPanel {
                 " different types of objects demonstrates decorative conventions of the period.",
                 "https://www.metmuseum.org/art/collection/search/324290"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Panel with Lion.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Panel with Lion.jpeg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 604 -562 BC<br>" +
                 "Culture: Babylonian<br>" +
@@ -1382,7 +1354,7 @@ public class FixThePotGamePanel extends JPanel {
                 " for the ritual processions from the city to the temple.",
                 "https://www.metmuseum.org/art/collection/search/322585"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Standing Male Worshiper.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Standing Male Worshiper.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 2900 – 2600 BC<br>" +
                 "Culture: Sumerian<br>" +
@@ -1395,7 +1367,7 @@ public class FixThePotGamePanel extends JPanel {
                 " present in their statues. Similar statues were sometimes inscribed with the names of rulers and their families.",
                 "https://www.metmuseum.org/art/collection/search/323735"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Head of a Ruler.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Head of a Ruler.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 2300 – 2200 BC<br>" +
                 "Culture: Mesopotamian<br>" +
@@ -1411,7 +1383,7 @@ public class FixThePotGamePanel extends JPanel {
                 " originally set into a body or other mount, which may have been made of a different material.",
                 "https://www.metmuseum.org/art/collection/search/329077"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Helmet with Divine figures.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Helmet with Divine figures.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1500 – 1100 BC<br>" +
                 "Culture: Middle Elamite<br>" +
@@ -1427,7 +1399,7 @@ public class FixThePotGamePanel extends JPanel {
                 " of protective and important deities could certainly have been apotropaic for the wearer.",
                 "https://www.metmuseum.org/art/collection/search/325584"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Statue of Gudea.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Statue of Gudea.jpeg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 2090 BC<br>" +
                 "Culture: Neo-Sumerian<br>" +
@@ -1451,7 +1423,7 @@ public class FixThePotGamePanel extends JPanel {
                 " house.",
                 "https://www.metmuseum.org/art/collection/search/329072"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Enthroned Deity.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Enthroned Deity.jpeg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 14th – 13th Century BC<br>" +
                 "Culture: Canaanite<br>" +
@@ -1474,7 +1446,7 @@ public class FixThePotGamePanel extends JPanel {
                 " who may have lived in the early Iron Age, were created in the same Canaanite cultural context as this piece and perhaps took similar forms.",
                 "https://www.metmuseum.org/art/collection/search/322889"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Shaft-hole axe head.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Shaft-hole axe head.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: Late 3rd – Early 2nd millennium BC<br>" +
                 "Culture: Bactria-Margiana Archaeological Complex<br>" +
@@ -1491,7 +1463,7 @@ public class FixThePotGamePanel extends JPanel {
                 " body, and the talons of a bird of prey in the place of his front paws. Its single horn has been broken off and lost.",
                 "https://www.metmuseum.org/art/collection/search/329076"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Openwork furniture plaque.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Openwork furniture plaque.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 9th – 8th Century BC<br>" +
                 "Culture: Assyrian<br>" +
@@ -1502,7 +1474,7 @@ public class FixThePotGamePanel extends JPanel {
                 " stone relief sculptures from Tell Halaf, in northern Syria, and a debate exists over which tradition produced these fine panels.",
                 "https://www.metmuseum.org/art/collection/search/324739"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Kneeling Bull.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Kneeling Bull.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 3100 – 2900 BC<br>" +
                 "Culture: Proto-Elamite<br>" +
@@ -1517,7 +1489,7 @@ public class FixThePotGamePanel extends JPanel {
                 " as part of a ritual or ceremony.",
                 "https://www.metmuseum.org/art/collection/search/329074"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Headdress.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Headdress.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 2600 – 2500 BC<br>" +
                 "Culture: Sumerian<br>" +
@@ -1532,7 +1504,7 @@ public class FixThePotGamePanel extends JPanel {
                 " wealth of the Early Dynastic kings as well as to the existence of a complex system of trade that extended far beyond the Mesopotamian River valley.",
                 "https://www.metmuseum.org/art/collection/search/322903"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Stag Vessel.jpeg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Ancient Near East/Stag Vessel.jpeg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 14th – 13th Century BC<br>" +
                 "Culture: Hittite<br>" +
@@ -1556,7 +1528,7 @@ public class FixThePotGamePanel extends JPanel {
         ));
 
         // Rome 15/15
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Serapis with Cerberus.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Serapis with Cerberus.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Culture: Roman Imperial<br>" +
                 "Description: Statuette of the god Serapis in a throne with Cerberus, his three-headed dog. It is like many other statues, derived from the" +
@@ -1569,7 +1541,7 @@ public class FixThePotGamePanel extends JPanel {
                 "the statue as Pluto because of the presence of Cerberus.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statue-of-serapis-cerberus"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Ash Chest.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Ash Chest.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 150 BC – 70 AD<br>" +
                 "Culture: Roman Imperial; Antonine<br>" +
@@ -1585,7 +1557,7 @@ public class FixThePotGamePanel extends JPanel {
                 " partially finished.",
                 "https://www.liverpoolmuseums.org.uk/artifact/ash-chest-24"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Ash Chest 2.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Ash Chest 2.jpg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 140 BC – 50 AD<br>" +
                 "Culture: Roman Imperial; early Antonine<br>" +
@@ -1608,7 +1580,7 @@ public class FixThePotGamePanel extends JPanel {
                 "famous dealer and collector. The ash chest was not included in the Monumenta Mattheiana. The ash chest is in a poor condition.",
                 "https://www.liverpoolmuseums.org.uk/artifact/ash-chest-11"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Sculpture of Cybele .jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Sculpture of Cybele .jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 BC – 100 AD<br>" +
                 "Culture: Roman<br>" +
@@ -1617,7 +1589,7 @@ public class FixThePotGamePanel extends JPanel {
                 " a lion on either side the trhine: in white marble\"; with another not by AWF (?) \"Cybele - very good - Graeco-Roman\".",
                 "https://www.liverpoolmuseums.org.uk/artifact/sculpture-of-cybele"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statue of Anchirroe .jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Statue of Anchirroe .jpg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 1 AD – 100 AD<br>" +
                 "Culture: Roman<br>" +
@@ -1637,7 +1609,7 @@ public class FixThePotGamePanel extends JPanel {
                 " the arms the right leg below the knee and the foot, the outer edges of the drapery. The front of the plinth has been broken and rejoined.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statue-of-anchirroe"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bust of Boy .jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Bust of Boy .jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 AD – 125 AD<br>" +
                 "Culture: Roman<br>" +
@@ -1647,7 +1619,7 @@ public class FixThePotGamePanel extends JPanel {
                 " the pectorals, a restoration. There is damage to the right cheek and the chin, and part of the nose is missing.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bust-of-boy-1"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bust of Trajan.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Bust of Trajan.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1 -100 AD<br>" +
                 "Culture: Imperial Rome<br>" +
@@ -1658,7 +1630,7 @@ public class FixThePotGamePanel extends JPanel {
                 "nose, eyebrows, chin, upper lip and ears. The bust is ancient but probably later to the head, probably Hadrianic or early Antonine period.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bust-of-trajan)"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bowl 1 .jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Bowl 1 .jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: Mid 1st Century AD<br>" +
                 "Culture: Imperial Rome<br>" +
@@ -1666,7 +1638,7 @@ public class FixThePotGamePanel extends JPanel {
                 " with decoration in opaque white and red marbling. There are signs of previous damage and repair to one side and the base of the bowl.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-369"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bowl 2.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Bowl 2.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1 – 100 AD<br>" +
                 "Culture: Roman<br>" +
@@ -1674,7 +1646,7 @@ public class FixThePotGamePanel extends JPanel {
                 " are present on the inside of the piece.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-382"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bowl 3.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Bowl 3.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 BC – 100 AD<br>" +
                 "Culture: Roman<br>" +
@@ -1682,7 +1654,7 @@ public class FixThePotGamePanel extends JPanel {
                 " Deep folded rim and thick walls. Worn, surface dirt, some surface residue and pitted.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-368"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bust of a Priest of Isis.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Bust of a Priest of Isis.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 -200 AD<br>" +
                 "Culture: Imperial Rome<br>" +
@@ -1695,7 +1667,7 @@ public class FixThePotGamePanel extends JPanel {
                 "\" Dimensions of just the bust: H 190 mm; W 95 mm.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bust-of-priest-of-isis"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statue of Apollo.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Statue of Apollo.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 – 200 AD<br>" +
                 "Culture: Roman<br>" +
@@ -1712,7 +1684,7 @@ public class FixThePotGamePanel extends JPanel {
                 " also in pieces.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statue-of-apollo-0"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statuette of Hermes.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Statuette of Hermes.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1- 300 AD<br>" +
                 "Culture: Imperial Rome<br>" +
@@ -1724,7 +1696,7 @@ public class FixThePotGamePanel extends JPanel {
                 "been the result of modern treatment.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statuette-of-hermes-1"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statue of Bacchus.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Statue of Bacchus.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 0 -200 AD<br>" +
                 "Culture: Imperial Rome<br>" +
@@ -1741,7 +1713,7 @@ public class FixThePotGamePanel extends JPanel {
                 " his first trip to Italy in 1777.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statue-of-bacchus"
         ));
-        imageInfoMap.put("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Sarcophagus.jpg", new ImageInfo("<html>" +
+        imageInfoMap.put("/Rome/Sarcophagus.jpg", new ImageInfo("<html>" +
                 "<div style='width:500px;'>" +
                 "Date: Late 2nd Century AD<br>" +
                 "Culture: Roman Imperial<br>" +
@@ -1806,89 +1778,90 @@ public class FixThePotGamePanel extends JPanel {
      * This method updates the imageComboBox with images corresponding to the collection.
      */
     public void loadCollection(String collectionName) {
+        System.out.println("collectionName = [" + collectionName + "]");
         // Removes all previous items, so that we can create 'collections' based off of what the user selects in the main menu
         // Each If, Else if statement corresponds to a different collection
         imageComboBox.removeAllItems();
-        if ("Ancient Cyprus".equals(collectionName)) { // Ancient Cyprus collection
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-1.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-2.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-3.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-4.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/jug-5.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-1.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-2.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-3.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-4.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/bowl-5.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Pyxis-Lid.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Spindle-Whorl.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Temple-Boy.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/Human-Remains-1.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Cyprus/VotiveStatueHead.jpg"); // 15 Jigsaws
-        } else if ("Ancient Greece".equals(collectionName)) { // Ancient Greece collection
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Amour Helmet.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Wine Flask.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Wine Flask 2.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Amphora.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Drinking Vessel.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Krater.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Kylix.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Aryballos.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Aryballos 2.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Aryballos 3.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Rhyton.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Horse votive offering.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Fragments of deer figurine.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Wreath Shaped votive offering.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Greece/Loutrophoros.jpg"); // 15 Jigsaws
-        } else if ("Rome".equals(collectionName)) { // Rome Collection
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Serapis with Cerberus.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Ash Chest.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Ash Chest 2.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Sculpture of Cybele .jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statue of Anchirroe .jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bust of Boy .jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bust of Trajan.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bowl 1 .jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bowl 2.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bowl 3.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Bust of a Priest of Isis.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statue of Apollo.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statuette of Hermes.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Statue of Bacchus.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Rome/Sarcophagus.jpg"); // 15 Jigsaws
-        } else if ("Ancient Near East".equals(collectionName)) { // Ancient Near East Collection
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Master of Animals Standard.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/South Arabian Statue.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Seated Goddess with a Child .jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Plaque with horned lion-griffins.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Panel with Lion.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Standing Male Worshiper.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Head of a Ruler.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Helmet with Divine figures.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Statue of Gudea.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Enthroned Deity.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Shaft-hole axe head.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Openwork furniture plaque.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Kneeling Bull.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Headdress.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Near East/Stag Vessel.jpeg"); // 15 Jigsaws
-        } else if ("Ancient Egypt".equals(collectionName)) { // Ancient Egypt Collection
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Shabti of Djedkhonsuefankh.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Figurine of a Pygmy Dance Leader.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Schist Statuette Fragment.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Offering Table.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Amulet of Jackal Headed Deity.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Composite Papyrus Capital.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Chariots with Court Ladies.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Wedjat Eye Amulet.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Artist's Sketch of a Sparrow.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Ring, signet.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Ring with Cat and Kittens.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Sarcophagus of Harkhebit.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Kneeling statue of Hatshepsut.jpeg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Inner Coffin Box of Taenty.jpg");
-            imageComboBox.addItem("/Users/taashfeen/Desktop/Jigsaw Game/src/Ancient Egypt/Game of Hounds and Jackals.jpeg"); // 15 Jigsaws
+        if ("/Ancient Cyprus".equals(collectionName)) { // Ancient Cyprus collection
+            imageComboBox.addItem("/Ancient Cyprus/jug-1.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/jug-2.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/jug-3.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/jug-4.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/jug-5.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/bowl-1.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/bowl-2.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/bowl-3.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/bowl-4.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/bowl-5.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/Pyxis-Lid.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/Spindle-Whorl.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/Temple-Boy.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/Human-Remains-1.jpg");
+            imageComboBox.addItem("/Ancient Cyprus/VotiveStatueHead.jpg"); // 15 Jigsaws
+        } else if ("/Ancient Greece".equals(collectionName)) { // Ancient Greece collection
+            imageComboBox.addItem("/Ancient Greece/Amour Helmet.jpg");
+            imageComboBox.addItem("/Ancient Greece/Wine Flask.jpg");
+            imageComboBox.addItem("/Ancient Greece/Wine Flask 2.jpg");
+            imageComboBox.addItem("/Ancient Greece/Amphora.jpg");
+            imageComboBox.addItem("/Ancient Greece/Drinking Vessel.jpg");
+            imageComboBox.addItem("/Ancient Greece/Krater.jpg");
+            imageComboBox.addItem("/Ancient Greece/Kylix.jpg");
+            imageComboBox.addItem("/Ancient Greece/Aryballos.jpg");
+            imageComboBox.addItem("/Ancient Greece/Aryballos 2.jpg");
+            imageComboBox.addItem("/Ancient Greece/Aryballos 3.jpg");
+            imageComboBox.addItem("/Ancient Greece/Rhyton.jpg");
+            imageComboBox.addItem("/Ancient Greece/Horse votive offering.jpg");
+            imageComboBox.addItem("/Ancient Greece/Fragments of deer figurine.jpg");
+            imageComboBox.addItem("/Ancient Greece/Wreath Shaped votive offering.jpg");
+            imageComboBox.addItem("/Ancient Greece/Loutrophoros.jpg"); // 15 Jigsaws
+        } else if ("/Rome".equals(collectionName)) { // Rome Collection
+            imageComboBox.addItem("/Rome/Serapis with Cerberus.jpg");
+            imageComboBox.addItem("/Rome/Ash Chest.jpg");
+            imageComboBox.addItem("/Rome/Ash Chest 2.jpg");
+            imageComboBox.addItem("/Rome/Sculpture of Cybele .jpg");
+            imageComboBox.addItem("/Rome/Statue of Anchirroe .jpg");
+            imageComboBox.addItem("/Rome/Bust of Boy .jpg");
+            imageComboBox.addItem("/Rome/Bust of Trajan.jpg");
+            imageComboBox.addItem("/Rome/Bowl 1 .jpg");
+            imageComboBox.addItem("/Rome/Bowl 2.jpg");
+            imageComboBox.addItem("/Rome/Bowl 3.jpg");
+            imageComboBox.addItem("/Rome/Bust of a Priest of Isis.jpg");
+            imageComboBox.addItem("/Rome/Statue of Apollo.jpg");
+            imageComboBox.addItem("/Rome/Statuette of Hermes.jpg");
+            imageComboBox.addItem("/Rome/Statue of Bacchus.jpg");
+            imageComboBox.addItem("/Rome/Sarcophagus.jpg"); // 15 Jigsaws
+        } else if ("/Ancient Near East".equals(collectionName)) { // Ancient Near East Collection
+            imageComboBox.addItem("/Ancient Near East/Master of Animals Standard.jpg");
+            imageComboBox.addItem("/Ancient Near East/South Arabian Statue.jpg");
+            imageComboBox.addItem("/Ancient Near East/Seated Goddess with a Child .jpeg");
+            imageComboBox.addItem("/Ancient Near East/Plaque with horned lion-griffins.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Panel with Lion.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Standing Male Worshiper.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Head of a Ruler.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Helmet with Divine figures.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Statue of Gudea.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Enthroned Deity.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Shaft-hole axe head.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Openwork furniture plaque.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Kneeling Bull.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Headdress.jpeg");
+            imageComboBox.addItem("/Ancient Near East/Stag Vessel.jpeg"); // 15 Jigsaws
+        } else if ("/Ancient Egypt".equals(collectionName)) { // Ancient Egypt Collection
+            imageComboBox.addItem("/Ancient Egypt/Shabti of Djedkhonsuefankh.jpeg");
+            imageComboBox.addItem("/Ancient Egypt/Figurine of a Pygmy Dance Leader.jpeg");
+            imageComboBox.addItem("/Ancient Egypt/Schist Statuette Fragment.jpg");
+            imageComboBox.addItem("/Ancient Egypt/Offering Table.jpg");
+            imageComboBox.addItem("/Ancient Egypt/Amulet of Jackal Headed Deity.jpg");
+            imageComboBox.addItem("/Ancient Egypt/Composite Papyrus Capital.jpeg");
+            imageComboBox.addItem("/Ancient Egypt/Chariots with Court Ladies.jpeg");
+            imageComboBox.addItem("/Ancient Egypt/Wedjat Eye Amulet.jpeg");
+            imageComboBox.addItem("/Ancient Egypt/Artist's Sketch of a Sparrow.jpeg");
+            imageComboBox.addItem("/Ancient Egypt/Ring, signet.jpeg");
+            imageComboBox.addItem("/Ancient Egypt/Ring with Cat and Kittens.jpeg");
+            imageComboBox.addItem("/Ancient Egypt/Sarcophagus of Harkhebit.jpeg");
+            imageComboBox.addItem("/Ancient Egypt/Kneeling statue of Hatshepsut.jpeg");
+            imageComboBox.addItem("/Ancient Egypt/Inner Coffin Box of Taenty.jpg");
+            imageComboBox.addItem("/Ancient Egypt/Game of Hounds and Jackals.jpeg"); // 15 Jigsaws
         } else {
             for (String img : imageOptions) {
                 imageComboBox.addItem(img);
