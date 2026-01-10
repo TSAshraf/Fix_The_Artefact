@@ -1,0 +1,75 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
+public class ImagePeek extends JPanel {
+    private final JLabel pic = new JLabel();
+    private final JPanel card = new JPanel(new BorderLayout());
+    private BufferedImage src;
+    private int maxW = 220, maxH = 160;
+
+    public ImagePeek() {
+        setOpaque(false);
+        setLayout(new BorderLayout());
+        card.setOpaque(true);
+        card.setBackground(new Color(20, 20, 20, 215));
+        card.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        card.add(pic, BorderLayout.CENTER);
+        add(card, BorderLayout.CENTER);
+        setVisible(false);
+    }
+
+    /** Optional: set the maximum size the preview should fit within. */
+    public void setPeekSize(int maxW, int maxH) {
+        this.maxW = Math.max(32, maxW);
+        this.maxH = Math.max(32, maxH);
+        if (src != null) updateIcon();
+    }
+
+    /** Set/refresh the image and fit it inside the current max size. */
+    public void setImage(BufferedImage img, int maxW, int maxH) {
+        this.src = img;
+        this.maxW = maxW;
+        this.maxH = maxH;
+        updateIcon();
+    }
+
+    /** Convenience: place the peek at (x,y) in parent coords (e.g., layered pane). */
+    public void showAt(int x, int y) {
+        setBounds(x, y, card.getPreferredSize().width, card.getPreferredSize().height);
+        setVisible(true);
+        revalidate();
+        repaint();
+    }
+
+    private void updateIcon() {
+        if (src == null) { pic.setIcon(null); return; }
+        double s = Math.min(maxW / (double) src.getWidth(), maxH / (double) src.getHeight());
+        int w = Math.max(1, (int) (src.getWidth() * s));
+        int h = Math.max(1, (int) (src.getHeight() * s));
+
+        // High-quality scale (better than getScaledInstance)
+        BufferedImage scaled = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = scaled.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.drawImage(src, 0, 0, w, h, null);
+        g2.dispose();
+
+        pic.setIcon(new ImageIcon(scaled));
+        // Size the card to content
+        card.setPreferredSize(new Dimension(scaled.getWidth() + 12, scaled.getHeight() + 12));
+        revalidate();
+    }
+
+    @Override protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        // subtle drop shadow around the card
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setColor(new Color(0, 0, 0, 50));
+        Rectangle b = card.getBounds();
+        g2.fillRoundRect(b.x - 4, b.y - 4, b.width + 8, b.height + 8, 12, 12);
+        g2.dispose();
+    }
+}

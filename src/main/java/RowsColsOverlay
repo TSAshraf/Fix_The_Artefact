@@ -1,0 +1,205 @@
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.text.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.function.BiConsumer;
+
+public class RowsColsOverlay extends JPanel {
+    // theme
+    private static final Color BG = new Color(0,0,0,200);
+    private static final Color FRAME = new Color(220,220,220,180);
+    private static final Color TEXT = Color.WHITE;
+    private static final Font TITLE_FONT = new Font("Serif", Font.BOLD, 26);
+    private static final Font LABEL_FONT = new Font("Serif", Font.PLAIN, 18);
+    private static final Font BTN_FONT = new Font("SansSerif", Font.BOLD, 18);
+
+    // limits (tweak as you like)
+    private static final int MIN_VAL = 2;
+    private static final int MAX_VAL = 20;
+
+    private final JLabel title = new JLabel("Custom split");
+    private final JTextField rowsField = new JTextField();
+    private final JTextField colsField = new JTextField();
+    private final JLabel hint = new JLabel("Enter numbers " + MIN_VAL + "–" + MAX_VAL);
+
+    private final JButton ok = new JButton("OK");
+    private final JButton cancel = new JButton("Cancel");
+
+    private BiConsumer<Integer,Integer> onAccept;
+
+    public RowsColsOverlay() {
+        setOpaque(false);
+        setLayout(null);
+
+        JPanel card = new JPanel(null);
+        card.setBackground(BG);
+        card.setBorder(new LineBorder(FRAME, 2));
+        add(card);
+
+        title.setForeground(TEXT);
+        title.setFont(TITLE_FONT);
+        card.add(title);
+
+        JLabel rowsL = new JLabel("Rows:");
+        rowsL.setFont(LABEL_FONT);
+        rowsL.setForeground(TEXT);
+        card.add(rowsL);
+
+        JLabel colsL = new JLabel("Columns:");
+        colsL.setFont(LABEL_FONT);
+        colsL.setForeground(TEXT);
+        card.add(colsL);
+
+        // numeric only
+        rowsField.setFont(LABEL_FONT);
+        colsField.setFont(LABEL_FONT);
+        rowsField.setHorizontalAlignment(JTextField.CENTER);
+        colsField.setHorizontalAlignment(JTextField.CENTER);
+        rowsField.setBorder(new LineBorder(new Color(80,80,80), 1));
+        colsField.setBorder(new LineBorder(new Color(80,80,80), 1));
+        enforceDigits(rowsField);
+        enforceDigits(colsField);
+        card.add(rowsField);
+        card.add(colsField);
+
+        hint.setForeground(new Color(220,220,220));
+        hint.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        card.add(hint);
+
+        styleButton(ok);
+        styleButton(cancel);
+        card.add(ok);
+        card.add(cancel);
+
+        // layout calc on resize
+        addComponentListener(new ComponentAdapter() {
+            @Override public void componentResized(ComponentEvent e) {
+                int w = getWidth(), h = getHeight();
+                int cw = Math.min(520, (int)(w*0.8));
+                int ch = 260;
+                int cx = (w - cw)/2, cy = (h - ch)/2;
+                card.setBounds(cx, cy, cw, ch);
+
+                int m = 20;
+                title.setBounds(m, m, cw - 2*m, 34);
+
+                int labelW = 120, fieldW = 120, rowY = 80, gap = 12;
+                rowsL.setBounds(m, rowY, labelW, 28);
+                rowsField.setBounds(m + labelW + gap, rowY, fieldW, 32);
+
+                int colY = rowY + 48;
+                colsL.setBounds(m, colY, labelW, 28);
+                colsField.setBounds(m + labelW + gap, colY, fieldW, 32);
+
+                hint.setBounds(m, colY + 40, cw - 2*m, 18);
+
+                int btnY = ch - m - 44;
+                int btnW = 140, btnH = 40;
+                cancel.setBounds(cw - m - btnW*2 - 12, btnY, btnW, btnH);
+                ok.setBounds(cw - m - btnW, btnY, btnW, btnH);
+            }
+        });
+
+        // interactions
+        ok.addActionListener(e -> tryAccept());
+        cancel.addActionListener(e -> close());
+
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0), "esc");
+        getActionMap().put("esc", new AbstractAction(){ @Override public void actionPerformed(ActionEvent e){ close(); }});
+
+        // Enter triggers OK
+        rowsField.addActionListener(e -> ok.doClick());
+        colsField.addActionListener(e -> ok.doClick());
+    }
+
+    private void styleButton(JButton b) {
+        b.setFocusPainted(false);
+        b.setForeground(Color.WHITE);
+        b.setBackground(new Color(20,20,20));
+        b.setBorder(new LineBorder(Color.GRAY));
+        b.setFont(BTN_FONT);
+    }
+
+    private void enforceDigits(JTextField f) {
+        ((AbstractDocument) f.getDocument()).setDocumentFilter(new DocumentFilter(){
+            @Override public void insertString(FilterBypass fb, int off, String str, AttributeSet a) throws BadLocationException {
+                if (str != null && str.chars().allMatch(Character::isDigit)) super.insertString(fb, off, str, a);
+            }
+            @Override public void replace(FilterBypass fb, int off, int len, String str, AttributeSet a) throws BadLocationException {
+                if (str != null && str.chars().allMatch(Character::isDigit)) super.replace(fb, off, len, str, a);
+            }
+        });
+    }
+
+    private void tryAccept() {
+        Integer r = parse(rowsField.getText());
+        Integer c = parse(colsField.getText());
+
+        boolean okR = validateField(rowsField, r);
+        boolean okC = validateField(colsField, c);
+
+        if (okR && okC) {
+            if (onAccept != null) onAccept.accept(r, c);
+        }
+    }
+
+    private Integer parse(String s) {
+        if (s == null || s.isBlank()) return null;
+        try { return Integer.parseInt(s.trim()); } catch (Exception e) { return null; }
+    }
+
+    private boolean validateField(JTextField f, Integer v) {
+        boolean good = v != null && v >= MIN_VAL && v <= MAX_VAL;
+        f.setBorder(new LineBorder(good ? new Color(80,80,80) : new Color(200,60,60), 2));
+        return good;
+    }
+
+    // API
+    public void open(JComponent glassPane, BiConsumer<Integer,Integer> onAccept) {
+        this.onAccept = onAccept;
+        if (getParent() != glassPane) glassPane.add(this);
+        setBounds(0,0,glassPane.getWidth(), glassPane.getHeight());
+        setVisible(true);
+        glassPane.setVisible(true);
+        glassPane.repaint();
+        SwingUtilities.invokeLater(() -> rowsField.requestFocusInWindow());
+    }
+
+    public void close() {
+        setVisible(false);
+        Container p = getParent();
+        if (p != null) p.repaint();
+    }
+
+    @Override protected void paintComponent(Graphics g) {
+        // soft dim backdrop
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setColor(new Color(0,0,0,120));
+        g2.fillRect(0,0,getWidth(),getHeight());
+        g2.dispose();
+    }
+
+    // Optional tiny toast for legacy “defaulted to easy”
+    public static void showToast(JComponent glassPane, String msg) {
+        JPanel toast = new JPanel(new BorderLayout());
+        toast.setOpaque(true);
+        toast.setBackground(new Color(0,0,0,220));
+        toast.setBorder(new LineBorder(Color.LIGHT_GRAY));
+        JLabel l = new JLabel("  " + msg + "  ");
+        l.setForeground(Color.WHITE);
+        toast.add(l, BorderLayout.CENTER);
+
+        int w = 360, h = 36;
+        int x = (glassPane.getWidth() - w)/2;
+        int y = glassPane.getHeight() - h - 40;
+        toast.setBounds(x,y,w,h);
+        glassPane.add(toast);
+        glassPane.setComponentZOrder(toast, 0);
+        glassPane.repaint();
+
+        new Timer(1600, e -> {
+            glassPane.remove(toast);
+            glassPane.repaint();
+        }){{ setRepeats(false); }}.start();
+    }

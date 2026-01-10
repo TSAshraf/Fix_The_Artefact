@@ -1,0 +1,186 @@
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.List;
+import java.util.*;
+import java.util.function.IntConsumer;
+
+class JigsawChooserPopover extends JPanel {
+
+    private final JPanel card = new JPanel(null) {
+        @Override protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(new Color(0,0,0,220));
+            g2.fillRoundRect(0,0,getWidth(),getHeight(),14,14);
+            g2.setColor(new Color(220,220,220,160));
+            g2.setStroke(new BasicStroke(2f));
+            g2.drawRoundRect(1,1,getWidth()-2,getHeight()-2,14,14);
+            g2.dispose();
+        }
+    };
+
+    private final JTextField search = new JTextField();
+    private final DefaultListModel<String> model = new DefaultListModel<>();
+    private final JList<String> list = new JList<>(model);
+    private List<String> allDisplay = List.of();   // display names
+    private IntConsumer onPick;
+
+    JigsawChooserPopover() {
+        setOpaque(false);
+        setLayout(null);
+
+        card.setOpaque(false);
+        add(card);
+
+        JLabel title = new JLabel("Choose a jigsaw");
+        title.setForeground(Color.WHITE);
+        title.setFont(new Font("Serif", Font.BOLD, 20));
+        card.add(title);
+
+        // search
+        search.setBackground(new Color(25,25,25));
+        search.setForeground(Color.WHITE);
+        search.setCaretColor(Color.WHITE);
+        search.setBorder(new LineBorder(new Color(70,70,70)));
+        search.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        card.add(search);
+
+        // list
+        list.setBackground(new Color(22,22,22));
+        list.setForeground(Color.WHITE);
+        list.setSelectionBackground(new Color(90,90,90));
+        list.setSelectionForeground(Color.WHITE);
+        list.setFont(new Font("Serif", Font.PLAIN, 20));
+        JScrollPane sp = new JScrollPane(list);
+        sp.setBorder(BorderFactory.createEmptyBorder());
+        sp.getViewport().setBackground(list.getBackground());
+        card.add(sp);
+
+        JButton cancel = styledButton("Cancel");
+        JButton ok     = styledButton("OK");
+        card.add(cancel);
+        card.add(ok);
+
+        // actions
+        cancel.addActionListener(e -> close());
+        ok.addActionListener(e -> chooseSelected());
+
+        list.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) chooseSelected();
+            }
+        });
+
+        search.getDocument().addDocumentListener(new DocumentListener() {
+            void refilter() {
+                String q = search.getText().toLowerCase().trim();
+                model.clear();
+                for (String name : allDisplay) {
+                    if (q.isEmpty() || name.toLowerCase().contains(q)) model.addElement(name);
+                }
+                if (!model.isEmpty()) list.setSelectedIndex(0);
+            }
+            public void insertUpdate(DocumentEvent e) { refilter(); }
+            public void removeUpdate(DocumentEvent e) { refilter(); }
+            public void changedUpdate(DocumentEvent e) { refilter(); }
+        });
+
+        // esc to close
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),"esc");
+        getActionMap().put("esc", new AbstractAction(){ @Override public void actionPerformed(ActionEvent e){ close(); }});
+
+        // outside click closes
+        addMouseListener(new MouseAdapter() {
+            @Override public void mousePressed(MouseEvent e) {
+                if (!card.getBounds().contains(e.getPoint())) close();
+            }
+        });
+
+        // internal layout when resized
+        addComponentListener(new ComponentAdapter() {
+            @Override public void componentResized(ComponentEvent e) {
+                int m=16, w=card.getWidth(), h=card.getHeight();
+                title.setBounds(m, m, w-2*m, 26);
+                search.setBounds(m, m+30, w-2*m, 34);
+                sp.setBounds(m, m+30+34+10, w-2*m, h - (m+30+34+10) - (m+44) - 10);
+                int btnW=120, btnH=40, gap=12, y=h-m-btnH;
+                cancel.setBounds(w - m - (btnW*2 + gap), y, btnW, btnH);
+                ok.setBounds(w - m - btnW, y, btnW, btnH);
+            }
+        });
+    }
+
+    private JButton styledButton(String text) {
+        JButton b = new JButton(text);
+        b.setFocusPainted(false);
+        b.setForeground(Color.WHITE);
+        b.setBackground(new Color(20,20,20));
+        b.setBorder(new LineBorder(Color.GRAY));
+        b.setFont(new Font("SansSerif", Font.BOLD, 16));
+        return b;
+    }
+
+    private void chooseSelected() {
+        int sel = list.getSelectedIndex();
+        if (sel < 0) return;
+
+        // Convert selected display name back to original index in allDisplay
+        String chosenName = model.get(sel);
+        int originalIndex = -1;
+        for (int i=0; i<allDisplay.size(); i++) {
+            if (allDisplay.get(i).equals(chosenName)) { originalIndex = i; break; }
+        }
+        if (originalIndex >= 0 && onPick != null) onPick.accept(originalIndex);
+    }
+
+    /** Open a ~420×420 card above anchor; contents come from displayNames. */
+    void openAbove(JComponent glassPane, JComponent anchor, List<String> displayNames, IntConsumer onPick) {
+        this.onPick = onPick;
+        this.allDisplay = new ArrayList<>(displayNames);
+
+        model.clear();
+        for (String s : allDisplay) model.addElement(s);
+        if (!model.isEmpty()) list.setSelectedIndex(0);
+
+        if (getParent() != glassPane) glassPane.add(this);
+        setBounds(0,0,glassPane.getWidth(), glassPane.getHeight());
+        setVisible(true);
+        glassPane.setVisible(true);
+
+        // position the card
+        int cw = 420, ch = 420;
+        Point aScreen = anchor.getLocationOnScreen();
+        Point gScreen = glassPane.getLocationOnScreen();
+        int ax = aScreen.x - gScreen.x;
+        int ay = aScreen.y - gScreen.y;
+
+        int cx = ax + (anchor.getWidth() - cw)/2;
+        int cy = ay - ch - 12;
+        // clamp within glass
+        cx = Math.max(12, Math.min(cx, glassPane.getWidth() - cw - 12));
+        cy = Math.max(12, Math.min(cy, glassPane.getHeight() - ch - 12));
+
+        card.setBounds(cx, cy, cw, ch);
+        revalidate(); repaint();
+
+        SwingUtilities.invokeLater(() -> search.requestFocusInWindow());
+    }
+
+    void close() {
+        setVisible(false);
+        Container p = getParent();
+        if (p != null) p.repaint();
+    }
+
+    @Override protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setColor(new Color(0,0,0,90));
+        g2.fillRect(0,0,getWidth(),getHeight());
+        g2.dispose();
+    }
+}
