@@ -1,11 +1,11 @@
-import javax.swing.*;
+mport javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.imageio.ImageIO;
-import java.io.File;
 
 // Main menu panel that shows a background, ornate frame, and play button
-public class MainMenuPanel extends JPanel implements ActionListener {
+public class MainMenuPanel extends JPanel {
+
     private FramePanel framePanel;
     private Image backgroundImage;
     private MainMenuListener listener;
@@ -29,27 +29,35 @@ public class MainMenuPanel extends JPanel implements ActionListener {
         setLayout(new GridBagLayout());
         setOpaque(false);
 
-        // Load the background image.
-        try {
-            backgroundImage = ImageIO.read(new File("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/Fantasy-Background.jpg"));
+        // Load background image from resources
+        try (var in = MainMenuPanel.class.getResourceAsStream("/Starting/Fantasy-Background.jpg")) {
+            if (in == null) {
+                throw new RuntimeException("Missing resource: /Starting/Fantasy-Background.jpg");
+            }
+            backgroundImage = ImageIO.read(in);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Load the ornate frame image.
+        // Load ornate frame image from resources
         Image ornateFrame = null;
-        try {
-            ornateFrame = ImageIO.read(new File("/Users/taashfeen/Desktop/Jigsaw Game/src/Starting/Ornate-1-Photoroom.png"));
+        try (var in = MainMenuPanel.class.getResourceAsStream("/Starting/Ornate-1-Photoroom.png")) {
+            if (in == null) {
+                throw new RuntimeException("Missing resource: /Starting/Ornate-1-Photoroom.png");
+            }
+            ornateFrame = ImageIO.read(in);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         // Create the frame panel.
         framePanel = new FramePanel(ornateFrame);
+
         // If listener is already set, pass it along.
         if (listener != null) {
             framePanel.setMainMenuListener(listener);
         }
+
         add(framePanel, new GridBagConstraints());
     }
 
@@ -63,23 +71,16 @@ public class MainMenuPanel extends JPanel implements ActionListener {
         }
     }
 
-    // When an action is performed, notify the listener
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (listener != null) {
-            listener.onPlayClicked();
-        }
-    }
-
     // Nested panel class: a panel that draws the ornate frame and holds the Play button.
     private class FramePanel extends JPanel implements ActionListener {
-        private Image frameImage;
-        private JButton playButton;
+
+        private final Image frameImage;
+        private final JButton playButton;
         private MainMenuListener menuListener;
 
         // Customize these offsets to fine-tune the frame position
-        private int offsetX = 0;  // positive = move frame to the right, negative = left
-        private int offsetY = -5;   // positive = move frame down, negative = up
+        private int offsetX = 0;   // positive = move frame to the right, negative = left
+        private int offsetY = -5;  // positive = move frame down, negative = up
 
         public FramePanel(Image frameImage) {
             this.frameImage = frameImage;
@@ -105,7 +106,6 @@ public class MainMenuPanel extends JPanel implements ActionListener {
             playButton.addActionListener(this);
 
             // Hover effect, increases button font size when hovered
-            // Maybe also add increased button size
             playButton.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent e) {
@@ -113,6 +113,7 @@ public class MainMenuPanel extends JPanel implements ActionListener {
                     playButton.revalidate();
                     playButton.repaint();
                 }
+
                 @Override
                 public void mouseExited(MouseEvent e) {
                     playButton.setFont(playButton.getFont().deriveFont(28f));
@@ -120,6 +121,7 @@ public class MainMenuPanel extends JPanel implements ActionListener {
                     playButton.repaint();
                 }
             });
+
             add(playButton, new GridBagConstraints()); // Adds the play button
         }
 
