@@ -126,6 +126,59 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
     private GamePanelListener gamePanelListener; // Listener instance
     public void setGamePanelListener(GamePanelListener listener) {this.gamePanelListener = listener;} // Setter Interface for Screen Navigation
 
+    private void setupKeyboardShortcuts() {
+        // WHEN_IN_FOCUSED_WINDOW = works as long as this panel is in the active window
+        InputMap im = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = this.getActionMap();
+
+        // Helper: bind keystroke -> runnable
+        java.util.function.BiConsumer<String, Runnable> bind = (key, run) -> {
+            im.put(KeyStroke.getKeyStroke(key), key);
+            am.put(key, new AbstractAction() {
+                @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+                    run.run();
+                }
+            });
+        };
+
+        // ==== Suggested shortcuts (change to match what you want) ====
+        bind.accept("LEFT", () -> previousJigsawButton.doClick());
+        bind.accept("RIGHT", () -> nextJigsawButton.doClick());
+        bind.accept("R", () -> restartButton.doClick());
+        bind.accept("I", () -> extraInfoButton.doClick());         // info overlay
+        bind.accept("C", () -> showCompletedButton.doClick());     // completed image overlay
+        bind.accept("Z", () -> zenModeButton.doClick());           // zen mode
+        bind.accept("T", () -> timerButton.doClick());         // pause/start timer
+        bind.accept("M", () -> musicToggleButton.doClick());       // mute/unmute
+
+        // Escape: close overlays if open (nice UX)
+        bind.accept("ESCAPE", () -> {
+            boolean changed = false;
+
+            if (persistentOverlay != null && persistentOverlay.isVisible()) {
+                persistentOverlay.close();
+                changed = true;
+                updateInfoTooltip();
+            }
+            if (completedOverlay != null && completedOverlay.isVisible()) {
+                completedOverlay.setVisible(false); // or completedOverlay.close() if you have it
+                changed = true;
+                updateShowCompletedTooltip();
+            }
+            if (splitOverlay != null && splitOverlay.isShowing()) {
+                splitOverlay.close();
+                changed = true;
+            }
+            if (rowsColsOverlay != null && rowsColsOverlay.isShowing()) { // if you have an isShowing()
+                rowsColsOverlay.close();
+                changed = true;
+            }
+
+            if (changed && glassPaneRef != null) glassPaneRef.repaint();
+            repaint();
+        });
+    }
+
     public FixThePotGamePanel() { // Sets up the game panel
         setLayout(new BorderLayout()); // Set layout
         setOpaque(false); // Set opacity
@@ -134,6 +187,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
         buildControlPanel(); // Build the control panel (all buttons and controls in one row)
         initializeExtraInfoMap(); // Initialize the extra info map.
         setupTimer(); // Set up the timer
+        setupKeyboardShortcuts(); // Set up keyboard shortcuts
         // Set initial image
         imageComboBox.setSelectedIndex(0);
         puzzlePanel.setImage(imageOptions[0]);
@@ -304,6 +358,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
             puzzlePanel.setImage(selectedPath);
             hideInfoOverlay();
         });
+        previousJigsawButton.setFocusable(false); // prevents SPACE from focusing on the button
 
         // Restart Button
         // Load and scale the Restart icon
@@ -639,6 +694,8 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
             nextJigsawButton.setEnabled(false); // Disable button until the next puzzle is solved
             hideInfoOverlay();
         });
+        nextJigsawButton.setFocusable(false); // prevents SPACE from focusing on the button
+
 
         // Zen mode button
         // Load and scale the Jigsaw icon
