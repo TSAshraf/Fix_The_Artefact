@@ -1,6 +1,6 @@
 public final class BackgroundCatalog {
     private BackgroundCatalog() {}
-
+    
     public static String backgroundFor(String collectionName, Theme theme) {
         boolean dark = (theme == Theme.DARK);
 
@@ -9,23 +9,23 @@ public final class BackgroundCatalog {
 
         return switch (collectionName) {
             case "/Ancient Cyprus" ->
-                    dark ? "/Starting/Backgrounds/Ancient Cyprus/Dark.jpg"
-                            : "/Starting/Backgrounds/Ancient Cyprus/Light.jpg";
+                    dark ? "/Ancient Cyprus/Backgrounds/Dark.jpg"
+                            : "/Ancient Cyprus/Backgrounds//Light.jpg";
             case "/Ancient Greece" ->
-                    dark ? "/Starting/Backgrounds/Ancient Greece/Dark.jpg"
-                            : "/Starting/Backgrounds/Ancient Greece/Light.jpg";
+                    dark ? "/Ancient Greece/Backgrounds/Dark.jpg"
+                            : "/Ancient Greece/Backgrounds/Light.jpg";
             case "/Ancient Egypt" ->
-                    dark ? "/Starting/Backgrounds/Ancient Egypt/Dark.jpg"
-                            : "/Starting/Backgrounds/Ancient Egypt/Light.jpg";
+                    dark ? "/Ancient Egypt/Backgrounds/Dark.jpg"
+                            : "/Ancient Egypt/Backgrounds/Light.jpg";
             case "/Ancient Near East" ->
-                    dark ? "/Starting/Backgrounds/Ancient Near East/Dark.jpg"
-                            : "/Starting/Backgrounds/Ancient Near East/Light.jpg";
+                    dark ? "/Ancient Near East/Backgrounds/Dark.jpg"
+                            : "/Ancient Near East/Backgrounds/Light.jpg";
             case "/Rome" ->
-                    dark ? "/Starting/Backgrounds/Rome/Dark.jpg"
-                            : "/Starting/Backgrounds/Rome/Light.jpg";
+                    dark ? "/Rome/Backgrounds/Dark.jpg"
+                            : "/Rome/Backgrounds/Light.jpg";
             default ->
-                    dark ? "/Starting/Backgrounds/Rome/Dark.jpg"
-                            : "/Starting/Backgrounds/Rome/Light.jpg";
+                    dark ? "/Rome/Backgrounds/Dark.jpg"
+                            : "/Rome/Backgrounds/Light.jpg";
         };
     }
 }
