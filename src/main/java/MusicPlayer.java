@@ -1,31 +1,38 @@
-// Import JavaFX classes for embedding in Swing and Media Handling
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import java.io.File;
+
+import java.net.URL;
 
 // MusicPlayer class handles audio playback using JavaFX MediaPlayer
 public class MusicPlayer {
-    private MediaPlayer mediaPlayer; // MediaPlayer instance
+    private MediaPlayer mediaPlayer;
 
-    public MusicPlayer(String filePath) {
-        new JFXPanel(); // Initialize JavaFX runtime for MediaPlayer support in Swing
-        Media media = new Media(new File(filePath).toURI().toString()); // Media object created from file path
-        mediaPlayer = new MediaPlayer(media); // Instantiates MediaPlayer with created Media
-        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop the music indefinitely
+    /**
+     * @param resourcePath classpath resource, e.g. "/audio/background.mp3"
+     */
+    public MusicPlayer(String resourcePath) {
+        // Initialize JavaFX runtime for MediaPlayer support in Swing
+        new JFXPanel();
+
+        URL url = MusicPlayer.class.getResource(resourcePath);
+        if (url == null) {
+            throw new RuntimeException("Missing audio resource: " + resourcePath);
+        }
+
+        Media media = new Media(url.toExternalForm());
+        mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
     }
 
-    // Play the Audio
     public void play() {
         mediaPlayer.play();
     }
 
-    // Pause the Audio
     public void pause() {
         mediaPlayer.pause();
     }
 
-    // Toggle between playing and pausing the audio
     public void togglePlayPause() {
         if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
             mediaPlayer.pause();
@@ -34,7 +41,6 @@ public class MusicPlayer {
         }
     }
 
-    // Stop the Audio
     public void stopPlayback() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
