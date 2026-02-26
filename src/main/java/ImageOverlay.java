@@ -3,9 +3,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
-public class ImageOverlay extends JPanel {
+public class ImageOverlay extends JPanel implements ThemeAware {
     private final JLabel pic = new JLabel();
     private BufferedImage src;
+
+    // Theme-derived paint colours
+    private Color shadowColor;
+    private Color cardFill;
+    private Color cardStroke;
 
     // main card that floats; we size/move this component itself
     // Remove layout gaps to avoid white borders
@@ -13,8 +18,17 @@ public class ImageOverlay extends JPanel {
         @Override protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setColor(new Color(0, 0, 0, 40));
-            g2.fillRoundRect(4, 4, getWidth() - 8, getHeight() - 8, 16, 16);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // soft shadow behind the rounded card
+            if (shadowColor != null) {
+                g2.setColor(shadowColor);
+                g2.fillRoundRect(4, 4, getWidth() - 8, getHeight() - 8, 16, 16);
+            }
+
+            // NOTE: card background (fill) is handled by card.setBackground(cardFill)
+            // and border via card.setBorder(...) in refreshTheme().
+
             g2.dispose();
         }
     };
@@ -37,12 +51,8 @@ public class ImageOverlay extends JPanel {
         setOpaque(false);
         setLayout(null); // we position the card directly
 
-        // card look
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(12, 12, 12, 12),
-                BorderFactory.createLineBorder(new Color(0, 0, 0, 90), 1, true)
-        ));
-        card.setBackground(new Color(30, 30, 30, 220));
+        // Ensure card is non-opaque; we rely on its background alpha
+        card.setOpaque(true);
 
         // make scroller/viewport fully transparent; no stray white
         scroller.setBorder(null);
@@ -79,11 +89,11 @@ public class ImageOverlay extends JPanel {
 
             @Override public void mouseDragged(MouseEvent e) {
                 if (dragAnchor == null) return;
+
                 if (resizing) {
-                    // keep diagonal (width drives height by aspect)
                     int dx = e.getX() - dragAnchor.x;
-                    int newW = Math.max(260, startSize.width + dx);     // min size
-                    int newH = Math.max(200, (int) Math.round(newW * aspect));
+                    int newW = Math.max(260, startSize.width + dx);           // min size
+                    int newH = Math.max(200, (int) Math.round(newW * aspect));// keep aspect
 
                     // keep inside parent
                     Dimension parent = getParentSize();
@@ -100,6 +110,7 @@ public class ImageOverlay extends JPanel {
                     Point p = getLocation();
                     int nx = p.x + e.getX() - dragAnchor.x;
                     int ny = p.y + e.getY() - dragAnchor.y;
+
                     // clamp to parent
                     Dimension parent = getParentSize();
                     nx = Math.max(0, Math.min(nx, parent.width - card.getWidth()));
@@ -129,6 +140,37 @@ public class ImageOverlay extends JPanel {
         getActionMap().put("hide", new AbstractAction() {
             @Override public void actionPerformed(ActionEvent e) { setVisible(false); }
         });
+
+        // Theme hook
+        ThemeManager.get().register(this);
+        refreshTheme();
+    }
+
+    @Override
+    public void refreshTheme() {
+        Theme.Palette.Overlay o = ThemeManager.get().palette().overlay;
+
+        // Shadow: derive from scrim (subtle). We don't want full scrim intensity for shadow.
+        // If your scrim is already light, this still looks fine.
+        shadowColor = new Color(o.scrim.getRed(), o.scrim.getGreen(), o.scrim.getBlue(),
+                Math.min(80, o.scrim.getAlpha()));
+
+        cardFill = o.cardFill;
+        cardStroke = o.cardStroke;
+
+        // Apply to components
+        card.setBackground(cardFill);
+
+        // Keep the inset padding + themed stroke
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(cardStroke, 1, true),
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)
+        ));
+
+        // Not strictly necessary for the image, but keeps consistency if you add text later
+        pic.setForeground(o.text);
+
+        repaint();
     }
 
     private boolean isInResizeZone(Point p) {
@@ -199,7 +241,8 @@ public class ImageOverlay extends JPanel {
         int y = (containerSize.height - card.getHeight()) / 2;
         setLocation(Math.max(8, x), Math.max(8, y));
     }
-        public void close() {
+
+    public void close() {
         setVisible(false);
         Container p = getParent();
         if (p != null) p.repaint();
