@@ -1,7 +1,6 @@
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-
 import java.net.URL;
 
 // MusicPlayer class handles audio playback using JavaFX MediaPlayer
