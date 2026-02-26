@@ -34,31 +34,31 @@ public class CollectionsPanel extends JPanel implements ThemeAware {
 
         ancientCyprusButton = new JButton("Ancient Cyprus");
         ancientCyprusButton.addActionListener(e -> {
-            if (listener != null) listener.onCollectionSelected("/Ancient Cyprus");
+            if (listener != null) listener.onCollectionSelected("/Ancient Cyprus/Artifacts/");
         });
         buttonPanel.add(ancientCyprusButton);
 
         ancientGreeceButton = new JButton("Ancient Greece");
         ancientGreeceButton.addActionListener(e -> {
-            if (listener != null) listener.onCollectionSelected("/Ancient Greece");
+            if (listener != null) listener.onCollectionSelected("/Ancient Greece/Artifacts/");
         });
         buttonPanel.add(ancientGreeceButton);
 
         ancientEgyptButton = new JButton("Ancient Egypt");
         ancientEgyptButton.addActionListener(e -> {
-            if (listener != null) listener.onCollectionSelected("/Ancient Egypt");
+            if (listener != null) listener.onCollectionSelected("/Ancient Egypt/Artifacts/");
         });
         buttonPanel.add(ancientEgyptButton);
 
         ancientNearEastButton = new JButton("Ancient Near East");
         ancientNearEastButton.addActionListener(e -> {
-            if (listener != null) listener.onCollectionSelected("/Ancient Near East");
+            if (listener != null) listener.onCollectionSelected("/Ancient Near East/Artifacts/");
         });
         buttonPanel.add(ancientNearEastButton);
 
         romeButton = new JButton("Rome");
         romeButton.addActionListener(e -> {
-            if (listener != null) listener.onCollectionSelected("/Rome");
+            if (listener != null) listener.onCollectionSelected("/Rome/Artifacts/");
         });
         buttonPanel.add(romeButton);
 
