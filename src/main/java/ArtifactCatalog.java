@@ -16,7 +16,7 @@ public final class ArtifactCatalog {
         Map<String, ImageInfo> map = new HashMap<>();
 
         // Ancient Cyprus Collection 15/15
-        map.put("/Ancient Cyprus/jug-1.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/jug-1.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2250 BC ~ 2150 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -24,7 +24,7 @@ public final class ArtifactCatalog {
                 "The jar has a conical base and is decorated in Red Polished I type of Red Polished slip all over its body.",
                 "https://www.liverpoolmuseums.org.uk/artifact/jug-1"
         ));
-        map.put("/Ancient Cyprus/jug-2.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/jug-2.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2075 BC ~ 2000 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -33,7 +33,7 @@ public final class ArtifactCatalog {
                 "The handle has a zig zag incised decoration on it and there are two round protruding circles on each side of the neck by the top handle.",
                 "https://www.liverpoolmuseums.org.uk/artifact/jug-2"
         ));
-        map.put("/Ancient Cyprus/jug-3.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/jug-3.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2075 BC ~ 2000 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -43,7 +43,7 @@ public final class ArtifactCatalog {
                 "The ware has a rich brown surface, the clay is well mixed with a grit straw and fired buff, the core on the body has grey tones.",
                 "https://www.liverpoolmuseums.org.uk/artifact/jug-3"
         ));
-        map.put("/Ancient Cyprus/jug-4.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/jug-4.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2075 BC ~ 2000 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -53,7 +53,7 @@ public final class ArtifactCatalog {
                 "slip has fallen off.",
                 "https://www.liverpoolmuseums.org.uk/artifact/jug-4"
         ));
-        map.put("/Ancient Cyprus/jug-5.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/jug-5.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 850 BC ~ 750 BC<br>" +
                 "Culture: Cypro-Geometric<br>" +
@@ -62,7 +62,7 @@ public final class ArtifactCatalog {
                 "The decoration is flaky and has lost its shine. Half of the flat spout is missing.",
                 "https://www.liverpoolmuseums.org.uk/artifact/jug-5"
         ));
-        map.put("/Ancient Cyprus/bowl-1.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/bowl-1.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2150 BC ~ 2100 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -73,7 +73,7 @@ public final class ArtifactCatalog {
                 "One of the lugs has two holes while the other lug is almost unformed.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-1"
         ));
-        map.put("/Ancient Cyprus/bowl-2.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/bowl-2.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2250 BC ~ 2150 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -90,7 +90,7 @@ public final class ArtifactCatalog {
                 "their regional identity through material culture.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-2"
         ));
-        map.put("/Ancient Cyprus/bowl-3.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/bowl-3.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2250 BC ~ 2150 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -104,7 +104,7 @@ public final class ArtifactCatalog {
                 "The interior of the bowl is black.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-3"
         ));
-        map.put("/Ancient Cyprus/bowl-4.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/bowl-4.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2250 BC ~ 2150 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -113,7 +113,7 @@ public final class ArtifactCatalog {
                 "The colour of the slip at the lower part of the bowl ranges from red to dark brown/red especially in the area close to the spout.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-4"
         ));
-        map.put("/Ancient Cyprus/bowl-5.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/bowl-5.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 2150 BC ~ 2100 BC<br>" +
                 "Culture: Early Cypriot<br>" +
@@ -122,7 +122,7 @@ public final class ArtifactCatalog {
                 "The interior of the bowl is black and there are a few cracks on its body and a small part missing.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-5"
         ));
-        map.put("/Ancient Cyprus/Pyxis-Lid.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/Pyxis-Lid.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 1300 BC<br>" +
                 "Culture: Late Cypriot IIB<br>" +
@@ -136,7 +136,7 @@ public final class ArtifactCatalog {
                 "One piece has come loose of the mount. Large parts of the opposite sides are missing.",
                 "https://www.liverpoolmuseums.org.uk/artifact/pyxis-box-lid"
         ));
-        map.put("/Ancient Cyprus/Spindle-Whorl.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/Spindle-Whorl.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 1300 BC<br>" +
                 "Culture: Late Cypriot IIB<br>" +
@@ -145,7 +145,7 @@ public final class ArtifactCatalog {
                 "In between these two bands there is band of long narrow petals. Half of the circumference is broken. The underside is plain.",
                 "https://www.liverpoolmuseums.org.uk/artifact/spindle-whorl-11"
         ));
-        map.put("/Ancient Cyprus/Human-Remains-1.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/Human-Remains-1.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 1250 BC - 1190 BC<br>" +
                 "Culture: Cypriot<br>" +
@@ -153,7 +153,7 @@ public final class ArtifactCatalog {
                 "From the excavations of Kouklia: Evreti Tomb 3A.",
                 "https://www.liverpoolmuseums.org.uk/artifact/human-and-animal-remains-skeletal"
         ));
-        map.put("/Ancient Cyprus/Temple-Boy.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/Temple-Boy.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 400 BC – 300 BC<br>" +
                 "Culture: Cypriot<br>" +
@@ -165,7 +165,7 @@ public final class ArtifactCatalog {
                 "Most of the details of the body and the clothing have faded.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statuette-of-temple-boy-6"
         ));
-        map.put("/Ancient Cyprus/VotiveStatueHead.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Cyprus/Artifacts/VotiveStatueHead.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Year: 600 BC – 500 BC<br>" +
                 "Culture:  Cypriot<br>" +
@@ -178,7 +178,7 @@ public final class ArtifactCatalog {
         ));
 
         // Ancient Greece Collection 15/15
-        map.put("/Ancient Greece/Amour Helmet.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Amour Helmet.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 550 BC – 450 BC<br>" +
                 "Culture: Corinthian<br>" +
@@ -189,7 +189,7 @@ public final class ArtifactCatalog {
                 "The helmet has no nail holes or inscriptions or signs of bending in the cheek guards that would indicate it is from a sanctuary. ",
                 "https://www.liverpoolmuseums.org.uk/artifact/armour-helmet"
         ));
-        map.put("/Ancient Greece/Wine Flask.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Wine Flask.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 360 – 330 BC<br>" +
                 "Culture: Campanian, Ancient Greek<br>" +
@@ -202,7 +202,7 @@ public final class ArtifactCatalog {
                 "The oinochoe is broken has a repaired rim and minor abrasions.",
                 "https://www.liverpoolmuseums.org.uk/artifact/wine-flask"
         ));
-        map.put("/Ancient Greece/Wine Flask 2.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Wine Flask 2.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: about 730 BC<br>" +
                 "Culture: Attic<br>" +
@@ -218,7 +218,7 @@ public final class ArtifactCatalog {
                 "Ahlberg (1967) interprets the objects as 'pomegranate-vases', with one point turned up, the other down.",
                 "https://www.liverpoolmuseums.org.uk/artifact/wine-flask-1"
         ));
-        map.put("/Ancient Greece/Amphora.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Amphora.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 4th Century BC<br>" +
                 "Culture: Campanian, Ancient Greek<br>" +
@@ -226,7 +226,7 @@ public final class ArtifactCatalog {
                 "Side 1: Satyr with thyrsus and tambourine. Side 2: draped and diademed female.",
                 "https://www.liverpoolmuseums.org.uk/artifact/amphora-15"
         ));
-        map.put("/Ancient Greece/Drinking Vessel.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Drinking Vessel.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: Late 5th Century BC – Early 4th Century BC<br>" +
                 "Culture: Apulian<br>" +
@@ -242,7 +242,7 @@ public final class ArtifactCatalog {
                 "While in the upper left area there is an elaborate ribbon. By the rim there is a thin frieze of joined half egg decoration.",
                 "https://www.liverpoolmuseums.org.uk/artifact/drinking-vessel-12"
         ));
-        map.put("/Ancient Greece/Krater.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Krater.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 4th Century BC<br>" +
                 "Culture: Apulian<br>" +
@@ -252,7 +252,7 @@ public final class ArtifactCatalog {
                 "In Greek mythology, maenads were the female followers of the god Dionysus.",
                 "https://www.liverpoolmuseums.org.uk/artifact/krater-2"
         ));
-        map.put("/Ancient Greece/Kylix.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Kylix.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: about 530 BC<br>" +
                 "Culture: Attic<br>" +
@@ -262,7 +262,7 @@ public final class ArtifactCatalog {
                 "The use of a Gorgon mask was a common feature on the inside of drinking vessels, probably intended to ward off the evil eye.",
                 "https://www.liverpoolmuseums.org.uk/artifact/kylix"
         ));
-        map.put("/Ancient Greece/Aryballos.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Aryballos.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: about 550 BC<br>" +
                 "Culture: Corinthian<br>" +
@@ -273,7 +273,7 @@ public final class ArtifactCatalog {
                 "The handle also has inverted arrows decoration in brown but has significantly faded.",
                 "https://www.liverpoolmuseums.org.uk/artifact/aryballos-15"
         ));
-        map.put("/Ancient Greece/Aryballos 2.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Aryballos 2.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 665 BC – 620 BC<br>" +
                 "Culture: Greek<br>" +
@@ -285,7 +285,7 @@ public final class ArtifactCatalog {
                 "The flat shaped top has a thick brown circular band outlined by thinner red circular bands.",
                 "https://www.liverpoolmuseums.org.uk/artifact/aryballos-17"
         ));
-        map.put("/Ancient Greece/Aryballos 3.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Aryballos 3.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 626 BC – 600 BC<br>" +
                 "Culture: Corinthian<br>" +
@@ -295,7 +295,7 @@ public final class ArtifactCatalog {
                 "indicate that it may be from the Early Corinthian phase.",
                 "https://www.liverpoolmuseums.org.uk/artifact/aryballos-25"
         ));
-        map.put("/Ancient Greece/Rhyton.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Rhyton.jpg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 4th Century BC<br>" +
                 "Culture: Greek<br>" +
@@ -322,14 +322,14 @@ public final class ArtifactCatalog {
                 "of the face in between the eyes as well as the muzzle also have thick applied white paint. There are several cracks at the sides of the mouth.",
                 "https://www.liverpoolmuseums.org.uk/artifact/rhyton-0"
         ));
-        map.put("/Ancient Greece/Horse votive offering.jpg", new ImageInfo( "<html>" +
+        map.put("/Ancient Greece/Artifacts/Horse votive offering.jpg", new ImageInfo( "<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 6th Century BC<br>" +
                 "Culture: Laconian<br>" +
                 "A horse votive offering from the Sanctuary of Artemis Orthia. The horse is in profile to its right and has all its legs complete.",
                 "https://www.liverpoolmuseums.org.uk/artifact/horse-votive-offering"
         ));
-        map.put("/Ancient Greece/Fragments of deer figurine.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Fragments of deer figurine.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 6th Century BC to mid 4th Century BC<br>" +
                 "Culture: Laconian<br>" +
@@ -337,13 +337,13 @@ public final class ArtifactCatalog {
                 "(or possibly another sanctuary site in Lakonia). The deer faces to its right. Deer are associated with the hunting goddess Artemis.",
                 "https://www.liverpoolmuseums.org.uk/artifact/fragments-of-deer-figurine"
         ));
-        map.put("/Ancient Greece/Wreath Shaped votive offering.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Wreath Shaped votive offering.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 6th Century BC to mid 4th Century BC<br>" +
                 "Culture: Laconian<br>" +
                 "Votive offering of a wreath type from the Sanctuary of Artemis Orthia in Sparta (or possibly another sanctuary site in Lakonia).",
                 "https://www.liverpoolmuseums.org.uk/artifact/wreath-shaped-votive-offering"));
-        map.put("/Ancient Greece/Loutrophoros.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Greece/Artifacts/Loutrophoros.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: Late 4th Century BC<br>" +
                 "Culture: Apulian<br>" +
@@ -363,7 +363,7 @@ public final class ArtifactCatalog {
         ));
 
         // Ancient Egypt 15/15
-        map.put("/Ancient Egypt/Shabti of Djedkhonsuefankh.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Shabti of Djedkhonsuefankh.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1070 – 945 BC<br>" +
                 "Culture: Ancient Egypt, Third Intermediate Period<br>" +
@@ -375,7 +375,7 @@ public final class ArtifactCatalog {
                 "and a few with the common shabti formula.",
                 "https://www.metmuseum.org/art/collection/search/561086"
         ));
-        map.put("/Ancient Egypt/Figurine of a Pygmy Dance Leader.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Figurine of a Pygmy Dance Leader.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1950 – 1885 BC<br>" +
                 "Culture: Ancient Egypt, Middle Kingdom<br>" +
@@ -386,7 +386,7 @@ public final class ArtifactCatalog {
                 " fastened around their bases. This piece may represent their leader.",
                 "https://www.metmuseum.org/art/collection/search/546440"
         ));
-        map.put("/Ancient Egypt/Schist Statuette Fragment.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Schist Statuette Fragment.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1550 - 1069 BC<br>" +
                 "Culture: Ancient Egypt, New Kingdom<br>" +
@@ -397,7 +397,7 @@ public final class ArtifactCatalog {
                 " Charles Stoess, in 1869.",
                 "https://www.liverpoolmuseums.org.uk/artifact/figure-3"
         ));
-        map.put("/Ancient Egypt/Offering Table.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Offering Table.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 200 BC<br>" +
                 "Culture: Meroitic Period<br>" +
@@ -405,7 +405,7 @@ public final class ArtifactCatalog {
                 "The pattern on the surface is in relief and includes curling lotus flowers. The six pieces fit together to form one corner.",
                 "https://www.liverpoolmuseums.org.uk/artifact/offering-table"
         ));
-        map.put("/Ancient Egypt/Amulet of Jackal Headed Deity.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Amulet of Jackal Headed Deity.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 664 – 525 BC<br>" +
                 "Culture: Ancient Egypt, Late Period<br>" +
@@ -414,7 +414,7 @@ public final class ArtifactCatalog {
                 " A loop at the back would have allowed the amulet to be threaded and worn.",
                 "https://www.liverpoolmuseums.org.uk/artifact/amulet-of-jackal-headed-deity"
         ));
-        map.put("/Ancient Egypt/Composite Papyrus Capital.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Composite Papyrus Capital.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 380 – 343 BC<br>" +
                 "Culture: Ancient Egypt, Late Period<br>" +
@@ -425,7 +425,7 @@ public final class ArtifactCatalog {
                 " The capital still shows remnants of its original paint.",
                 "https://www.metmuseum.org/art/collection/search/551898"
         ));
-        map.put("/Ancient Egypt/Chariots with Court Ladies.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Chariots with Court Ladies.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1353 – 1336 BC<br>" +
                 "Culture: Ancient Egypt, New Kingdom, Amarna Period<br>" +
@@ -433,7 +433,7 @@ public final class ArtifactCatalog {
                 "as their drivers race to keep up with the royal family in their chariots.",
                 "https://www.metmuseum.org/art/collection/search/544889"
         ));
-        map.put("/Ancient Egypt/Wedjat Eye Amulet.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Wedjat Eye Amulet.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1070 – 664 BC<br>" +
                 "Culture: Ancient Egypt<br>" +
@@ -443,14 +443,14 @@ public final class ArtifactCatalog {
                 "This combination alludes to various ancient Egyptian stories that involve the eye of the sun god Re.",
                 "https://www.metmuseum.org/art/collection/search/561047"
         ));
-        map.put("/Ancient Egypt/Artist's Sketch of a Sparrow.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Artist's Sketch of a Sparrow.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1479 – 1458 BC<br>" +
                 "Culture: Ancient Egypt, New Kingdom<br>" +
                 "Description: A sketch of a Sparrow on a rock.",
                 "https://www.metmuseum.org/art/collection/search/548890"
         ));
-        map.put("/Ancient Egypt/Ring, signet.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Ring, signet.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1353 -1323 BC<br>" +
                 "Culture: Ancient Egypt, New Kingdom, Amarna Period<br>" +
@@ -459,7 +459,7 @@ public final class ArtifactCatalog {
                 " ascended the throne.",
                 "https://www.metmuseum.org/art/collection/search/549202"
         ));
-        map.put("/Ancient Egypt/Ring with Cat and Kittens.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Ring with Cat and Kittens.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1295 – 664 BC<br>" +
                 "Culture: Ancient Egypt, Ramesside/Third Intermediate Period<br>" +
@@ -471,7 +471,7 @@ public final class ArtifactCatalog {
                 "this one is a superb example. Such rings were most likely created to celebrate various festivals held in honour of the deities depicted on the rings.",
                 "https://www.metmuseum.org/art/collection/search/744564"
         ));
-        map.put("/Ancient Egypt/Sarcophagus of Harkhebit.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Sarcophagus of Harkhebit.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 595 – 526 BC<br>" +
                 "Culture: Ancient Egypt, Late Period<br>" +
@@ -484,7 +484,7 @@ public final class ArtifactCatalog {
                 " sarcophagus was purchased from the Egyptian government by the Metropolitan Museum.",
                 "https://www.metmuseum.org/art/collection/search/548211"
         ));
-        map.put("/Ancient Egypt/Kneeling statue of Hatshepsut.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Kneeling statue of Hatshepsut.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1479 – 1458 BC<br>" +
                 "Culture: New Kingdom, Ancient Egypt<br>" +
@@ -500,7 +500,7 @@ public final class ArtifactCatalog {
                 " the same enigmatic amulet suspended on a necklace of tubular beads that is represented on one of the statues representing Hatshepsut as a woman. ",
                 "https://www.metmuseum.org/art/collection/search/544447"
         ));
-        map.put("/Ancient Egypt/Inner Coffin Box of Taenty.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Inner Coffin Box of Taenty.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1069 – 664 BC<br>" +
                 "Culture: Third Intermediate Period, Ancient Egypt<br>" +
@@ -513,7 +513,7 @@ public final class ArtifactCatalog {
                 " seen the rather good mummy case of one “Antï”, and excellent mummy within which has not been disturbed in any way. Date about XX Dyn.",
                 "https://www.liverpoolmuseums.org.uk/artifact/inner-coffin-box-of-taenty"
         ));
-        map.put("/Ancient Egypt/Game of Hounds and Jackals.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Egypt/Artifacts/Game of Hounds and Jackals.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1814 – 1805 BC<br>" +
                 "Culture: Middle Kingdom, Ancient Egypt<br>" +
@@ -531,7 +531,7 @@ public final class ArtifactCatalog {
         ));
 
         // Ancient Near East Collection 15/15
-        map.put("/Ancient Near East/Master of Animals Standard.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Master of Animals Standard.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1000 BC – 600 BC<br>" +
                 "Culture: Iron Age<br>" +
@@ -545,7 +545,7 @@ public final class ArtifactCatalog {
                 " ‘master-of-animals’ iconography).",
                 "https://www.liverpoolmuseums.org.uk/artifact/master-of-animals-standard"
         ));
-        map.put("/Ancient Near East/South Arabian Statue.jpg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/South Arabian Statue.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 BC – 1 BC<br>" +
                 "Culture: Iron Age South Arabian<br>" +
@@ -560,7 +560,7 @@ public final class ArtifactCatalog {
                 " local dialects developed.",
                 "https://www.liverpoolmuseums.org.uk/artifact/south-arabian-statue"
         ));
-        map.put("/Ancient Near East/Seated Goddess with a Child .jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Seated Goddess with a Child .jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 14th – 13th Century BC<br>" +
                 "Culture: Hittite<br>" +
@@ -573,7 +573,7 @@ public final class ArtifactCatalog {
                 "gold and then attached. The chair on which they are seated is backless and has lion paws.",
                 "https://www.metmuseum.org/art/collection/search/327401"
         ));
-        map.put("/Ancient Near East/Plaque with horned lion-griffins.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Plaque with horned lion-griffins.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 6th – 4th Century BC<br>" +
                 "Culture: Achaemenid Persian<br>" +
@@ -587,7 +587,7 @@ public final class ArtifactCatalog {
                 " different types of objects demonstrates decorative conventions of the period.",
                 "https://www.metmuseum.org/art/collection/search/324290"
         ));
-        map.put("/Ancient Near East/Panel with Lion.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Panel with Lion.jpeg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 604 -562 BC<br>" +
                 "Culture: Babylonian<br>" +
@@ -607,7 +607,7 @@ public final class ArtifactCatalog {
                 " for the ritual processions from the city to the temple.",
                 "https://www.metmuseum.org/art/collection/search/322585"
         ));
-        map.put("/Ancient Near East/Standing Male Worshiper.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Standing Male Worshiper.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 2900 – 2600 BC<br>" +
                 "Culture: Sumerian<br>" +
@@ -620,7 +620,7 @@ public final class ArtifactCatalog {
                 " present in their statues. Similar statues were sometimes inscribed with the names of rulers and their families.",
                 "https://www.metmuseum.org/art/collection/search/323735"
         ));
-        map.put("/Ancient Near East/Head of a Ruler.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Head of a Ruler.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 2300 – 2200 BC<br>" +
                 "Culture: Mesopotamian<br>" +
@@ -636,7 +636,7 @@ public final class ArtifactCatalog {
                 " originally set into a body or other mount, which may have been made of a different material.",
                 "https://www.metmuseum.org/art/collection/search/329077"
         ));
-        map.put("/Ancient Near East/Helmet with Divine figures.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Helmet with Divine figures.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1500 – 1100 BC<br>" +
                 "Culture: Middle Elamite<br>" +
@@ -652,7 +652,7 @@ public final class ArtifactCatalog {
                 " of protective and important deities could certainly have been apotropaic for the wearer.",
                 "https://www.metmuseum.org/art/collection/search/325584"
         ));
-        map.put("/Ancient Near East/Statue of Gudea.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Statue of Gudea.jpeg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 2090 BC<br>" +
                 "Culture: Neo-Sumerian<br>" +
@@ -676,7 +676,7 @@ public final class ArtifactCatalog {
                 " house.",
                 "https://www.metmuseum.org/art/collection/search/329072"
         ));
-        map.put("/Ancient Near East/Enthroned Deity.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Enthroned Deity.jpeg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 14th – 13th Century BC<br>" +
                 "Culture: Canaanite<br>" +
@@ -699,7 +699,7 @@ public final class ArtifactCatalog {
                 " who may have lived in the early Iron Age, were created in the same Canaanite cultural context as this piece and perhaps took similar forms.",
                 "https://www.metmuseum.org/art/collection/search/322889"
         ));
-        map.put("/Ancient Near East/Shaft-hole axe head.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Shaft-hole axe head.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: Late 3rd – Early 2nd millennium BC<br>" +
                 "Culture: Bactria-Margiana Archaeological Complex<br>" +
@@ -716,7 +716,7 @@ public final class ArtifactCatalog {
                 " body, and the talons of a bird of prey in the place of his front paws. Its single horn has been broken off and lost.",
                 "https://www.metmuseum.org/art/collection/search/329076"
         ));
-        map.put("/Ancient Near East/Openwork furniture plaque.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Openwork furniture plaque.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 9th – 8th Century BC<br>" +
                 "Culture: Assyrian<br>" +
@@ -727,7 +727,7 @@ public final class ArtifactCatalog {
                 " stone relief sculptures from Tell Halaf, in northern Syria, and a debate exists over which tradition produced these fine panels.",
                 "https://www.metmuseum.org/art/collection/search/324739"
         ));
-        map.put("/Ancient Near East/Kneeling Bull.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Kneeling Bull.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 3100 – 2900 BC<br>" +
                 "Culture: Proto-Elamite<br>" +
@@ -742,7 +742,7 @@ public final class ArtifactCatalog {
                 " as part of a ritual or ceremony.",
                 "https://www.metmuseum.org/art/collection/search/329074"
         ));
-        map.put("/Ancient Near East/Headdress.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Headdress.jpeg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 2600 – 2500 BC<br>" +
                 "Culture: Sumerian<br>" +
@@ -757,7 +757,7 @@ public final class ArtifactCatalog {
                 " wealth of the Early Dynastic kings as well as to the existence of a complex system of trade that extended far beyond the Mesopotamian River valley.",
                 "https://www.metmuseum.org/art/collection/search/322903"
         ));
-        map.put("/Ancient Near East/Stag Vessel.jpeg", new ImageInfo("<html>" +
+        map.put("/Ancient Near East/Artifacts/Stag Vessel.jpeg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 14th – 13th Century BC<br>" +
                 "Culture: Hittite<br>" +
@@ -781,7 +781,7 @@ public final class ArtifactCatalog {
         ));
 
         // Rome 15/15
-        map.put("/Rome/Serapis with Cerberus.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Serapis with Cerberus.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Culture: Roman Imperial<br>" +
                 "Description: Statuette of the god Serapis in a throne with Cerberus, his three-headed dog. It is like many other statues, derived from the" +
@@ -794,7 +794,7 @@ public final class ArtifactCatalog {
                 "the statue as Pluto because of the presence of Cerberus.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statue-of-serapis-cerberus"
         ));
-        map.put("/Rome/Ash Chest.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Ash Chest.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 150 BC – 70 AD<br>" +
                 "Culture: Roman Imperial; Antonine<br>" +
@@ -810,7 +810,7 @@ public final class ArtifactCatalog {
                 " partially finished.",
                 "https://www.liverpoolmuseums.org.uk/artifact/ash-chest-24"
         ));
-        map.put("/Rome/Ash Chest 2.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Ash Chest 2.jpg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 140 BC – 50 AD<br>" +
                 "Culture: Roman Imperial; early Antonine<br>" +
@@ -833,7 +833,7 @@ public final class ArtifactCatalog {
                 "famous dealer and collector. The ash chest was not included in the Monumenta Mattheiana. The ash chest is in a poor condition.",
                 "https://www.liverpoolmuseums.org.uk/artifact/ash-chest-11"
         ));
-        map.put("/Rome/Sculpture of Cybele .jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Sculpture of Cybele .jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 BC – 100 AD<br>" +
                 "Culture: Roman<br>" +
@@ -842,7 +842,7 @@ public final class ArtifactCatalog {
                 " a lion on either side the trhine: in white marble\"; with another not by AWF (?) \"Cybele - very good - Graeco-Roman\".",
                 "https://www.liverpoolmuseums.org.uk/artifact/sculpture-of-cybele"
         ));
-        map.put("/Rome/Statue of Anchirroe .jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Statue of Anchirroe .jpg", new ImageInfo("<html>" +
                 "<div style='width:400px;'>" +
                 "Date: 1 AD – 100 AD<br>" +
                 "Culture: Roman<br>" +
@@ -862,7 +862,7 @@ public final class ArtifactCatalog {
                 " the arms the right leg below the knee and the foot, the outer edges of the drapery. The front of the plinth has been broken and rejoined.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statue-of-anchirroe"
         ));
-        map.put("/Rome/Bust of Boy .jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Bust of Boy .jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 AD – 125 AD<br>" +
                 "Culture: Roman<br>" +
@@ -872,7 +872,7 @@ public final class ArtifactCatalog {
                 " the pectorals, a restoration. There is damage to the right cheek and the chin, and part of the nose is missing.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bust-of-boy-1"
         ));
-        map.put("/Rome/Bust of Trajan.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Bust of Trajan.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1 -100 AD<br>" +
                 "Culture: Imperial Rome<br>" +
@@ -883,7 +883,7 @@ public final class ArtifactCatalog {
                 "nose, eyebrows, chin, upper lip and ears. The bust is ancient but probably later to the head, probably Hadrianic or early Antonine period.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bust-of-trajan)"
         ));
-        map.put("/Rome/Bowl 1 .jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Bowl 1 .jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: Mid 1st Century AD<br>" +
                 "Culture: Imperial Rome<br>" +
@@ -891,7 +891,7 @@ public final class ArtifactCatalog {
                 " with decoration in opaque white and red marbling. There are signs of previous damage and repair to one side and the base of the bowl.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-369"
         ));
-        map.put("/Rome/Bowl 2.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Bowl 2.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1 – 100 AD<br>" +
                 "Culture: Roman<br>" +
@@ -899,7 +899,7 @@ public final class ArtifactCatalog {
                 " are present on the inside of the piece.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-382"
         ));
-        map.put("/Rome/Bowl 3.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Bowl 3.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 BC – 100 AD<br>" +
                 "Culture: Roman<br>" +
@@ -907,7 +907,7 @@ public final class ArtifactCatalog {
                 " Deep folded rim and thick walls. Worn, surface dirt, some surface residue and pitted.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bowl-368"
         ));
-        map.put("/Rome/Bust of a Priest of Isis.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Bust of a Priest of Isis.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 -200 AD<br>" +
                 "Culture: Imperial Rome<br>" +
@@ -920,7 +920,7 @@ public final class ArtifactCatalog {
                 "\" Dimensions of just the bust: H 190 mm; W 95 mm.",
                 "https://www.liverpoolmuseums.org.uk/artifact/bust-of-priest-of-isis"
         ));
-        map.put("/Rome/Statue of Apollo.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Statue of Apollo.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 100 – 200 AD<br>" +
                 "Culture: Roman<br>" +
@@ -937,7 +937,7 @@ public final class ArtifactCatalog {
                 " also in pieces.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statue-of-apollo-0"
         ));
-        map.put("/Rome/Statuette of Hermes.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Statuette of Hermes.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 1- 300 AD<br>" +
                 "Culture: Imperial Rome<br>" +
@@ -949,7 +949,7 @@ public final class ArtifactCatalog {
                 "been the result of modern treatment.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statuette-of-hermes-1"
         ));
-        map.put("/Rome/Statue of Bacchus.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Statue of Bacchus.jpg", new ImageInfo("<html>" +
                 "<div style='width:300px;'>" +
                 "Date: 0 -200 AD<br>" +
                 "Culture: Imperial Rome<br>" +
@@ -966,7 +966,7 @@ public final class ArtifactCatalog {
                 " his first trip to Italy in 1777.",
                 "https://www.liverpoolmuseums.org.uk/artifact/statue-of-bacchus"
         ));
-        map.put("/Rome/Sarcophagus.jpg", new ImageInfo("<html>" +
+        map.put("/Rome/Artifacts/Sarcophagus.jpg", new ImageInfo("<html>" +
                 "<div style='width:500px;'>" +
                 "Date: Late 2nd Century AD<br>" +
                 "Culture: Roman Imperial<br>" +
@@ -1016,92 +1016,92 @@ public final class ArtifactCatalog {
 
         m.put(CYPRUS, List.of(
                 "/Ancient Cyprus/jug-1.jpg",
-                "/Ancient Cyprus/jug-2.jpg",
-                "/Ancient Cyprus/jug-3.jpg",
-                "/Ancient Cyprus/jug-4.jpg",
-                "/Ancient Cyprus/jug-5.jpg",
-                "/Ancient Cyprus/bowl-1.jpg",
-                "/Ancient Cyprus/bowl-2.jpg",
-                "/Ancient Cyprus/bowl-3.jpg",
-                "/Ancient Cyprus/bowl-4.jpg",
-                "/Ancient Cyprus/bowl-5.jpg",
-                "/Ancient Cyprus/Pyxis-Lid.jpg",
-                "/Ancient Cyprus/Spindle-Whorl.jpg",
-                "/Ancient Cyprus/Temple-Boy.jpg",
-                "/Ancient Cyprus/Human-Remains-1.jpg",
-                "/Ancient Cyprus/VotiveStatueHead.jpg"
+                "/Ancient Cyprus/Artifacts/jug-2.jpg",
+                "/Ancient Cyprus/Artifacts/jug-3.jpg",
+                "/Ancient Cyprus/Artifacts/jug-4.jpg",
+                "/Ancient Cyprus/Artifacts/jug-5.jpg",
+                "/Ancient Cyprus/Artifacts/bowl-1.jpg",
+                "/Ancient Cyprus/Artifacts/bowl-2.jpg",
+                "/Ancient Cyprus/Artifacts/bowl-3.jpg",
+                "/Ancient Cyprus/Artifacts/bowl-4.jpg",
+                "/Ancient Cyprus/Artifacts/bowl-5.jpg",
+                "/Ancient Cyprus/Artifacts/Pyxis-Lid.jpg",
+                "/Ancient Cyprus/Artifacts/Spindle-Whorl.jpg",
+                "/Ancient Cyprus/Artifacts/Temple-Boy.jpg",
+                "/Ancient Cyprus/Artifacts/Human-Remains-1.jpg",
+                "/Ancient Cyprus/Artifacts/VotiveStatueHead.jpg"
         ));
 
         m.put(GREECE, List.of(
-                "/Ancient Greece/Amour Helmet.jpg",
-                "/Ancient Greece/Wine Flask.jpg",
-                "/Ancient Greece/Wine Flask 2.jpg",
-                "/Ancient Greece/Amphora.jpg",
-                "/Ancient Greece/Drinking Vessel.jpg",
-                "/Ancient Greece/Krater.jpg",
-                "/Ancient Greece/Kylix.jpg",
-                "/Ancient Greece/Aryballos.jpg",
-                "/Ancient Greece/Aryballos 2.jpg",
-                "/Ancient Greece/Aryballos 3.jpg",
-                "/Ancient Greece/Rhyton.jpg",
-                "/Ancient Greece/Horse votive offering.jpg",
-                "/Ancient Greece/Fragments of deer figurine.jpg",
-                "/Ancient Greece/Wreath Shaped votive offering.jpg",
-                "/Ancient Greece/Loutrophoros.jpg"
+                "/Ancient Greece/Artifacts/Amour Helmet.jpg",
+                "/Ancient Greece/Artifacts/Wine Flask.jpg",
+                "/Ancient Greece/Artifacts/Wine Flask 2.jpg",
+                "/Ancient Greece/Artifacts/Amphora.jpg",
+                "/Ancient Greece/Artifacts/Drinking Vessel.jpg",
+                "/Ancient Greece/Artifacts/Krater.jpg",
+                "/Ancient Greece/Artifacts/Kylix.jpg",
+                "/Ancient Greece/Artifacts/Aryballos.jpg",
+                "/Ancient Greece/Artifacts/Aryballos 2.jpg",
+                "/Ancient Greece/Artifacts/Aryballos 3.jpg",
+                "/Ancient Greece/Artifacts/Rhyton.jpg",
+                "/Ancient Greece/Artifacts/Horse votive offering.jpg",
+                "/Ancient Greece/Artifacts/Fragments of deer figurine.jpg",
+                "/Ancient Greece/Artifacts/Wreath Shaped votive offering.jpg",
+                "/Ancient Greece/Artifacts/Loutrophoros.jpg"
         ));
 
         m.put(ROME, List.of(
-                "/Rome/Serapis with Cerberus.jpg",
-                "/Rome/Ash Chest.jpg",
-                "/Rome/Ash Chest 2.jpg",
-                "/Rome/Sculpture of Cybele .jpg",
-                "/Rome/Statue of Anchirroe .jpg",
-                "/Rome/Bust of Boy .jpg",
-                "/Rome/Bust of Trajan.jpg",
-                "/Rome/Bowl 1 .jpg",
-                "/Rome/Bowl 2.jpg",
-                "/Rome/Bowl 3.jpg",
-                "/Rome/Bust of a Priest of Isis.jpg",
-                "/Rome/Statue of Apollo.jpg",
-                "/Rome/Statuette of Hermes.jpg",
-                "/Rome/Statue of Bacchus.jpg",
-                "/Rome/Sarcophagus.jpg"
+                "/Rome/Artifacts/Serapis with Cerberus.jpg",
+                "/Rome/Artifacts/Ash Chest.jpg",
+                "/Rome/Artifacts/Ash Chest 2.jpg",
+                "/Rome/Artifacts/Sculpture of Cybele .jpg",
+                "/Rome/Artifacts/Statue of Anchirroe .jpg",
+                "/Rome/Artifacts/Bust of Boy .jpg",
+                "/Rome/Artifacts/Bust of Trajan.jpg",
+                "/Rome/Artifacts/Bowl 1 .jpg",
+                "/Rome/Artifacts/Bowl 2.jpg",
+                "/Rome/Artifacts/Bowl 3.jpg",
+                "/Rome/Artifacts/Bust of a Priest of Isis.jpg",
+                "/Rome/Artifacts/Statue of Apollo.jpg",
+                "/Rome/Artifacts/Statuette of Hermes.jpg",
+                "/Rome/Artifacts/Statue of Bacchus.jpg",
+                "/Rome/Artifacts/Sarcophagus.jpg"
         ));
 
         m.put(NEAR_EAST, List.of(
-                "/Ancient Near East/Master of Animals Standard.jpg",
-                "/Ancient Near East/South Arabian Statue.jpg",
-                "/Ancient Near East/Seated Goddess with a Child .jpeg",
-                "/Ancient Near East/Plaque with horned lion-griffins.jpeg",
-                "/Ancient Near East/Panel with Lion.jpeg",
-                "/Ancient Near East/Standing Male Worshiper.jpeg",
-                "/Ancient Near East/Head of a Ruler.jpeg",
-                "/Ancient Near East/Helmet with Divine figures.jpeg",
-                "/Ancient Near East/Statue of Gudea.jpeg",
-                "/Ancient Near East/Enthroned Deity.jpeg",
-                "/Ancient Near East/Shaft-hole axe head.jpeg",
-                "/Ancient Near East/Openwork furniture plaque.jpeg",
-                "/Ancient Near East/Kneeling Bull.jpeg",
-                "/Ancient Near East/Headdress.jpeg",
-                "/Ancient Near East/Stag Vessel.jpeg"
+                "/Ancient Near East/Artifacts/Master of Animals Standard.jpg",
+                "/Ancient Near East/Artifacts/South Arabian Statue.jpg",
+                "/Ancient Near East/Artifacts/Seated Goddess with a Child .jpeg",
+                "/Ancient Near East/Artifacts/Plaque with horned lion-griffins.jpeg",
+                "/Ancient Near East/Artifacts/Panel with Lion.jpeg",
+                "/Ancient Near East/Artifacts/Standing Male Worshiper.jpeg",
+                "/Ancient Near East/Artifacts/Head of a Ruler.jpeg",
+                "/Ancient Near East/Artifacts/Helmet with Divine figures.jpeg",
+                "/Ancient Near East/Artifacts/Statue of Gudea.jpeg",
+                "/Ancient Near East/Artifacts/Enthroned Deity.jpeg",
+                "/Ancient Near East/Artifacts/Shaft-hole axe head.jpeg",
+                "/Ancient Near East/Artifacts/Openwork furniture plaque.jpeg",
+                "/Ancient Near East/Artifacts/Kneeling Bull.jpeg",
+                "/Ancient Near East/Artifacts/Headdress.jpeg",
+                "/Ancient Near East/Artifacts/Stag Vessel.jpeg"
         ));
 
         m.put(EGYPT, List.of(
-                "/Ancient Egypt/Shabti of Djedkhonsuefankh.jpeg",
-                "/Ancient Egypt/Figurine of a Pygmy Dance Leader.jpeg",
-                "/Ancient Egypt/Schist Statuette Fragment.jpg",
-                "/Ancient Egypt/Offering Table.jpg",
-                "/Ancient Egypt/Amulet of Jackal Headed Deity.jpg",
-                "/Ancient Egypt/Composite Papyrus Capital.jpeg",
-                "/Ancient Egypt/Chariots with Court Ladies.jpeg",
-                "/Ancient Egypt/Wedjat Eye Amulet.jpeg",
-                "/Ancient Egypt/Artist's Sketch of a Sparrow.jpeg",
-                "/Ancient Egypt/Ring, signet.jpeg",
-                "/Ancient Egypt/Ring with Cat and Kittens.jpeg",
-                "/Ancient Egypt/Sarcophagus of Harkhebit.jpeg",
-                "/Ancient Egypt/Kneeling statue of Hatshepsut.jpeg",
-                "/Ancient Egypt/Inner Coffin Box of Taenty.jpg",
-                "/Ancient Egypt/Game of Hounds and Jackals.jpeg"
+                "/Ancient Egypt/Artifacts/Shabti of Djedkhonsuefankh.jpeg",
+                "/Ancient Egypt/Artifacts/Figurine of a Pygmy Dance Leader.jpeg",
+                "/Ancient Egypt/Artifacts/Schist Statuette Fragment.jpg",
+                "/Ancient Egypt/Artifacts/Offering Table.jpg",
+                "/Ancient Egypt/Artifacts/Amulet of Jackal Headed Deity.jpg",
+                "/Ancient Egypt/Artifacts/Composite Papyrus Capital.jpeg",
+                "/Ancient Egypt/Artifacts/Chariots with Court Ladies.jpeg",
+                "/Ancient Egypt/Artifacts/Wedjat Eye Amulet.jpeg",
+                "/Ancient Egypt/Artifacts/Artist's Sketch of a Sparrow.jpeg",
+                "/Ancient Egypt/Artifacts/Ring, signet.jpeg",
+                "/Ancient Egypt/Artifacts/Ring with Cat and Kittens.jpeg",
+                "/Ancient Egypt/Artifacts/Sarcophagus of Harkhebit.jpeg",
+                "/Ancient Egypt/Artifacts/Kneeling statue of Hatshepsut.jpeg",
+                "/Ancient Egypt/Artifacts/Inner Coffin Box of Taenty.jpg",
+                "/Ancient Egypt/Artifacts/Game of Hounds and Jackals.jpeg"
         ));
 
         return Collections.unmodifiableMap(m);
@@ -1109,81 +1109,81 @@ public final class ArtifactCatalog {
 
     /** Image options */
     public static final String[] IMAGE_OPTIONS = {
-            "/Ancient Cyprus/jug-1.jpg",
-            "/Ancient Cyprus/jug-2.jpg",
-            "/Ancient Cyprus/jug-3.jpg",
-            "/Ancient Cyprus/jug-4.jpg",
-            "/Ancient Cyprus/jug-5.jpg",
-            "/Ancient Cyprus/bowl-1.jpg",
-            "/Ancient Cyprus/bowl-2.jpg",
-            "/Ancient Cyprus/bowl-3.jpg",
-            "/Ancient Cyprus/bowl-4.jpg",
-            "/Ancient Cyprus/bowl-5.jpg",
-            "/Ancient Cyprus/Pyxis-Lid.jpg",
-            "/Ancient Cyprus/Spindle-Whorl.jpg",
-            "/Ancient Cyprus/Temple-Boy.jpg",
-            "/Ancient Cyprus/Human-Remains-1.jpg",
-            "/Ancient Cyprus/VotiveStatueHead.jpg",
-            "/Ancient Greece/Amour Helmet.jpg",
-            "/Ancient Greece/Wine Flask.jpg",
-            "/Ancient Greece/Wine Flask 2.jpg",
-            "/Ancient Greece/Amphora.jpg",
-            "/Ancient Greece/Drinking Vessel.jpg",
-            "/Ancient Greece/Krater.jpg",
-            "/Ancient Greece/Kylix.jpg",
-            "/Ancient Greece/Aryballos.jpg",
-            "/Ancient Greece/Aryballos 2.jpg",
-            "/Ancient Greece/Aryballos 3.jpg",
-            "/Ancient Greece/Rhyton.jpg",
-            "/Ancient Greece/Horse votive offering.jpg",
-            "/Ancient Greece/Fragments of deer figurine.jpg",
-            "/Ancient Greece/Wreath Shaped votive offering.jpg",
-            "/Ancient Greece/Loutrophoros.jpg",
-            "/Rome/Serapis with Cerberus.jpg",
-            "/Rome/Ash Chest.jpg",
-            "/Rome/Ash Chest 2.jpg",
-            "/Rome/Sculpture of Cybele .jpg",
-            "/Rome/Statue of Anchirroe .jpg",
-            "/Rome/Bust of Boy .jpg",
-            "/Rome/Bust of Trajan.jpg",
-            "/Rome/Bowl 1 .jpg",
-            "/Rome/Bowl 2.jpg",
-            "/Rome/Bowl 3.jpg",
-            "/Rome/Bust of a Priest of Isis.jpg",
-            "/Rome/Statue of Apollo.jpg",
-            "/Rome/Statuette of Hermes.jpg",
-            "/Rome/Statue of Bacchus.jpg",
-            "/Rome/Sarcophagus.jpg",
-            "/Ancient Near East/Master of Animals Standard.jpg",
-            "/Ancient Near East/South Arabian Statue.jpg",
-            "/Ancient Near East/Seated Goddess with a Child .jpeg",
-            "/Ancient Near East/Plaque with horned lion-griffins.jpeg",
-            "/Ancient Near East/Panel with Lion.jpeg",
-            "/Ancient Near East/Standing Male Worshiper.jpeg",
-            "/Ancient Near East/Head of a Ruler.jpeg",
-            "/Ancient Near East/Helmet with Divine figures.jpeg",
-            "/Ancient Near East/Statue of Gudea.jpeg",
-            "/Ancient Near East/Enthroned Deity.jpeg",
-            "/Ancient Near East/Shaft-hole axe head.jpeg",
-            "/Ancient Near East/Openwork furniture plaque.jpeg",
-            "/Ancient Near East/Kneeling Bull.jpeg",
-            "/Ancient Near East/Headdress.jpeg",
-            "/Ancient Near East/Stag Vessel.jpeg",
-            "/Ancient Egypt/Shabti of Djedkhonsuefankh.jpeg",
-            "/Ancient Egypt/Figurine of a Pygmy Dance Leader.jpeg",
-            "/Ancient Egypt/Schist Statuette Fragment.jpg",
-            "/Ancient Egypt/Offering Table.jpg",
-            "/Ancient Egypt/Amulet of Jackal Headed Deity.jpg",
-            "/Ancient Egypt/Composite Papyrus Capital.jpeg",
-            "/Ancient Egypt/Chariots with Court Ladies.jpeg",
-            "/Ancient Egypt/Wedjat Eye Amulet.jpeg",
-            "/Ancient Egypt/Artist's Sketch of a Sparrow.jpeg",
-            "/Ancient Egypt/Ring, signet.jpeg",
-            "/Ancient Egypt/Ring with Cat and Kittens.jpeg",
-            "/Ancient Egypt/Sarcophagus of Harkhebit.jpeg",
-            "/Ancient Egypt/Kneeling statue of Hatshepsut.jpeg",
-            "/Ancient Egypt/Inner Coffin Box of Taenty.jpg",
-            "/Ancient Egypt/Game of Hounds and Jackals.jpeg"
+            "/Ancient Cyprus/Artifacts/jug-1.jpg",
+            "/Ancient Cyprus/Artifacts/jug-2.jpg",
+            "/Ancient Cyprus/Artifacts/jug-3.jpg",
+            "/Ancient Cyprus/Artifacts/jug-4.jpg",
+            "/Ancient Cyprus/Artifacts/jug-5.jpg",
+            "/Ancient Cyprus/Artifacts/bowl-1.jpg",
+            "/Ancient Cyprus/Artifacts/bowl-2.jpg",
+            "/Ancient Cyprus/Artifacts/bowl-3.jpg",
+            "/Ancient Cyprus/Artifacts/bowl-4.jpg",
+            "/Ancient Cyprus/Artifacts/bowl-5.jpg",
+            "/Ancient Cyprus/Artifacts/Pyxis-Lid.jpg",
+            "/Ancient Cyprus/Artifacts/Spindle-Whorl.jpg",
+            "/Ancient Cyprus/Artifacts/Temple-Boy.jpg",
+            "/Ancient Cyprus/Artifacts/Human-Remains-1.jpg",
+            "/Ancient Cyprus/Artifacts/VotiveStatueHead.jpg",
+            "/Ancient Greece/Artifacts/Amour Helmet.jpg",
+            "/Ancient Greece/Artifacts/Wine Flask.jpg",
+            "/Ancient Greece/Artifacts/Wine Flask 2.jpg",
+            "/Ancient Greece/Artifacts/Amphora.jpg",
+            "/Ancient Greece/Artifacts/Drinking Vessel.jpg",
+            "/Ancient Greece/Artifacts/Krater.jpg",
+            "/Ancient Greece/Artifacts/Kylix.jpg",
+            "/Ancient Greece/Artifacts/Aryballos.jpg",
+            "/Ancient Greece/Artifacts/Aryballos 2.jpg",
+            "/Ancient Greece/Artifacts/Aryballos 3.jpg",
+            "/Ancient Greece/Artifacts/Rhyton.jpg",
+            "/Ancient Greece/Artifacts/Horse votive offering.jpg",
+            "/Ancient Greece/Artifacts/Fragments of deer figurine.jpg",
+            "/Ancient Greece/Artifacts/Wreath Shaped votive offering.jpg",
+            "/Ancient Greece/Artifacts/Loutrophoros.jpg",
+            "/Rome/Artifacts/Serapis with Cerberus.jpg",
+            "/Rome/Artifacts/Ash Chest.jpg",
+            "/Rome/Artifacts/Ash Chest 2.jpg",
+            "/Rome/Artifacts/Sculpture of Cybele .jpg",
+            "/Rome/Artifacts/Statue of Anchirroe .jpg",
+            "/Rome/Artifacts/Bust of Boy .jpg",
+            "/Rome/Artifacts/Bust of Trajan.jpg",
+            "/Rome/Artifacts/Bowl 1 .jpg",
+            "/Rome/Artifacts/Bowl 2.jpg",
+            "/Rome/Artifacts/Bowl 3.jpg",
+            "/Rome/Artifacts/Bust of a Priest of Isis.jpg",
+            "/Rome/Artifacts/Statue of Apollo.jpg",
+            "/Rome/Artifacts/Statuette of Hermes.jpg",
+            "/Rome/Artifacts/Statue of Bacchus.jpg",
+            "/Rome/Artifacts/Sarcophagus.jpg",
+            "/Ancient Near East/Artifacts/Master of Animals Standard.jpg",
+            "/Ancient Near East/Artifacts/South Arabian Statue.jpg",
+            "/Ancient Near East/Artifacts/Seated Goddess with a Child .jpeg",
+            "/Ancient Near East/Artifacts/Plaque with horned lion-griffins.jpeg",
+            "/Ancient Near East/Artifacts/Panel with Lion.jpeg",
+            "/Ancient Near East/Artifacts/Standing Male Worshiper.jpeg",
+            "/Ancient Near East/Artifacts/Head of a Ruler.jpeg",
+            "/Ancient Near East/Artifacts/Helmet with Divine figures.jpeg",
+            "/Ancient Near East/Artifacts/Statue of Gudea.jpeg",
+            "/Ancient Near East/Artifacts/Enthroned Deity.jpeg",
+            "/Ancient Near East/Artifacts/Shaft-hole axe head.jpeg",
+            "/Ancient Near East/Artifacts/Openwork furniture plaque.jpeg",
+            "/Ancient Near East/Artifacts/Kneeling Bull.jpeg",
+            "/Ancient Near East/Artifacts/Headdress.jpeg",
+            "/Ancient Near East/Artifacts/Stag Vessel.jpeg",
+            "/Ancient Egypt/Artifacts/Shabti of Djedkhonsuefankh.jpeg",
+            "/Ancient Egypt/Artifacts/Figurine of a Pygmy Dance Leader.jpeg",
+            "/Ancient Egypt/Artifacts/Schist Statuette Fragment.jpg",
+            "/Ancient Egypt/Artifacts/Offering Table.jpg",
+            "/Ancient Egypt/Artifacts/Amulet of Jackal Headed Deity.jpg",
+            "/Ancient Egypt/Artifacts/Composite Papyrus Capital.jpeg",
+            "/Ancient Egypt/Artifacts/Chariots with Court Ladies.jpeg",
+            "/Ancient Egypt/Artifacts/Wedjat Eye Amulet.jpeg",
+            "/Ancient Egypt/Artifacts/Artist's Sketch of a Sparrow.jpeg",
+            "/Ancient Egypt/Artifacts/Ring, signet.jpeg",
+            "/Ancient Egypt/Artifacts/Ring with Cat and Kittens.jpeg",
+            "/Ancient Egypt/Artifacts/Sarcophagus of Harkhebit.jpeg",
+            "/Ancient Egypt/Artifacts/Kneeling statue of Hatshepsut.jpeg",
+            "/Ancient Egypt/Artifacts/Inner Coffin Box of Taenty.jpg",
+            "/Ancient Egypt/Artifacts/Game of Hounds and Jackals.jpeg"
     };
 
     /** Returns images for a collection, or ALL images if unknown. */
