@@ -30,8 +30,8 @@ public class MainMenuPanel extends JPanel implements ThemeAware {
 
         // Load ornate frame once
         Image ornateFrame = null;
-        try (var in = MainMenuPanel.class.getResourceAsStream("/Starting/Ornate-1-Photoroom.png")) {
-            if (in == null) throw new RuntimeException("Missing resource: /Starting/Ornate-1-Photoroom.png");
+        try (var in = MainMenuPanel.class.getResourceAsStream("/Rome/Artifacts/Ornate-1-Photoroom.png")) {
+            if (in == null) throw new RuntimeException("Missing resource: /Rome/Artifacts/Ornate-1-Photoroom.png");
             ornateFrame = ImageIO.read(in);
         } catch (Exception e) {
             e.printStackTrace();
