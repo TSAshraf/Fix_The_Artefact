@@ -8,27 +8,39 @@ import java.util.List;
 import java.util.*;
 import java.util.function.IntConsumer;
 
-class JigsawChooserPopover extends JPanel {
+class JigsawChooserPopover extends JPanel implements ThemeAware {
+
+    private final JLabel title = new JLabel("Choose a jigsaw");
+    private final JTextField search = new JTextField();
+    private final DefaultListModel<String> model = new DefaultListModel<>();
+    private final JList<String> list = new JList<>(model);
+    private final JScrollPane sp = new JScrollPane(list);
+
+    private final JButton cancel = new JButton("Cancel");
+    private final JButton ok     = new JButton("OK");
+
+    private List<String> allDisplay = List.of();   // display names
+    private IntConsumer onPick;
 
     private final JPanel card = new JPanel(null) {
         @Override protected void paintComponent(Graphics g) {
             super.paintComponent(g);
+
+            Theme.Palette.Overlay o = ThemeManager.get().palette().overlay;
+
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(new Color(0,0,0,220));
-            g2.fillRoundRect(0,0,getWidth(),getHeight(),14,14);
-            g2.setColor(new Color(220,220,220,160));
+
+            g2.setColor(o.cardFill);
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 14, 14);
+
+            g2.setColor(o.cardStroke);
             g2.setStroke(new BasicStroke(2f));
-            g2.drawRoundRect(1,1,getWidth()-2,getHeight()-2,14,14);
+            g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 14, 14);
+
             g2.dispose();
         }
     };
-
-    private final JTextField search = new JTextField();
-    private final DefaultListModel<String> model = new DefaultListModel<>();
-    private final JList<String> list = new JList<>(model);
-    private List<String> allDisplay = List.of();   // display names
-    private IntConsumer onPick;
 
     JigsawChooserPopover() {
         setOpaque(false);
@@ -37,32 +49,21 @@ class JigsawChooserPopover extends JPanel {
         card.setOpaque(false);
         add(card);
 
-        JLabel title = new JLabel("Choose a jigsaw");
-        title.setForeground(Color.WHITE);
         title.setFont(new Font("Serif", Font.BOLD, 20));
         card.add(title);
 
         // search
-        search.setBackground(new Color(25,25,25));
-        search.setForeground(Color.WHITE);
-        search.setCaretColor(Color.WHITE);
-        search.setBorder(new LineBorder(new Color(70,70,70)));
         search.setFont(new Font("SansSerif", Font.PLAIN, 16));
         card.add(search);
 
         // list
-        list.setBackground(new Color(22,22,22));
-        list.setForeground(Color.WHITE);
-        list.setSelectionBackground(new Color(90,90,90));
-        list.setSelectionForeground(Color.WHITE);
         list.setFont(new Font("Serif", Font.PLAIN, 20));
-        JScrollPane sp = new JScrollPane(list);
         sp.setBorder(BorderFactory.createEmptyBorder());
-        sp.getViewport().setBackground(list.getBackground());
+        sp.getViewport().setOpaque(true);
         card.add(sp);
 
-        JButton cancel = styledButton("Cancel");
-        JButton ok     = styledButton("OK");
+        styleButton(cancel);
+        styleButton(ok);
         card.add(cancel);
         card.add(ok);
 
@@ -91,8 +92,10 @@ class JigsawChooserPopover extends JPanel {
         });
 
         // esc to close
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),"esc");
-        getActionMap().put("esc", new AbstractAction(){ @Override public void actionPerformed(ActionEvent e){ close(); }});
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "esc");
+        getActionMap().put("esc", new AbstractAction() {
+            @Override public void actionPerformed(ActionEvent e) { close(); }
+        });
 
         // outside click closes
         addMouseListener(new MouseAdapter() {
@@ -104,35 +107,35 @@ class JigsawChooserPopover extends JPanel {
         // internal layout when resized
         addComponentListener(new ComponentAdapter() {
             @Override public void componentResized(ComponentEvent e) {
-                int m=16, w=card.getWidth(), h=card.getHeight();
-                title.setBounds(m, m, w-2*m, 26);
-                search.setBounds(m, m+30, w-2*m, 34);
-                sp.setBounds(m, m+30+34+10, w-2*m, h - (m+30+34+10) - (m+44) - 10);
-                int btnW=120, btnH=40, gap=12, y=h-m-btnH;
-                cancel.setBounds(w - m - (btnW*2 + gap), y, btnW, btnH);
+                int m = 16, w = card.getWidth(), h = card.getHeight();
+                title.setBounds(m, m, w - 2 * m, 26);
+                search.setBounds(m, m + 30, w - 2 * m, 34);
+                sp.setBounds(m, m + 30 + 34 + 10, w - 2 * m,
+                        h - (m + 30 + 34 + 10) - (m + 44) - 10);
+
+                int btnW = 120, btnH = 40, gap = 12, y = h - m - btnH;
+                cancel.setBounds(w - m - (btnW * 2 + gap), y, btnW, btnH);
                 ok.setBounds(w - m - btnW, y, btnW, btnH);
             }
         });
+
+        // Apply initial theme (ThemeManager will handle base stuff; we handle overlay specifics)
+        refreshTheme();
     }
 
-    private JButton styledButton(String text) {
-        JButton b = new JButton(text);
+    private void styleButton(JButton b) {
         b.setFocusPainted(false);
-        b.setForeground(Color.WHITE);
-        b.setBackground(new Color(20,20,20));
-        b.setBorder(new LineBorder(Color.GRAY));
         b.setFont(new Font("SansSerif", Font.BOLD, 16));
-        return b;
+        // colors/borders come from refreshTheme()
     }
 
     private void chooseSelected() {
         int sel = list.getSelectedIndex();
         if (sel < 0) return;
 
-        // Convert selected display name back to original index in allDisplay
         String chosenName = model.get(sel);
         int originalIndex = -1;
-        for (int i=0; i<allDisplay.size(); i++) {
+        for (int i = 0; i < allDisplay.size(); i++) {
             if (allDisplay.get(i).equals(chosenName)) { originalIndex = i; break; }
         }
         if (originalIndex >= 0 && onPick != null) onPick.accept(originalIndex);
@@ -148,9 +151,12 @@ class JigsawChooserPopover extends JPanel {
         if (!model.isEmpty()) list.setSelectedIndex(0);
 
         if (getParent() != glassPane) glassPane.add(this);
-        setBounds(0,0,glassPane.getWidth(), glassPane.getHeight());
+        setBounds(0, 0, glassPane.getWidth(), glassPane.getHeight());
         setVisible(true);
         glassPane.setVisible(true);
+
+        // register when shown (so theme toggles update this popover while it is open)
+        ThemeManager.get().register(this);
 
         // position the card
         int cw = 420, ch = 420;
@@ -159,28 +165,68 @@ class JigsawChooserPopover extends JPanel {
         int ax = aScreen.x - gScreen.x;
         int ay = aScreen.y - gScreen.y;
 
-        int cx = ax + (anchor.getWidth() - cw)/2;
+        int cx = ax + (anchor.getWidth() - cw) / 2;
         int cy = ay - ch - 12;
-        // clamp within glass
+
         cx = Math.max(12, Math.min(cx, glassPane.getWidth() - cw - 12));
         cy = Math.max(12, Math.min(cy, glassPane.getHeight() - ch - 12));
 
         card.setBounds(cx, cy, cw, ch);
-        revalidate(); repaint();
 
+        // ensure correct colors immediately
+        refreshTheme();
+
+        revalidate();
+        repaint();
         SwingUtilities.invokeLater(() -> search.requestFocusInWindow());
     }
 
     void close() {
         setVisible(false);
+        ThemeManager.get().unregister(this);
         Container p = getParent();
         if (p != null) p.repaint();
     }
 
     @Override protected void paintComponent(Graphics g) {
+        Theme.Palette.Overlay o = ThemeManager.get().palette().overlay;
+
         Graphics2D g2 = (Graphics2D) g.create();
-        g2.setColor(new Color(0,0,0,90));
-        g2.fillRect(0,0,getWidth(),getHeight());
+        g2.setColor(o.scrim);
+        g2.fillRect(0, 0, getWidth(), getHeight());
         g2.dispose();
+    }
+
+    // ---- ThemeAware ----
+    @Override
+    public void refreshTheme() {
+        Theme.Palette pal = ThemeManager.get().palette();
+        Theme.Palette.Overlay o = pal.overlay;
+        Theme.Palette.Base b = pal.base;
+
+        // title + inputs
+        title.setForeground(o.text);
+
+        search.setBackground(o.inputBg);
+        search.setForeground(o.text);
+        search.setCaretColor(o.text);
+        search.setBorder(new LineBorder(o.inputBorder));
+
+        // list (use base list colors; popover overlay doesn't define list selection)
+        list.setBackground(b.listBg);
+        list.setForeground(o.text);
+        list.setSelectionBackground(b.listSelectionBg);
+        list.setSelectionForeground(o.text);
+        sp.getViewport().setBackground(b.listBg);
+
+        // buttons
+        for (JButton btn : new JButton[]{cancel, ok}) {
+            btn.setBackground(o.buttonBg);
+            btn.setForeground(o.text);
+            btn.setBorder(new LineBorder(o.buttonBorder));
+        }
+
+        card.repaint();
+        repaint();
     }
 }
