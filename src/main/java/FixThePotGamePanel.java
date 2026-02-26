@@ -287,7 +287,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
         });
 
         // Previous Jigsaw Button: Load and scale the Jigsaw icon
-        ImageIcon scaledLeftIcon = scaledIcon("/Starting/left.png", 24, 24);
+        ImageIcon scaledLeftIcon = scaledIcon("/Buttons/left.png", 24, 24);
         previousJigsawButton = new JButton(scaledLeftIcon); // Create previous button with scaled image
         previousJigsawButton.setToolTipText("Previous Jigsaw (←)");
         previousJigsawButton.addActionListener(e -> { // Move to the previous image in the combo box
@@ -303,7 +303,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
         previousJigsawButton.setFocusable(false); // prevents SPACE from focusing on the button
 
         // Restart Button: Load and scale the Restart icon
-        ImageIcon scaledRestartIcon = scaledIcon("/Starting/restart.png", 24, 24);
+        ImageIcon scaledRestartIcon = scaledIcon("/Buttons/restart.png", 24, 24);
         restartButton = new JButton(scaledRestartIcon); // Create restart button with scaled image
         restartButton.setToolTipText("Restart Jigsaw (r)");
         restartButton.addActionListener(e -> {
@@ -314,7 +314,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
         });
 
         // Show Completed Button
-        ImageIcon scaledShow_completedIcon = scaledIcon("/Starting/show_completed.png", 24, 24);
+        ImageIcon scaledShow_completedIcon = scaledIcon("/Buttons/show_completed.png", 24, 24);
         showCompletedButton = new JButton(scaledShow_completedIcon);
         updateShowCompletedTooltip(); // Dynamic tooltip based on overlay visibility
         // Hover → show small preview
@@ -374,7 +374,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
         });
 
         // Jigsaw Split Button
-        jigsawSplitButton = new JButton(scaledIcon("/Starting/jigsaw_split.jpeg", 24, 24));
+        jigsawSplitButton = new JButton(scaledIcon("/Buttons/jigsaw_split.jpeg", 24, 24));
         jigsawSplitButton.setToolTipText("Pick the amount of Jigsaw Pieces");
         jigsawSplitButton.addActionListener(e -> {
             if (splitOverlay == null) {
@@ -426,7 +426,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
 
 
         // Information Button
-        ImageIcon scaledInformationIcon = scaledIcon("/Starting/information.png", 24, 24);
+        ImageIcon scaledInformationIcon = scaledIcon("/Buttons/information.png", 24, 24);
         extraInfoButton = new JButton(scaledInformationIcon);
         updateInfoTooltip(); // Initialise tooltip based on current overlay state
         extraInfoButton.addActionListener(e -> {
@@ -528,7 +528,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
         musicPlayer.play();
 
         // 2) Mute / Unmute button (unchanged look)
-        musicToggleButton = new JButton(scaledIcon("/Starting/music note.png", 24, 24));
+        musicToggleButton = new JButton(scaledIcon("/Buttons/music note.png", 24, 24));
         updateMusicTooltip();
         musicToggleButton.addActionListener(e -> {
             if (musicPlayer != null) {
@@ -539,7 +539,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
         });
 
         // 3) Track chooser button (the “up arrow”)
-        JButton chooseTrackButton = new JButton(scaledIcon("/Starting/music_track.png", 24, 24));
+        JButton chooseTrackButton = new JButton(scaledIcon("/Buttons/music_track.png", 24, 24));
         chooseTrackButton.setToolTipText("Select a music track");
         final MusicChooserPopover[] musicPopoverRef = new MusicChooserPopover[1]; // Popover field (store on your panel class if you want to reuse)
         chooseTrackButton.addActionListener(e -> {
@@ -569,7 +569,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
 
         // Collection's Button
         // Load and scale the Collections icon
-        ImageIcon scaledCollectionsIcon = scaledIcon("/Starting/collections.png", 24, 24);
+        ImageIcon scaledCollectionsIcon = scaledIcon("/Buttons/collections.png", 24, 24);
         backToCollectionsButton = new JButton(scaledCollectionsIcon); // Menu Icon button
         backToCollectionsButton.setToolTipText("Return to collection selection"); // Hover over information
         backToCollectionsButton.addActionListener(e -> { // Notify the listener to switch back to the collection screen
@@ -579,7 +579,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
         });
 
         // JIGSAW CHOOSER (popover)
-        chooseJigsawButton = new JButton(scaledIcon("/Starting/choose.png", 24, 24));
+        chooseJigsawButton = new JButton(scaledIcon("/Buttons/choose.png", 24, 24));
         chooseJigsawButton.setToolTipText("Click to select a jigsaw");
         final JigsawChooserPopover[] jigsawPopoverRef = new JigsawChooserPopover[1];
         chooseJigsawButton.addActionListener(e -> {
@@ -615,7 +615,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
 
         // Next Jigsaw Button
         // Load and scale the Jigsaw icon
-        ImageIcon scaledNextIcon = scaledIcon("/Starting/right.png", 24, 24);
+        ImageIcon scaledNextIcon = scaledIcon("/Buttons/right.png", 24, 24);
         // Create button with scaled image
         nextJigsawButton = new JButton(scaledNextIcon);
         nextJigsawButton.setToolTipText("Next Jigsaw (→)");
@@ -636,7 +636,7 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
 
         // Zen mode button
         // Load and scale the Jigsaw icon
-        ImageIcon scaledZenIcon = scaledIcon("/Starting/zen.png", 24, 24);
+        ImageIcon scaledZenIcon = scaledIcon("/Buttons/zen.png", 24, 24);
         zenModeButton = new JButton(scaledZenIcon);
         zenModeButton.setToolTipText("Toggle Zen mode (z)");
         zenModeButton.setFocusPainted(false);
@@ -703,8 +703,8 @@ public class FixThePotGamePanel extends JPanel { // This is the main panel for t
 
         boolean isDark = (t == Theme.DARK);
         String theme_icon_Path = isDark // If you want the icon to represent the CURRENT mode:
-                ? "/Starting/dark_mode.png"
-                : "/Starting/light_mode.png";
+                ? "/Buttons/dark_mode.png"
+                : "/Buttons//light_mode.png";
 
         // If instead you want the icon to show the mode you will SWITCH TO, flip the two paths.
 
