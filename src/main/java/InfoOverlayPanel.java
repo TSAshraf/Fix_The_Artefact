@@ -8,7 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.net.URI;
 
-public class InfoOverlayPanel extends JPanel {
+public class InfoOverlayPanel extends JPanel implements ThemeAware {
 
     // ---- layout / sizing constants ----
     private static final int MARGIN = 20;
@@ -39,11 +39,11 @@ public class InfoOverlayPanel extends JPanel {
     private static final int BUTTON_W = 200, BUTTON_H = 40;
 
     // === UI components ===
-    private BannerImage banner;     // aspect-preserving banner
-    private JLabel titleLabel;
-    private JTextArea descArea;
-    private JScrollPane scrollPane;
-    private JButton learnMoreButton;
+    private final BannerImage banner;     // aspect-preserving banner
+    private final JLabel titleLabel;
+    private final JTextArea descArea;
+    private final JScrollPane scrollPane;
+    private final JButton learnMoreButton;
 
     // external link
     private String moreInfoUrl;
@@ -73,20 +73,16 @@ public class InfoOverlayPanel extends JPanel {
     public InfoOverlayPanel() {
         setLayout(null);
         setSize(START_W, START_H);
-
-        setBackground(new Color(0, 0, 0, 200));
-        setBorder(new LineBorder(new Color(220, 220, 220, 180), 2));
         setOpaque(true);
 
         // === IMAGE BANNER ===
         banner = new BannerImage();
         banner.setOpaque(false);
-        banner.setAllowUpscale(true); // ✅ allow enlarging to fill the column (still aspect-correct)
+        banner.setAllowUpscale(true); // allow enlarging to fill the column (still aspect-correct)
         add(banner);
 
         // === TITLE ===
         titleLabel = new JLabel("Artifact Title");
-        titleLabel.setForeground(Color.WHITE);
         titleLabel.setFont(new Font("Serif", Font.BOLD, 22));
         add(titleLabel);
 
@@ -94,7 +90,6 @@ public class InfoOverlayPanel extends JPanel {
         descArea = new JTextArea();
         descArea.setEditable(false);
         descArea.setOpaque(false);
-        descArea.setForeground(Color.WHITE);
         descArea.setFont(new Font("Serif", Font.PLAIN, 18));
         descArea.setLineWrap(true);
         descArea.setWrapStyleWord(true);
@@ -113,9 +108,6 @@ public class InfoOverlayPanel extends JPanel {
         learnMoreButton = new JButton("Learn more");
         learnMoreButton.setFocusPainted(false);
         learnMoreButton.setFont(new Font("SansSerif", Font.BOLD, 18));
-        learnMoreButton.setBackground(Color.BLACK);
-        learnMoreButton.setForeground(Color.WHITE);
-        learnMoreButton.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         learnMoreButton.addActionListener(e -> openMoreInfoUrl());
         add(learnMoreButton);
 
@@ -274,7 +266,7 @@ public class InfoOverlayPanel extends JPanel {
         // re-layout + re-render when the panel itself resizes (programmatically)
         addComponentListener(new ComponentAdapter() {
             @Override public void componentResized(ComponentEvent e) {
-                layoutChildrenForCurrentSize();   // ✅ ensure bounds update
+                layoutChildrenForCurrentSize();
                 banner.repaint();
             }
         });
@@ -283,6 +275,31 @@ public class InfoOverlayPanel extends JPanel {
         layoutChildrenForCurrentSize();
         lastW = getWidth();
         lastH = getHeight();
+
+        // Theme hookup
+        ThemeManager.get().register(this);
+        refreshTheme();
+    }
+
+    @Override
+    public void refreshTheme() {
+        Theme.Palette.Overlay o = ThemeManager.get().palette().overlay;
+
+        setBackground(o.cardFill);
+        setBorder(new LineBorder(o.cardStroke, 2, true));
+
+        titleLabel.setForeground(o.text);
+        descArea.setForeground(o.text);
+
+        // No controlBg/controlStroke needed: use the overlay card colours.
+        learnMoreButton.setBackground(o.cardFill);
+        learnMoreButton.setForeground(o.text);
+        learnMoreButton.setBorder(BorderFactory.createLineBorder(o.cardStroke));
+
+        // Optional: letterbox background behind the image
+        banner.setLetterboxFill(o.scrim);
+
+        repaint();
     }
 
     /**
@@ -312,7 +329,7 @@ public class InfoOverlayPanel extends JPanel {
             int imageH = (btnY - y0); // fills down to just above the button
 
             // Left column: image fills column; letterboxed (no crop / no warp)
-            banner.setBounds(x0, y0, imageW, imageH); // ✅ use full column (no "- x0" / "- y0")
+            banner.setBounds(x0, y0, imageW, imageH);
 
             // Right column
             int textX = x0 + imageW + MARGIN;
@@ -445,9 +462,11 @@ public class InfoOverlayPanel extends JPanel {
     private static final class BannerImage extends JComponent {
         private BufferedImage img;
         private boolean allowUpscale = false;
+        private Color letterboxFill = null;
 
         void setImage(BufferedImage b) { this.img = b; revalidate(); repaint(); }
         void setAllowUpscale(boolean allow) { this.allowUpscale = allow; }
+        void setLetterboxFill(Color c) { this.letterboxFill = c; repaint(); }
 
         @Override public Dimension getPreferredSize() { return new Dimension(480, 160); }
 
@@ -456,9 +475,11 @@ public class InfoOverlayPanel extends JPanel {
             int cw = getWidth(), ch = getHeight();
             Graphics2D g2 = (Graphics2D) g.create();
 
-            // If you want NO letterbox fill, comment the next two lines.
-            // g2.setColor(new Color(0,0,0,120));
-            // g2.fillRect(0, 0, cw, ch);
+            // letterbox fill behind image
+            if (letterboxFill != null) {
+                g2.setColor(letterboxFill);
+                g2.fillRect(0, 0, cw, ch);
+            }
 
             if (img != null) {
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -478,6 +499,7 @@ public class InfoOverlayPanel extends JPanel {
 
                 g2.drawImage(img, x, y, w, h, null);
             }
+
             g2.dispose();
         }
     }

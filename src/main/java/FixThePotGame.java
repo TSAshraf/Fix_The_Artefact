@@ -30,7 +30,7 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
 
     public FixThePotGame() {
         // Load default image from resources (NO File paths)
-        potImage = loadImageResourceOrDie("/Ancient Cyprus/jug-1.jpg");
+        potImage = loadImageResourceOrDie("/Ancient Cyprus/Artifacts/jug-1.jpg");
 
         pieces = new ArrayList<>();
         createPieces();
