@@ -117,4 +117,3 @@ public class ImagePeek extends JPanel implements ThemeAware {
         g2.dispose();
     }
 }
-

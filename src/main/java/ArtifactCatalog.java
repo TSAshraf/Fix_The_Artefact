@@ -1015,7 +1015,7 @@ public final class ArtifactCatalog {
         Map<String, List<String>> m = new HashMap<>();
 
         m.put(CYPRUS, List.of(
-                "/Ancient Cyprus/jug-1.jpg",
+                "/Ancient Cyprus/Artifacts/jug-1.jpg",
                 "/Ancient Cyprus/Artifacts/jug-2.jpg",
                 "/Ancient Cyprus/Artifacts/jug-3.jpg",
                 "/Ancient Cyprus/Artifacts/jug-4.jpg",
@@ -1188,10 +1188,20 @@ public final class ArtifactCatalog {
 
     /** Returns images for a collection, or ALL images if unknown. */
     public static List<String> imagesFor(String collectionName) {
+        // Try exact match first
         List<String> list = COLLECTIONS.get(collectionName);
         if (list != null) return list;
+
+        // Strip trailing "/Artifacts/" or similar suffixes and try again
+        for (Map.Entry<String, List<String>> entry : COLLECTIONS.entrySet()) {
+            if (collectionName.startsWith(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+
         return List.of(IMAGE_OPTIONS);
     }
+
 
     public static String displayName(String resourcePath) {
         String fileName = new java.io.File(resourcePath).getName();
@@ -1200,5 +1210,4 @@ public final class ArtifactCatalog {
         fileName = fileName.replaceAll("\\s*\\d+$", "");
         return fileName.trim();
     }
-
 }
