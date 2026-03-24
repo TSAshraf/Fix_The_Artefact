@@ -1,0 +1,92 @@
+plugins {
+    id 'java'
+}
+
+version = '1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+sourceSets.main {
+    java.srcDirs   = ['src/main/java']
+    resources.srcDirs = ['src/main/resources']
+}
+
+dependencies {
+    implementation fileTree(dir: 'lib', include: ['*.jar'])
+}
+
+jar {
+    archiveBaseName = 'fix-the-pot'
+    manifest {
+        attributes 'Main-Class': 'MainFrame'
+    }
+}
+
+tasks.register('dist') {
+    dependsOn jar
+    doLast {
+        def out = file("${layout.buildDirectory.get()}/dist/FixThePot")
+        def app = file("${layout.buildDirectory.get()}/dist/Fix the Pot.app")
+        delete out
+        delete app
+
+        // ---- Flat distribution ----
+        out.mkdirs()
+        copy { from jar.archiveFile; into out; rename { 'fix-the-pot.jar' } }
+        copy { from 'lib'; into "$out/lib" }
+
+        def sh = file("$out/run.sh")
+        sh.text = '#!/bin/bash\nDIR="$(cd "$(dirname "$0")" && pwd)"\n' +
+                'java -Djava.library.path="$DIR/lib" -cp "$DIR/fix-the-pot.jar:$DIR/lib/*" MainFrame\n'
+        sh.setExecutable(true)
+
+        file("$out/run.bat").text = '@echo off\r\nset DIR=%~dp0\r\n' +
+                'java -Djava.library.path="%DIR%lib" -cp "%DIR%fix-the-pot.jar;%DIR%lib\\*" MainFrame\r\n'
+
+        file("$out/README.txt").text = """Fix the Pot - Archaeological Jigsaw Puzzle Game
+================================================
+Requirements: Java 21+ (https://adoptium.net)
+macOS / Linux:  ./run.sh
+Windows:        run.bat
+Save location:  ~/.fix-the-artefact/profiles/ (macOS/Linux)
+                %APPDATA%\\FixTheArtefact\\profiles\\ (Windows)
+"""
+
+        // ---- macOS .app bundle ----
+        def macosDir = file("${app}/Contents/MacOS")
+        def resDir   = file("${app}/Contents/Resources")
+        macosDir.mkdirs()
+        resDir.mkdirs()
+
+        copy { from out; into resDir }
+
+        def launcher = file("${macosDir}/run")
+        launcher.text = '#!/bin/bash\n' +
+                'DIR="$(cd "$(dirname "$0")/../Resources" && pwd)"\n' +
+                'java -Djava.library.path="$DIR/lib" -cp "$DIR/fix-the-pot.jar:$DIR/lib/*" MainFrame\n'
+        launcher.setExecutable(true)
+
+        file("${app}/Contents/Info.plist").text = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>Fix the Pot</string>
+    <key>CFBundleExecutable</key>
+    <string>run</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.fixthepot.game</string>
+    <key>CFBundleVersion</key>
+    <string>1.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+</dict>
+</plist>
+"""
+
+        println "Distribution + .app ready: ${app.parentFile.absolutePath}"
+    }
+}
