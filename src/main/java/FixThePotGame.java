@@ -5,6 +5,9 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.awt.AlphaComposite;
+import java.awt.Composite;
+import java.awt.BasicStroke;
 
 public class FixThePotGame extends JPanel implements MouseListener, MouseMotionListener {
 
@@ -18,6 +21,9 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
     private int puzzleRows = 2;
     private int puzzleCols = 2;
 
+    public int getPuzzleRows() { return puzzleRows; }
+    public int getPuzzleCols() { return puzzleCols; }
+
     // view transform
     private double viewScale = 1.0;             // screen = draw + logical * scale
     private double drawX = 0;
@@ -27,6 +33,30 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
     public interface PuzzleSolvedListener { void puzzleSolved(); }
     private PuzzleSolvedListener solvedListener;
     public void setPuzzleSolvedListener(PuzzleSolvedListener l) { this.solvedListener = l; }
+
+    // hint system: 0=off, 1=edges only, 2=corners only, 3=placement guide
+    private int hintLevel = 0;
+    private PuzzlePiece guidedPiece = null; // tier 3: which piece to highlight
+    public int cycleHint() {
+        hintLevel = (hintLevel + 1) % 4;
+        if (hintLevel == 3) {
+            guidedPiece = null;
+            for (PuzzlePiece p : pieces) {
+                if (!p.placed) { guidedPiece = p; break; }
+            }
+        } else {
+            guidedPiece = null;
+        }
+        repaint();
+        return hintLevel;
+    }
+    public int getHintLevel() { return hintLevel; }
+    private boolean isEdge(PuzzlePiece p) {
+        return p.row == 0 || p.row == puzzleRows - 1 || p.col == 0 || p.col == puzzleCols - 1;
+    }
+    private boolean isCorner(PuzzlePiece p) {
+        return (p.row == 0 || p.row == puzzleRows - 1) && (p.col == 0 || p.col == puzzleCols - 1);
+    }
 
     public FixThePotGame() {
         // Load default image from resources (NO File paths)
@@ -87,20 +117,19 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
 
     private void createPieces() {
         if (potImage == null) return;
-
         pieces.clear();
+        hintLevel = 0;
+        guidedPiece = null;
         int pieceW = potImage.getWidth() / puzzleCols;
         int pieceH = potImage.getHeight() / puzzleRows;
-
         for (int r = 0; r < puzzleRows; r++) {
             for (int c = 0; c < puzzleCols; c++) {
-                int cx = c * pieceW;  // correct logical X
-                int cy = r * pieceH;  // correct logical Y
+                int cx = c * pieceW;
+                int cy = r * pieceH;
 
                 BufferedImage img = potImage.getSubimage(cx, cy, pieceW, pieceH);
-                PuzzlePiece p = new PuzzlePiece(img, cx, cy);
+                PuzzlePiece p = new PuzzlePiece(img, cx, cy, r, c);
 
-                // random logical start area (same as before)
                 p.x = (int) (Math.random() * (1000 - pieceW));
                 p.y = (int) (Math.random() * (1000 - pieceH));
                 pieces.add(p);
@@ -108,6 +137,7 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
         }
         Collections.shuffle(pieces);
     }
+
 
     public void restartGame() {
         createPieces();
@@ -186,7 +216,43 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
             int py = logicalToScreenY(p.y);
             int pw = (int) Math.round(p.image.getWidth() * viewScale);
             int ph = (int) Math.round(p.image.getHeight() * viewScale);
-            g2.drawImage(p.image, px, py, pw, ph, this);
+
+            boolean dimmed = false;
+            if (hintLevel == 1 && !isEdge(p) && !p.placed) dimmed = true;
+            if (hintLevel == 2 && !isCorner(p) && !p.placed) dimmed = true;
+            if (hintLevel == 3 && p != guidedPiece && !p.placed) dimmed = true;
+
+            if (dimmed) {
+                Composite orig = g2.getComposite();
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
+                g2.drawImage(p.image, px, py, pw, ph, this);
+                g2.setComposite(orig);
+            } else {
+                g2.drawImage(p.image, px, py, pw, ph, this);
+            }
+        }
+        // Tier 3: highlight guided piece and its destination
+        if (hintLevel == 3 && guidedPiece != null && !guidedPiece.placed) {
+            // Ghost at destination
+            int gx = logicalToScreenX(guidedPiece.correctX);
+            int gy = logicalToScreenY(guidedPiece.correctY);
+            int gw = (int) Math.round(guidedPiece.image.getWidth() * viewScale);
+            int gh = (int) Math.round(guidedPiece.image.getHeight() * viewScale);
+
+            Composite orig = g2.getComposite();
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.35f));
+            g2.drawImage(guidedPiece.image, gx, gy, gw, gh, this);
+            g2.setComposite(orig);
+
+            // Yellow outline on destination
+            g2.setColor(Color.YELLOW);
+            g2.setStroke(new BasicStroke(2));
+            g2.drawRect(gx, gy, gw, gh);
+
+            // Yellow outline on the piece itself
+            int px = logicalToScreenX(guidedPiece.x);
+            int py = logicalToScreenY(guidedPiece.y);
+            g2.drawRect(px, py, gw, gh);
         }
         g2.dispose();
     }
@@ -202,6 +268,10 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
             int pw = p.image.getWidth(), ph = p.image.getHeight();
             if (mx >= p.x && mx <= p.x + pw && my >= p.y && my <= p.y + ph) {
                 selectedPiece = p;
+                selectedPiece.placed = false;
+                if (hintLevel == 3) {
+                    guidedPiece = p;
+                }
                 offsetX = mx - p.x;
                 offsetY = my - p.y;
 
@@ -245,6 +315,14 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
                 selectedPiece.y = snapY;
                 selectedPiece.placed = true;
 
+                // advance guided piece if the current one was just placed
+                if (hintLevel == 3 && guidedPiece == selectedPiece) {
+                    guidedPiece = null;
+                    for (PuzzlePiece pp : pieces) {
+                        if (!pp.placed) { guidedPiece = pp; break; }
+                    }
+                }
+
                 boolean solved = true;
                 for (PuzzlePiece p : pieces) {
                     if (!p.placed) { solved = false; break; }
@@ -270,14 +348,18 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
     // --- piece model ---
     private static final class PuzzlePiece {
         final BufferedImage image;
-        final int correctX, correctY;  // logical correct top-left
-        int x, y;                      // logical current top-left
+        final int correctX, correctY;
+        final int row, col;
+        int x, y;
         boolean placed = false;
 
-        PuzzlePiece(BufferedImage img, int cx, int cy) {
+        PuzzlePiece(BufferedImage img, int cx, int cy, int row, int col) {
             image = img;
             correctX = cx;
             correctY = cy;
+            this.row = row;
+            this.col = col;
         }
     }
+
 }
