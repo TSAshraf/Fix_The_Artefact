@@ -1,17 +1,15 @@
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.net.URL;
 
-// MusicPlayer class handles audio playback using JavaFX MediaPlayer
 public class MusicPlayer {
     private MediaPlayer mediaPlayer;
 
-    /**
-     * @param resourcePath classpath resource, e.g. "/audio/background.mp3"
-     */
     public MusicPlayer(String resourcePath) {
-        // Initialize JavaFX runtime for MediaPlayer support in Swing
         new JFXPanel();
 
         URL url = MusicPlayer.class.getResource(resourcePath);
@@ -19,7 +17,26 @@ public class MusicPlayer {
             throw new RuntimeException("Missing audio resource: " + resourcePath);
         }
 
-        Media media = new Media(url.toExternalForm());
+        String mediaUri;
+        if ("jar".equals(url.getProtocol())) {
+            // Extract to temp file — MediaPlayer can't play from inside JARs
+            try {
+                String ext = resourcePath.substring(resourcePath.lastIndexOf('.'));
+                File tmp = File.createTempFile("ftp-music-", ext);
+                tmp.deleteOnExit();
+                try (InputStream in = MusicPlayer.class.getResourceAsStream(resourcePath);
+                     FileOutputStream out = new FileOutputStream(tmp)) {
+                    in.transferTo(out);
+                }
+                mediaUri = tmp.toURI().toString();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to extract audio: " + resourcePath, e);
+            }
+        } else {
+            mediaUri = url.toExternalForm();
+        }
+
+        Media media = new Media(mediaUri);
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
     }
