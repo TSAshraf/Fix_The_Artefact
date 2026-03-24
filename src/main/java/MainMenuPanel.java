@@ -5,64 +5,139 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 public class MainMenuPanel extends JPanel implements ThemeAware {
+
     private FramePanel framePanel;
     private BufferedImage backgroundImage;
     private MainMenuListener listener;
 
-    // If you want the main menu to follow the last played collection,
-    // make this settable later (e.g., from your app controller).
-    private String currentCollection = "/Rome";
+    // main menu background follows last played collection if you call setCurrentCollection()
+    private String currentCollection = "/Rome/Artifacts/";
+
+    // Kenney ornate frame (same one you used elsewhere)
+    private static final String ORNATE_FRAME =
+            "/kenney_fantasy-ui-borders/PNG/Default/Transparent center/panel-transparent-center-030.png";
 
     public interface MainMenuListener {
-        void onPlayClicked();
+        void onNewGameClicked();
+        void onLoadClicked();
     }
 
     public void setMainMenuListener(MainMenuListener listener) {
         this.listener = listener;
-        if (framePanel != null) {
-            framePanel.setMainMenuListener(listener);
-        }
+        if (framePanel != null) framePanel.setMainMenuListener(listener);
     }
 
     public MainMenuPanel() {
         setLayout(new GridBagLayout());
         setOpaque(false);
 
-        // Load ornate frame once
-        Image ornateFrame = null;
-        try (var in = MainMenuPanel.class.getResourceAsStream("/Rome/Artifacts/Ornate-1-Photoroom.png")) {
-            if (in == null) throw new RuntimeException("Missing resource: /Rome/Artifacts/Ornate-1-Photoroom.png");
-            ornateFrame = ImageIO.read(in);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        framePanel = new FramePanel(ornateFrame);
-        if (listener != null) framePanel.setMainMenuListener(listener);
-        add(framePanel, new GridBagConstraints());
+        JButton newGameButton = new JButton("New Game");
+        JButton loadButton = new JButton("Load");
+
+        newGameButton.setFont(new Font("Serif", Font.BOLD, 28));
+        newGameButton.setFocusPainted(false);
+        newGameButton.setFocusable(false);
+        loadButton.setFont(new Font("Serif", Font.BOLD, 28));
+        loadButton.setFocusPainted(false);
+        loadButton.setFocusable(false);
+
+        // Hover effect, increases button font size when hovered, for both play and load button
+        newGameButton.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) {
+                newGameButton.setFont(newGameButton.getFont().deriveFont(32f));
+                newGameButton.revalidate();
+                newGameButton.repaint();
+            }
+            @Override public void mouseExited(MouseEvent e) {
+                newGameButton.setFont(newGameButton.getFont().deriveFont(28f));
+                newGameButton.revalidate();
+                newGameButton.repaint();
+            }
+        });
+        loadButton.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) {
+                loadButton.setFont(loadButton.getFont().deriveFont(32f));
+                loadButton.revalidate();
+                loadButton.repaint();
+            }
+            @Override public void mouseExited(MouseEvent e) {
+                loadButton.setFont(loadButton.getFont().deriveFont(28f));
+                loadButton.revalidate();
+                loadButton.repaint();
+            }
+        });
+
+        // Action listeners for both buttons
+        newGameButton.addActionListener(e -> {
+            if (listener != null) listener.onNewGameClicked();
+        });
+        loadButton.addActionListener(e -> {
+            if (listener != null) listener.onLoadClicked();
+        });
+
+        // Make both button's "menu-style": transparent, no chunky Swing background
+        newGameButton.setOpaque(false);
+        newGameButton.setContentAreaFilled(false);
+        newGameButton.setBorderPainted(false);
+        loadButton.setOpaque(false);
+        loadButton.setContentAreaFilled(false);
+        loadButton.setBorderPainted(false);
+
+        // Stack buttons vertically in one content panel
+        JPanel content = new JPanel();
+        content.setOpaque(false);
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        newGameButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        loadButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        content.add(Box.createVerticalStrut(8));
+        content.add(newGameButton);
+        content.add(Box.createVerticalStrut(12));
+        content.add(loadButton);
+        content.add(Box.createVerticalStrut(8));
+
+        // One shared ornate frame around both buttons
+        OrnateFramePanel framedContent = new OrnateFramePanel(
+                content, 8, 10, 1, ORNATE_FRAME
+        );
+
+        // FramePanel hosts the single framed content
+        framePanel = new FramePanel(framedContent, newGameButton, loadButton);
+        framePanel.setMainMenuListener(listener);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(24, 24, 24, 24);
+        add(framePanel, gbc);
+
         ThemeManager.get().register(this);
         refreshTheme();
     }
 
+
+
     /** Optional: call this if you want main menu background to match chosen collection */
     public void setCurrentCollection(String collection) {
-        this.currentCollection = collection;
+        this.currentCollection = (collection == null || collection.isBlank())
+                ? "/Rome/Artifacts/"
+                : collection;
         refreshTheme();
     }
 
     @Override
     public void refreshTheme() {
-        // 1) Swap background based on theme + collection
         Theme theme = ThemeManager.get().getCurrent();
         String path = BackgroundCatalog.backgroundFor(currentCollection, theme);
+
         try (var in = MainMenuPanel.class.getResourceAsStream(path)) {
             if (in == null) throw new RuntimeException("Missing resource: " + path);
             backgroundImage = ImageIO.read(in);
         } catch (Exception e) {
             e.printStackTrace();
+            backgroundImage = null;
         }
-        // 2) Force Play button readable in both modes
         if (framePanel != null) framePanel.refreshTheme();
-
         repaint();
     }
 
@@ -71,56 +146,51 @@ public class MainMenuPanel extends JPanel implements ThemeAware {
         super.paintComponent(g);
         if (backgroundImage != null) {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        } else {
+            Theme.Palette.Base b = ThemeManager.get().palette().base;
+            g.setColor(b.appBg);
+            g.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 
-    private class FramePanel extends JPanel implements ActionListener, ThemeAware {
-        private final Image frameImage;
-        private final JButton playButton;
+    private JButton createMenuButton(String text) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Serif", Font.BOLD, 28));
+        btn.setFocusPainted(false);
+        btn.setFocusable(false);
+        btn.setOpaque(false);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+
+        btn.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) {
+                btn.setFont(btn.getFont().deriveFont(32f));
+                btn.revalidate();
+                btn.repaint();
+            }
+            @Override public void mouseExited(MouseEvent e) {
+                btn.setFont(btn.getFont().deriveFont(28f));
+                btn.revalidate();
+                btn.repaint();
+            }
+        });
+        return btn;
+    }
+
+    private static class FramePanel extends JPanel implements ThemeAware {
+        private final JComponent framed;
+        private final JButton newGameButton;
+        private final JButton loadButton;
         private MainMenuListener menuListener;
-        private int offsetX = 0;
-        private int offsetY = -5;
-        public FramePanel(Image frameImage) {
-            this.frameImage = frameImage;
+
+        FramePanel(JComponent framed, JButton newGameButton, JButton loadButton) {
+            this.framed = framed;
+            this.newGameButton = newGameButton;
+            this.loadButton = loadButton;
+
             setOpaque(false);
             setLayout(new GridBagLayout());
-
-            if (frameImage != null) {
-                setPreferredSize(new Dimension(frameImage.getWidth(null), frameImage.getHeight(null)));
-            } else {
-                setPreferredSize(new Dimension(300, 200));
-            }
-            playButton = new JButton("Play");
-            playButton.setFont(new Font("Serif", Font.BOLD, 28));
-            // text-only look
-            playButton.setOpaque(false);
-            playButton.setContentAreaFilled(false);
-            playButton.setBorderPainted(false);
-            playButton.setFocusPainted(false);
-            playButton.setFocusable(false);
-            playButton.addActionListener(this);
-            playButton.addMouseListener(new MouseAdapter() {
-                @Override public void mouseEntered(MouseEvent e) {
-                    playButton.setFont(playButton.getFont().deriveFont(32f));
-                    playButton.revalidate();
-                    playButton.repaint();
-                }
-                @Override public void mouseExited(MouseEvent e) {
-                    playButton.setFont(playButton.getFont().deriveFont(28f));
-                    playButton.revalidate();
-                    playButton.repaint();
-                }
-            });
-
-            add(playButton, new GridBagConstraints());
-        }
-
-        @Override
-        public void refreshTheme() {
-            Theme t = ThemeManager.get().getCurrent();
-            boolean dark = (t == Theme.DARK);
-            playButton.setForeground(dark ? Color.WHITE : Color.BLACK);
-            repaint();
+            add(framed, new GridBagConstraints());
         }
 
         public void setMainMenuListener(MainMenuListener listener) {
@@ -128,25 +198,12 @@ public class MainMenuPanel extends JPanel implements ThemeAware {
         }
 
         @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (frameImage != null) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-                int padding = 10;
-                Rectangle btnBounds = playButton.getBounds();
-                int frameX = btnBounds.x - padding + offsetX;
-                int frameY = btnBounds.y - padding + offsetY;
-                int frameW = btnBounds.width + 2 * padding;
-                int frameH = btnBounds.height + 2 * padding;
-                g2.drawImage(frameImage, frameX, frameY, frameW, frameH, this);
-                g2.dispose();
-            }
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (menuListener != null) menuListener.onPlayClicked();
+        public void refreshTheme() {
+            Theme.Palette.Base b = ThemeManager.get().palette().base;
+            newGameButton.setForeground(b.text);
+            loadButton.setForeground(b.text);
+            repaint();
         }
     }
+
 }
