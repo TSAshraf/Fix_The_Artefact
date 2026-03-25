@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.BasicStroke;
+import java.awt.geom.Path2D;
+import java.awt.geom.AffineTransform;
 
 public class FixThePotGame extends JPanel implements MouseListener, MouseMotionListener {
 
@@ -36,7 +38,7 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
 
     // hint system: 0=off, 1=edges only, 2=corners only, 3=placement guide
     private int hintLevel = 0;
-    private PuzzlePiece guidedPiece = null; // tier 3: which piece to highlight
+    private PuzzlePiece guidedPiece = null;
     public int cycleHint() {
         hintLevel = (hintLevel + 1) % 4;
         if (hintLevel == 3) {
@@ -58,13 +60,15 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
         return (p.row == 0 || p.row == puzzleRows - 1) && (p.col == 0 || p.col == puzzleCols - 1);
     }
 
-    public FixThePotGame() {
-        // Load default image from resources (NO File paths)
-        potImage = loadImageResourceOrDie("/Ancient Cyprus/Artifacts/jug-1.jpg");
+    // jigsaw edge assignments
+    private int[][] hEdges; // horizontal edges between rows
+    private int[][] vEdges; // vertical edges between columns
+    private static final int FLAT = 0, TAB = 1, BLANK = -1;
 
+    public FixThePotGame() {
+        potImage = loadImageResourceOrDie("/Ancient Cyprus/Artifacts/jug-1.jpg");
         pieces = new ArrayList<>();
         createPieces();
-
         addMouseListener(this);
         addMouseMotionListener(this);
         setOpaque(false);
@@ -75,10 +79,6 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
         return new Dimension(1000, 1000);
     }
 
-    /**
-     * Loads an image from the classpath resources.
-     * @param resourcePath must start with "/" like "/Ancient Cyprus/jug-1.jpg"
-     */
     private BufferedImage loadImageResourceOrDie(String resourcePath) {
         try (var in = getClass().getResourceAsStream(resourcePath)) {
             if (in == null) {
@@ -98,14 +98,10 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
                     JOptionPane.ERROR_MESSAGE
             );
             System.exit(1);
-            return null; // unreachable, required by compiler
+            return null;
         }
     }
 
-    /**
-     * Loads an image from resources; returns null on failure.
-     * Use this for user-selected images (don’t crash the program).
-     */
     private BufferedImage loadImageResource(String resourcePath) {
         try (var in = getClass().getResourceAsStream(resourcePath)) {
             if (in == null) return null;
@@ -115,29 +111,125 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
         }
     }
 
+    // --- jigsaw edge generation ---
+
+    private void generateEdges() {
+        hEdges = new int[puzzleRows - 1][puzzleCols];
+        vEdges = new int[puzzleRows][puzzleCols - 1];
+        java.util.Random rng = new java.util.Random();
+        for (int r = 0; r < puzzleRows - 1; r++)
+            for (int c = 0; c < puzzleCols; c++)
+                hEdges[r][c] = rng.nextBoolean() ? 1 : -1;
+        for (int r = 0; r < puzzleRows; r++)
+            for (int c = 0; c < puzzleCols - 1; c++)
+                vEdges[r][c] = rng.nextBoolean() ? 1 : -1;
+    }
+
+    private int topEdge(int r, int c)    { return r == 0 ? FLAT : -hEdges[r - 1][c]; }
+    private int bottomEdge(int r, int c) { return r == puzzleRows - 1 ? FLAT : hEdges[r][c]; }
+    private int leftEdge(int r, int c)   { return c == 0 ? FLAT : -vEdges[r][c - 1]; }
+    private int rightEdge(int r, int c)  { return c == puzzleCols - 1 ? FLAT : vEdges[r][c]; }
+
+    private void addEdge(Path2D.Double path, double x1, double y1, double x2, double y2,
+                         int type, double tabSize) {
+        if (type == FLAT) { path.lineTo(x2, y2); return; }
+
+        double dx = x2 - x1, dy = y2 - y1;
+        double len = Math.sqrt(dx * dx + dy * dy);
+        double tx = dx / len, ty = dy / len;
+        double nx = ty,  ny = -tx;          // outward normal (right of CW travel)
+        double s = type;                      // +1 tab, -1 blank
+        double t = tabSize;
+
+        path.lineTo(x1 + 0.35 * dx, y1 + 0.35 * dy);
+
+        // neck in
+        path.curveTo(
+            x1 + 0.35 * dx + nx * s * t * 0.15, y1 + 0.35 * dy + ny * s * t * 0.15,
+            x1 + 0.30 * dx + nx * s * t * 0.35, y1 + 0.30 * dy + ny * s * t * 0.35,
+            x1 + 0.30 * dx + nx * s * t * 0.50, y1 + 0.30 * dy + ny * s * t * 0.50
+        );
+        // bulb
+        path.curveTo(
+            x1 + 0.30 * dx + nx * s * t * 0.85, y1 + 0.30 * dy + ny * s * t * 0.85,
+            x1 + 0.70 * dx + nx * s * t * 0.85, y1 + 0.70 * dy + ny * s * t * 0.85,
+            x1 + 0.70 * dx + nx * s * t * 0.50, y1 + 0.70 * dy + ny * s * t * 0.50
+        );
+        // neck out
+        path.curveTo(
+            x1 + 0.70 * dx + nx * s * t * 0.35, y1 + 0.70 * dy + ny * s * t * 0.35,
+            x1 + 0.65 * dx + nx * s * t * 0.15, y1 + 0.65 * dy + ny * s * t * 0.15,
+            x1 + 0.65 * dx, y1 + 0.65 * dy
+        );
+
+        path.lineTo(x2, y2);
+    }
+
+    private Shape buildPieceShape(int r, int c, int pieceW, int pieceH,
+                                   double tabSize, int padL, int padT) {
+        double x0 = padL, y0 = padT;
+        double x1 = padL + pieceW, y1 = padT + pieceH;
+
+        Path2D.Double path = new Path2D.Double();
+        path.moveTo(x0, y0);
+        addEdge(path, x0, y0, x1, y0, topEdge(r, c),    tabSize); // top: left→right
+        addEdge(path, x1, y0, x1, y1, rightEdge(r, c),  tabSize); // right: top→bottom
+        addEdge(path, x1, y1, x0, y1, bottomEdge(r, c), tabSize); // bottom: right→left
+        addEdge(path, x0, y1, x0, y0, leftEdge(r, c),   tabSize); // left: bottom→top
+        path.closePath();
+        return path;
+    }
+
+    // --- piece creation ---
+
     private void createPieces() {
         if (potImage == null) return;
         pieces.clear();
         hintLevel = 0;
         guidedPiece = null;
+
+        generateEdges();
+
         int pieceW = potImage.getWidth() / puzzleCols;
         int pieceH = potImage.getHeight() / puzzleRows;
+        double tabSize = Math.min(pieceW, pieceH) * 0.2;
+        int tabInt = (int) Math.round(tabSize);
+
         for (int r = 0; r < puzzleRows; r++) {
             for (int c = 0; c < puzzleCols; c++) {
-                int cx = c * pieceW;
-                int cy = r * pieceH;
+                int cellX = c * pieceW;
+                int cellY = r * pieceH;
 
-                BufferedImage img = potImage.getSubimage(cx, cy, pieceW, pieceH);
-                PuzzlePiece p = new PuzzlePiece(img, cx, cy, r, c);
+                int top = topEdge(r, c), bot = bottomEdge(r, c);
+                int left = leftEdge(r, c), right = rightEdge(r, c);
 
-                p.x = (int) (Math.random() * (1000 - pieceW));
-                p.y = (int) (Math.random() * (1000 - pieceH));
+                int padT = (top == TAB)   ? tabInt : 0;
+                int padB = (bot == TAB)    ? tabInt : 0;
+                int padL = (left == TAB)   ? tabInt : 0;
+                int padR = (right == TAB)  ? tabInt : 0;
+
+                int srcX = cellX - padL;
+                int srcY = cellY - padT;
+                int srcW = pieceW + padL + padR;
+                int srcH = pieceH + padT + padB;
+
+                Shape shape = buildPieceShape(r, c, pieceW, pieceH, tabSize, padL, padT);
+
+                BufferedImage pieceImg = new BufferedImage(srcW, srcH, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g2 = pieceImg.createGraphics();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setClip(shape);
+                g2.drawImage(potImage.getSubimage(srcX, srcY, srcW, srcH), 0, 0, null);
+                g2.dispose();
+
+                PuzzlePiece p = new PuzzlePiece(pieceImg, srcX, srcY, r, c, shape, padL, padT);
+                p.x = (int) (Math.random() * (1000 - srcW));
+                p.y = (int) (Math.random() * (1000 - srcH));
                 pieces.add(p);
             }
         }
         Collections.shuffle(pieces);
     }
-
 
     public void restartGame() {
         createPieces();
@@ -154,10 +246,6 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
         return potImage;
     }
 
-    /**
-     * Called by your panel when changing puzzles.
-     * resourcePath should look like "/Ancient Cyprus/jug-2.jpg"
-     */
     void setImage(String resourcePath) {
         BufferedImage img = loadImageResource(resourcePath);
         if (img == null) {
@@ -183,7 +271,7 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
             return;
         }
         double sx = pw / (double) iw, sy = ph / (double) ih;
-        viewScale = Math.min(1.0, Math.min(sx, sy)); // never upscale
+        viewScale = Math.min(1.0, Math.min(sx, sy));
         double sw = iw * viewScale, sh = ih * viewScale;
         drawX = (pw - sw) / 2.0;
         drawY = (ph - sh) / 2.0;
@@ -201,6 +289,7 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
 
         updateViewTransform();
         Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // assembly area background
         int areaX = (int) Math.round(drawX);
@@ -210,7 +299,7 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
         g2.setColor(Color.BLACK);
         g2.fillRect(areaX, areaY, areaW, areaH);
 
-        // draw pieces scaled
+        // draw pieces
         for (PuzzlePiece p : pieces) {
             int px = logicalToScreenX(p.x);
             int py = logicalToScreenY(p.y);
@@ -222,18 +311,28 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
             if (hintLevel == 2 && !isCorner(p) && !p.placed) dimmed = true;
             if (hintLevel == 3 && p != guidedPiece && !p.placed) dimmed = true;
 
+            Composite orig = g2.getComposite();
             if (dimmed) {
-                Composite orig = g2.getComposite();
                 g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
-                g2.drawImage(p.image, px, py, pw, ph, this);
+            }
+            g2.drawImage(p.image, px, py, pw, ph, this);
+
+            // draw jigsaw outline
+            AffineTransform at = new AffineTransform();
+            at.translate(px, py);
+            at.scale(viewScale, viewScale);
+            Shape screenShape = at.createTransformedShape(p.shape);
+            g2.setColor(new Color(80, 80, 80, dimmed ? 40 : 160));
+            g2.setStroke(new BasicStroke(1.5f));
+            g2.draw(screenShape);
+
+            if (dimmed) {
                 g2.setComposite(orig);
-            } else {
-                g2.drawImage(p.image, px, py, pw, ph, this);
             }
         }
+
         // Tier 3: highlight guided piece and its destination
         if (hintLevel == 3 && guidedPiece != null && !guidedPiece.placed) {
-            // Ghost at destination
             int gx = logicalToScreenX(guidedPiece.correctX);
             int gy = logicalToScreenY(guidedPiece.correctY);
             int gw = (int) Math.round(guidedPiece.image.getWidth() * viewScale);
@@ -244,15 +343,21 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
             g2.drawImage(guidedPiece.image, gx, gy, gw, gh, this);
             g2.setComposite(orig);
 
-            // Yellow outline on destination
+            // Yellow outline on destination (jigsaw shape)
+            AffineTransform atDest = new AffineTransform();
+            atDest.translate(gx, gy);
+            atDest.scale(viewScale, viewScale);
             g2.setColor(Color.YELLOW);
             g2.setStroke(new BasicStroke(2));
-            g2.drawRect(gx, gy, gw, gh);
+            g2.draw(atDest.createTransformedShape(guidedPiece.shape));
 
             // Yellow outline on the piece itself
             int px = logicalToScreenX(guidedPiece.x);
             int py = logicalToScreenY(guidedPiece.y);
-            g2.drawRect(px, py, gw, gh);
+            AffineTransform atPiece = new AffineTransform();
+            atPiece.translate(px, py);
+            atPiece.scale(viewScale, viewScale);
+            g2.draw(atPiece.createTransformedShape(guidedPiece.shape));
         }
         g2.dispose();
     }
@@ -265,8 +370,8 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
 
         for (int i = pieces.size() - 1; i >= 0; i--) {
             PuzzlePiece p = pieces.get(i);
-            int pw = p.image.getWidth(), ph = p.image.getHeight();
-            if (mx >= p.x && mx <= p.x + pw && my >= p.y && my <= p.y + ph) {
+            // hit test using jigsaw shape
+            if (p.shape.contains(mx - p.x, my - p.y)) {
                 selectedPiece = p;
                 selectedPiece.placed = false;
                 if (hintLevel == 3) {
@@ -301,11 +406,9 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
     @Override
     public void mouseReleased(MouseEvent e) {
         if (selectedPiece != null) {
-            // snap to the piece’s correct logical position (NO extra offset)
             int snapX = selectedPiece.correctX;
             int snapY = selectedPiece.correctY;
 
-            // keep the same on-screen snap feel regardless of scale
             int logicalThreshold = (int) Math.round(snapThreshold / Math.max(0.0001, viewScale));
 
             if (Math.abs(selectedPiece.x - snapX) < logicalThreshold &&
@@ -315,7 +418,6 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
                 selectedPiece.y = snapY;
                 selectedPiece.placed = true;
 
-                // advance guided piece if the current one was just placed
                 if (hintLevel == 3 && guidedPiece == selectedPiece) {
                     guidedPiece = null;
                     for (PuzzlePiece pp : pieces) {
@@ -350,16 +452,21 @@ public class FixThePotGame extends JPanel implements MouseListener, MouseMotionL
         final BufferedImage image;
         final int correctX, correctY;
         final int row, col;
+        final Shape shape;         // jigsaw outline in local (padded image) coords
+        final int padLeft, padTop; // offset from image origin to cell origin
         int x, y;
         boolean placed = false;
 
-        PuzzlePiece(BufferedImage img, int cx, int cy, int row, int col) {
+        PuzzlePiece(BufferedImage img, int cx, int cy, int row, int col,
+                     Shape shape, int padLeft, int padTop) {
             image = img;
             correctX = cx;
             correctY = cy;
             this.row = row;
             this.col = col;
+            this.shape = shape;
+            this.padLeft = padLeft;
+            this.padTop = padTop;
         }
     }
-
 }
