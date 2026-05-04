@@ -4,10 +4,8 @@ import java.awt.image.Kernel;
 
 // Utility clas to apply a simple box blur to an image (the background image)
 public class BlurUtil {
-    /**
-     * Blurs the given image using a simple box blur with the specified radius.
-     * A larger radius produces a stronger blur.
-     */
+    // Blurs the given image using a simple box blur with the specified radius.
+    // A larger radius produces a stronger blur.
     public static BufferedImage blurImage(BufferedImage image, int radius) {
         int size = radius * 2 + 1;
         float[] matrix = new float[size * size];
