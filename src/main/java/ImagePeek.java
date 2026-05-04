@@ -53,14 +53,14 @@ public class ImagePeek extends JPanel implements ThemeAware {
         repaint();
     }
 
-    /** Optional: set the maximum size the preview should fit within. */
+    // Set the maximum size the preview should fit within.
     public void setPeekSize(int maxW, int maxH) {
         this.maxW = Math.max(32, maxW);
         this.maxH = Math.max(32, maxH);
         if (src != null) updateIcon();
     }
 
-    /** Set/refresh the image and fit it inside the current max size. */
+    // Set/refresh the image and fit it inside the current max size.
     public void setImage(BufferedImage img, int maxW, int maxH) {
         this.src = img;
         this.maxW = Math.max(32, maxW);
@@ -68,7 +68,7 @@ public class ImagePeek extends JPanel implements ThemeAware {
         updateIcon();
     }
 
-    /** Convenience: place the peek at (x,y) in parent coords (e.g., layered pane). */
+    // Convenience: place the peek at (x,y) in parent coords (e.g., layered pane).
     public void showAt(int x, int y) {
         Dimension ps = card.getPreferredSize();
         setBounds(x, y, ps.width, ps.height);
