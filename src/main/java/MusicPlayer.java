@@ -19,7 +19,7 @@ public class MusicPlayer {
 
         String mediaUri;
         if ("jar".equals(url.getProtocol())) {
-            // Extract to temp file — MediaPlayer can't play from inside JARs
+            // Extract to temp file, MediaPlayer can't play from inside JARs
             try {
                 String ext = resourcePath.substring(resourcePath.lastIndexOf('.'));
                 File tmp = File.createTempFile("ftp-music-", ext);
@@ -39,6 +39,15 @@ public class MusicPlayer {
         Media media = new Media(mediaUri);
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+        // Surface asynchronous JavaFX errors instead of silently parking in ERROR state.
+        // (Without this, codec failures or stream errors mid-playback are invisible to the app.)
+        mediaPlayer.setOnError(() -> {
+            Throwable err = mediaPlayer.getError();
+            System.err.println("[Music] MediaPlayer runtime error for "
+                    + resourcePath + ": "
+                    + (err != null ? err.getClass().getSimpleName() + " - " + err.getMessage() : "unknown"));
+        });
     }
 
     public void play() {
