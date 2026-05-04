@@ -16,6 +16,7 @@ final class SplitChooserOverlay extends JPanel implements ThemeAware {
     private final JButton medium;
     private final JButton hard;
     private final JButton custom;
+    private final JButton closeX;
 
     SplitChooserOverlay() {
         setOpaque(false);
@@ -54,6 +55,9 @@ final class SplitChooserOverlay extends JPanel implements ThemeAware {
         hard   = makeChoiceButton("Hard (4×4)",   4, 4);
         custom = new JButton("Custom…");
 
+        closeX = makeCloseButton();
+        closeX.addActionListener(evt -> close());
+
         custom.addActionListener(evt -> {
             if (onCustom != null) {
                 onCustom.run();
@@ -65,9 +69,16 @@ final class SplitChooserOverlay extends JPanel implements ThemeAware {
         });
 
         // Layout inside card
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+        header.add(title, BorderLayout.CENTER);
+        header.add(closeX, BorderLayout.EAST);
+
         GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0; c.gridy = 0; c.weightx = 1; c.insets = new Insets(0, 0, 12, 0);
-        card.add(title, c);
+        c.gridx = 0; c.gridy = 0; c.weightx = 1; c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(0, 0, 12, 0);
+        card.add(header, c);
+        c.fill = GridBagConstraints.NONE;
 
         JPanel row = new JPanel(new GridLayout(1, 0, 12, 0));
         row.setOpaque(false);
@@ -110,7 +121,32 @@ final class SplitChooserOverlay extends JPanel implements ThemeAware {
         styleOverlayButton(hard, o);
         styleOverlayButton(custom, o);
 
+        // Seal paints its own colour palette, no themed foreground needed.
+
         repaint();
+    }
+
+    private JButton makeCloseButton() {
+        JButton b = new JButton() {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int size = Math.min(getWidth(), getHeight()) - 4;
+                int x = (getWidth()  - size) / 2;
+                int y = (getHeight() - size) / 2;
+                LoadGamePanel.paintWaxSeal(g2, x, y, size, getModel().isRollover());
+                g2.dispose();
+            }
+        };
+        b.setFocusPainted(false);
+        b.setOpaque(false);
+        b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+        b.setMargin(new Insets(0, 0, 0, 0));
+        b.setPreferredSize(new Dimension(30, 30));
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.setToolTipText("Close");
+        return b;
     }
 
     private void styleOverlayButton(JButton b, Theme.Palette.Overlay o) {

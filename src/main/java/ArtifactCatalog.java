@@ -6,11 +6,10 @@ import java.util.Map;
 public final class ArtifactCatalog {
     private ArtifactCatalog() {}
 
-    /**
-     * Information for the Extra Info Button.
-     * The information is extracted from the URL's, which are listed for each image.
-     * The information is displayed as Year, Culture, and Description. If any other categories can be made, they have been added.
-     */
+    // Information for the Extra Info Button.
+    // The information is extracted from the URL's, which are listed for each image.
+    // The information is displayed as Year, Culture, and Description. If any other categories can be made, they have been added.
+    
     public static final Map<String, ImageInfo> IMAGE_INFO_MAP = createInfoMap();
     private static Map<String, ImageInfo> createInfoMap() {
         Map<String, ImageInfo> map = new HashMap<>();
@@ -1186,7 +1185,7 @@ public final class ArtifactCatalog {
             "/Ancient Egypt/Artifacts/Game of Hounds and Jackals.jpeg"
     };
 
-    /** Returns images for a collection, or ALL images if unknown. */
+    // Returns images for a collection, or ALL images if unknown.
     public static List<String> imagesFor(String collectionName) {
         // Try exact match first
         List<String> list = COLLECTIONS.get(collectionName);
@@ -1210,4 +1209,5 @@ public final class ArtifactCatalog {
         fileName = fileName.replaceAll("\\s*\\d+$", "");
         return fileName.trim();
     }
+
 }

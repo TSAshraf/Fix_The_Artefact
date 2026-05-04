@@ -68,6 +68,7 @@ class MusicChooserPopover extends JPanel implements ThemeAware {
         sp.setBorder(BorderFactory.createEmptyBorder());
         sp.setOpaque(false);
         sp.getViewport().setOpaque(true);
+        FantasyScrollBarUI.install(sp);
         card.add(sp);
 
         card.add(cancel);
@@ -213,7 +214,7 @@ class MusicChooserPopover extends JPanel implements ThemeAware {
         }
     }
 
-    /** Open a 420×340 card just above the anchor button, clamped to the glass bounds. */
+    // Open a 420*340 card just above the anchor button, clamped to the glass bounds.
     void openAbove(JComponent glassPane, JComponent anchor, String[] files, PickListener onPick) {
         this.onPick = onPick;
         this.allFiles = new ArrayList<>(Arrays.asList(files));

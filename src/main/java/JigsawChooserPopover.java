@@ -19,7 +19,7 @@ class JigsawChooserPopover extends JPanel implements ThemeAware {
     private final JButton cancel = new JButton("Cancel");
     private final JButton ok     = new JButton("OK");
 
-    private List<String> allDisplay = List.of();   // display names
+    private List<String> allDisplay = List.of(); // display names
     private IntConsumer onPick;
 
     private final JPanel card = new JPanel(null) {
@@ -60,6 +60,7 @@ class JigsawChooserPopover extends JPanel implements ThemeAware {
         list.setFont(new Font("Serif", Font.PLAIN, 20));
         sp.setBorder(BorderFactory.createEmptyBorder());
         sp.getViewport().setOpaque(true);
+        FantasyScrollBarUI.install(sp);
         card.add(sp);
 
         styleButton(cancel);
@@ -141,7 +142,7 @@ class JigsawChooserPopover extends JPanel implements ThemeAware {
         if (originalIndex >= 0 && onPick != null) onPick.accept(originalIndex);
     }
 
-    /** Open a ~420×420 card above anchor; contents come from displayNames. */
+    // Open a 420*420 card above anchor; contents come from displayNames.
     void openAbove(JComponent glassPane, JComponent anchor, List<String> displayNames, IntConsumer onPick) {
         this.onPick = onPick;
         this.allDisplay = new ArrayList<>(displayNames);
@@ -197,7 +198,7 @@ class JigsawChooserPopover extends JPanel implements ThemeAware {
         g2.dispose();
     }
 
-    // ---- ThemeAware ----
+    // ThemeAware
     @Override
     public void refreshTheme() {
         Theme.Palette pal = ThemeManager.get().palette();

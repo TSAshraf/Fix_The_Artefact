@@ -7,16 +7,16 @@ import java.util.function.BiConsumer;
 
 public class RowsColsOverlay extends JPanel implements ThemeAware {
 
-    // ---- layout / sizing constants ----
+    // layout / sizing constants
     private static final int MIN_VAL = 2;
     private static final int MAX_VAL = 20;
 
-    // ---- fonts ----
+    // fonts
     private static final Font TITLE_FONT = new Font("Serif", Font.BOLD, 26);
     private static final Font LABEL_FONT = new Font("Serif", Font.PLAIN, 18);
     private static final Font BTN_FONT   = new Font("SansSerif", Font.BOLD, 18);
 
-    // ---- UI ----
+    // UI
     private final JPanel card = new JPanel(null);
     private final JLabel title = new JLabel("Custom split");
     private final JLabel rowsL = new JLabel("Rows:");
@@ -24,6 +24,9 @@ public class RowsColsOverlay extends JPanel implements ThemeAware {
     private final JTextField rowsField = new JTextField();
     private final JTextField colsField = new JTextField();
     private final JLabel hint = new JLabel("Enter numbers " + MIN_VAL + "–" + MAX_VAL);
+    private static final Color ERROR_RED = new Color(200, 60, 60);
+    private static final Font HINT_NORMAL = new Font("SansSerif", Font.PLAIN, 12);
+    private static final Font HINT_ERROR  = new Font("SansSerif", Font.BOLD, 13);
 
     private final JButton ok = new JButton("OK");
     private final JButton cancel = new JButton("Cancel");
@@ -59,7 +62,17 @@ public class RowsColsOverlay extends JPanel implements ThemeAware {
         card.add(rowsField);
         card.add(colsField);
 
-        hint.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        // HE-25: live validation as the user types, so feedback is immediate
+        // rather than only appearing after the OK button is pressed.
+        javax.swing.event.DocumentListener liveValidator = new javax.swing.event.DocumentListener() {
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { liveValidate(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { liveValidate(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { liveValidate(); }
+        };
+        rowsField.getDocument().addDocumentListener(liveValidator);
+        colsField.getDocument().addDocumentListener(liveValidator);
+
+        hint.setFont(HINT_NORMAL);
         card.add(hint);
 
         // buttons
@@ -174,8 +187,12 @@ public class RowsColsOverlay extends JPanel implements ThemeAware {
         Integer r = parse(rowsField.getText());
         Integer c = parse(colsField.getText());
 
+        Theme.Palette p = ThemeManager.get().palette();
         boolean okR = validateField(rowsField, r);
         boolean okC = validateField(colsField, c);
+        // HE-14: emphasise the hint line when a submission is rejected so the
+        // valid range is reinforced alongside the per-field red border.
+        applyHintStyle(!okR || !okC, p);
 
         if (okR && okC) {
             if (onAccept != null) onAccept.accept(r, c);
@@ -190,9 +207,36 @@ public class RowsColsOverlay extends JPanel implements ThemeAware {
     private boolean validateField(JTextField f, Integer v) {
         Theme.Palette p = ThemeManager.get().palette();
         boolean good = v != null && v >= MIN_VAL && v <= MAX_VAL;
-        Color border = good ? p.overlay.inputBorder : new Color(200, 60, 60);
-        f.setBorder(new LineBorder(border, good ? 1 : 2));
+        applyFieldStyle(f, !good, p);
         return good;
+    }
+
+    // HE-14 + HE-25: live validation that runs on every keystroke so the user
+    // sees field- and hint-level feedback before submitting. Empty fields are treated as
+    // not-yet-invalid so the form doesn't show an error before the user has typed anything.
+    private void liveValidate() {
+        Theme.Palette p = ThemeManager.get().palette();
+        Integer r = parse(rowsField.getText());
+        Integer c = parse(colsField.getText());
+
+        boolean rEmpty = rowsField.getText().isBlank();
+        boolean cEmpty = colsField.getText().isBlank();
+        boolean rOk = rEmpty || (r != null && r >= MIN_VAL && r <= MAX_VAL);
+        boolean cOk = cEmpty || (c != null && c >= MIN_VAL && c <= MAX_VAL);
+
+        applyFieldStyle(rowsField, !rOk, p);
+        applyFieldStyle(colsField, !cOk, p);
+        applyHintStyle(!rOk || !cOk, p);
+    }
+
+    private void applyFieldStyle(JTextField f, boolean error, Theme.Palette p) {
+        Color border = error ? ERROR_RED : p.overlay.inputBorder;
+        f.setBorder(new LineBorder(border, error ? 2 : 1));
+    }
+
+    private void applyHintStyle(boolean error, Theme.Palette p) {
+        hint.setFont(error ? HINT_ERROR : HINT_NORMAL);
+        hint.setForeground(error ? ERROR_RED : p.overlay.text);
     }
 
     // API
@@ -222,7 +266,7 @@ public class RowsColsOverlay extends JPanel implements ThemeAware {
         g2.dispose();
     }
 
-    // Optional tiny toast for legacy “defaulted to easy”
+    // Optional tiny toast for legacy "defaulted to easy"
     public static void showToast(JComponent glassPane, String msg) {
         Theme.Palette p = ThemeManager.get().palette();
 

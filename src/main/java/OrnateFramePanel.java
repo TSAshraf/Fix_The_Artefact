@@ -13,8 +13,8 @@ public class OrnateFramePanel extends JPanel implements ThemeAware {
 
     // Tint settings for DARK mode
     // (tweak these if you want darker/lighter)
-    private final Color darkTint = new Color(0, 0, 0, 180);   // black overlay
-    private final float darkSaturation = 0.2f;                // 0 = greyscale-ish, 1 = unchanged
+    private final Color darkTint = new Color(0, 0, 0, 180); // black overlay
+    private final float darkSaturation = 0.2f; // 0 = greyscale-ish, 1 = unchanged
 
     public OrnateFramePanel(
             JPanel content,
@@ -75,7 +75,7 @@ public class OrnateFramePanel extends JPanel implements ThemeAware {
 
         // If dark mode, tint the frame without destroying highlights
         if (dark) {
-            // Slight desaturation can help “Civ” vibes
+            // Slight desaturation can help "Civ" vibes
             g2.setComposite(AlphaComposite.SrcOver);
         }
 
@@ -95,7 +95,7 @@ public class OrnateFramePanel extends JPanel implements ThemeAware {
             return;
         }
 
-        // ----- 9-slice draw -----
+        // 9-slice draw
         draw9(g2, 0,     0,     s, s,  0,     0,     ds, ds, dark);           // TL
         draw9(g2, sw-s,  0,     s, s,  w-ds,  0,     ds, ds, dark);           // TR
         draw9(g2, 0,     sh-s,  s, s,  0,     h-ds,  ds, ds, dark);           // BL

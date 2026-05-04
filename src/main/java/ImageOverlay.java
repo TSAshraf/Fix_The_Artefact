@@ -40,6 +40,21 @@ public class ImageOverlay extends JPanel implements ThemeAware {
             ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
     );
 
+    // top-right close (wax seal) above the image
+    private final JButton closeButton = new JButton() {
+        @Override protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int size = Math.min(getWidth(), getHeight()) - 4;
+            int x = (getWidth()  - size) / 2;
+            int y = (getHeight() - size) / 2;
+            LoadGamePanel.paintWaxSeal(g2, x, y, size, getModel().isRollover());
+            g2.dispose();
+        }
+    };
+    private final JPanel topBar = new JPanel(new BorderLayout());
+    private static final int TOP_BAR_H = 32;
+
     // drag / resize state
     private static final int RESIZE_MARGIN = 16; // bottom-right resize grip
     private boolean resizing = false;
@@ -61,6 +76,22 @@ public class ImageOverlay extends JPanel implements ThemeAware {
         pic.setOpaque(false);
         pic.setBorder(null);
 
+        // Configure the close button (paints itself as a wax seal)
+        closeButton.setFocusPainted(false);
+        closeButton.setOpaque(false);
+        closeButton.setContentAreaFilled(false);
+        closeButton.setBorderPainted(false);
+        closeButton.setMargin(new Insets(0, 0, 0, 0));
+        closeButton.setPreferredSize(new Dimension(TOP_BAR_H, TOP_BAR_H));
+        closeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        closeButton.setToolTipText("Close");
+        closeButton.addActionListener(e -> close());
+
+        topBar.setOpaque(false);
+        topBar.add(closeButton, BorderLayout.EAST);
+        topBar.setPreferredSize(new Dimension(0, TOP_BAR_H));
+
+        card.add(topBar, BorderLayout.NORTH);
         card.add(scroller, BorderLayout.CENTER);
 
         // default size & add to overlay
@@ -170,6 +201,8 @@ public class ImageOverlay extends JPanel implements ThemeAware {
         // Not strictly necessary for the image, but keeps consistency if you add text later
         pic.setForeground(o.text);
 
+        // Seal paints its own palette, no themed foreground needed.
+
         repaint();
     }
 
@@ -182,7 +215,7 @@ public class ImageOverlay extends JPanel implements ThemeAware {
         return (parent != null) ? parent.getSize() : Toolkit.getDefaultToolkit().getScreenSize();
     }
 
-    /** Sets the image and refreshes sizing/fit. */
+    // Sets the image and refreshes sizing/fit.
     public void setImage(BufferedImage img) {
         this.src = img;
         if (src != null && src.getWidth() > 0) {
@@ -191,23 +224,23 @@ public class ImageOverlay extends JPanel implements ThemeAware {
         fitImageToCard();
     }
 
-    /** Fits the image to current card, preserving aspect and hugging edges (no gaps). */
+    // Fits the image to current card, preserving aspect and hugging edges (no gaps).
     private void fitImageToCard() {
         if (src == null) {
             pic.setIcon(null);
             return;
         }
 
-        // Calculate drawable area inside the card (exclude insets)
+        // Calculate drawable area inside the card (exclude insets and the close-X bar)
         Insets in = card.getInsets();
         int availW = card.getWidth()  - in.left - in.right;
-        int availH = card.getHeight() - in.top  - in.bottom;
+        int availH = card.getHeight() - in.top  - in.bottom - TOP_BAR_H;
 
         // If card hasn't been laid out yet, use its current size as a hint
         if (availW <= 0 || availH <= 0) {
             Dimension s = card.getSize();
             availW = Math.max(1, s.width  - in.left - in.right);
-            availH = Math.max(1, s.height - in.top  - in.bottom);
+            availH = Math.max(1, s.height - in.top  - in.bottom - TOP_BAR_H);
         }
 
         // Scale to fit while keeping aspect ratio
@@ -222,9 +255,10 @@ public class ImageOverlay extends JPanel implements ThemeAware {
         pic.setPreferredSize(new Dimension(w, h));
         pic.revalidate();
 
-        // Make the card wrap tightly around the image (no letterboxing)
+        // Make the card wrap tightly around the image (no letterboxing).
+        // Reserve TOP_BAR_H for the close-X strip so the image isn't squashed by it.
         int cardW = w + in.left + in.right;
-        int cardH = h + in.top + in.bottom;
+        int cardH = h + in.top + in.bottom + TOP_BAR_H;
         card.setPreferredSize(new Dimension(cardW, cardH));
         card.setSize(cardW, cardH);
 
@@ -235,7 +269,7 @@ public class ImageOverlay extends JPanel implements ThemeAware {
         repaint();
     }
 
-    /** Center within a container (e.g., layered pane size). */
+    // Center within a container (e.g., layered pane size).
     public void centerIn(Dimension containerSize) {
         int x = (containerSize.width - card.getWidth()) / 2;
         int y = (containerSize.height - card.getHeight()) / 2;
