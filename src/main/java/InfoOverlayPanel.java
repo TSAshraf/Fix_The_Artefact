@@ -10,7 +10,7 @@ import java.net.URI;
 
 public class InfoOverlayPanel extends JPanel implements ThemeAware {
 
-    // ---- layout / sizing constants ----
+    // layout / sizing constants
     private static final int MARGIN = 20;
 
     // starting size
@@ -38,12 +38,14 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
     private static final int TITLE_H = 32;
     private static final int BUTTON_W = 200, BUTTON_H = 40;
 
-    // === UI components ===
-    private final BannerImage banner;     // aspect-preserving banner
+    // UI components
+    private final BannerImage banner; // aspect-preserving banner
     private final JLabel titleLabel;
     private final JTextArea descArea;
     private final JScrollPane scrollPane;
     private final JButton learnMoreButton;
+    private final JButton closeButton;
+    private static final int CLOSE_SIZE = 28;
 
     // external link
     private String moreInfoUrl;
@@ -59,12 +61,12 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
     private DragMode dragMode = DragMode.NONE;
 
     // for resizing math (component-relative deltas)
-    private Point pressPoint;          // mouse point inside panel at mousePressed
-    private Rectangle startBounds;     // panel bounds at mousePressed
+    private Point pressPoint; // mouse point inside panel at mousePressed
+    private Rectangle startBounds; // panel bounds at mousePressed
 
     // for smooth MOVE drag (screen-space deltas)
-    private Point pressMouseScreen;    // mouse screen coords at mousePressed
-    private Point pressPanelScreen;    // panel screen coords at mousePressed
+    private Point pressMouseScreen; // mouse screen coords at mousePressed
+    private Point pressPanelScreen; // panel screen coords at mousePressed
 
     // track last size so we only relayout children when size actually changes
     private int lastW = -1;
@@ -75,18 +77,18 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
         setSize(START_W, START_H);
         setOpaque(true);
 
-        // === IMAGE BANNER ===
+        // IMAGE BANNER
         banner = new BannerImage();
         banner.setOpaque(false);
         banner.setAllowUpscale(true); // allow enlarging to fill the column (still aspect-correct)
         add(banner);
 
-        // === TITLE ===
+        // TITLE
         titleLabel = new JLabel("Artifact Title");
         titleLabel.setFont(new Font("Serif", Font.BOLD, 22));
         add(titleLabel);
 
-        // === DESCRIPTION ===
+        // DESCRIPTION
         descArea = new JTextArea();
         descArea.setEditable(false);
         descArea.setOpaque(false);
@@ -102,6 +104,7 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        FantasyScrollBarUI.install(scrollPane);
         add(scrollPane);
 
         // === LEARN MORE BUTTON (bottom-right) ===
@@ -110,6 +113,28 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
         learnMoreButton.setFont(new Font("SansSerif", Font.BOLD, 18));
         learnMoreButton.addActionListener(e -> openMoreInfoUrl());
         add(learnMoreButton);
+
+        // === CLOSE (wax seal) BUTTON (top-right) ===
+        closeButton = new JButton() {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int size = Math.min(getWidth(), getHeight()) - 4;
+                int x = (getWidth()  - size) / 2;
+                int y = (getHeight() - size) / 2;
+                LoadGamePanel.paintWaxSeal(g2, x, y, size, getModel().isRollover());
+                g2.dispose();
+            }
+        };
+        closeButton.setFocusPainted(false);
+        closeButton.setOpaque(false);
+        closeButton.setContentAreaFilled(false);
+        closeButton.setBorderPainted(false);
+        closeButton.setMargin(new Insets(0, 0, 0, 0));
+        closeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        closeButton.setToolTipText("Close");
+        closeButton.addActionListener(e -> close());
+        add(closeButton);
 
         // drag + resize behavior
         MouseAdapter dragAndResize = new MouseAdapter() {
@@ -156,12 +181,12 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
                 dragMode = getDragModeForPoint(e.getPoint());
 
                 // record state for resizing math
-                pressPoint  = e.getPoint();     // mouse position inside panel at press
-                startBounds = getBounds();      // panel bounds at press
+                pressPoint  = e.getPoint(); // mouse position inside panel at press
+                startBounds = getBounds(); // panel bounds at press
 
                 // record state for MOVE math (screen coords)
-                pressMouseScreen = e.getLocationOnScreen();      // mouse screen pos at press
-                Point panelScreenLoc = getLocationOnScreen();    // panel screen pos at press
+                pressMouseScreen = e.getLocationOnScreen(); // mouse screen pos at press
+                Point panelScreenLoc = getLocationOnScreen(); // panel screen pos at press
                 pressPanelScreen = new Point(panelScreenLoc);
             }
 
@@ -296,15 +321,15 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
         learnMoreButton.setForeground(o.text);
         learnMoreButton.setBorder(BorderFactory.createLineBorder(o.cardStroke));
 
-        // Optional: letterbox background behind the image
+        // Seal paints its own palette, no themed foreground needed.
+
+        // Letterbox background behind the image
         banner.setLetterboxFill(o.scrim);
 
         repaint();
     }
 
-    /**
-     * Decide where everything sits given current panel size.
-     */
+    // Decide where everything sits given current panel size.
     private void layoutChildrenForCurrentSize() {
         int w = getWidth();
         int h = getHeight();
@@ -323,18 +348,22 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
         int btnX = x1 - btnW;
         int btnY = y1 - btnH;
 
+        // Close X always sits in the top-right corner regardless of layout
+        closeButton.setBounds(x1 - CLOSE_SIZE, y0, CLOSE_SIZE, CLOSE_SIZE);
+        int closeReserve = CLOSE_SIZE + 8;
+
         if (w >= SIDE_BY_SIDE_BREAKPOINT) {
-            // --- SIDE-BY-SIDE LAYOUT ---
+            // SIDE-BY-SIDE LAYOUT
             int imageW = (int) Math.round(w * SIDE_IMAGE_FRACTION);
             int imageH = (btnY - y0); // fills down to just above the button
 
             // Left column: image fills column; letterboxed (no crop / no warp)
             banner.setBounds(x0, y0, imageW, imageH);
 
-            // Right column
+            // Right column, title shrinks to leave room for the close X
             int textX = x0 + imageW + MARGIN;
             int textW = x1 - textX;
-            titleLabel.setBounds(textX, y0, textW, titleH);
+            titleLabel.setBounds(textX, y0, Math.max(40, textW - closeReserve), titleH);
 
             int scrollY = y0 + titleH + 10;
             int scrollH = (btnY - 10) - scrollY;
@@ -343,14 +372,15 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
 
             learnMoreButton.setBounds(btnX, btnY, btnW, btnH);
         } else {
-            // --- STACKED LAYOUT ---
+            // STACKED LAYOUT
             int maxImgHByFraction = (int) Math.round(h * PREVIEW_MAX_FRACTION);
             int imgH = PREVIEW_H;
             imgH = Math.min(imgH, maxImgHByFraction);
             imgH = Math.max(imgH, PREVIEW_MIN_PX);
             imgH = Math.min(imgH, h - 140);
 
-            banner.setBounds(x0, y0, x1 - x0, imgH);
+            // Banner shrinks slightly so the close X doesn't sit on top of the image
+            banner.setBounds(x0, y0, Math.max(40, (x1 - x0) - closeReserve), imgH);
 
             int titleY = y0 + imgH + 10;
             titleLabel.setBounds(x0, titleY, x1 - x0, titleH);
@@ -364,10 +394,7 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
         }
     }
 
-    /**
-     * Update the overlay's content.
-     * descArea ALWAYS gets full text. No truncation.
-     */
+    // Update the overlay's content. descArea ALWAYS gets full text. No truncation.
     public void updateContent(ImageIcon fullImageIcon,
                               String title,
                               String description,
@@ -425,7 +452,7 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
         }
     }
 
-    /** Open at current location. */
+    // Open at current location.
     public void open(JComponent glassPane, int x, int y) {
         if (getParent() != glassPane) glassPane.add(this);
         setLocation(x, y);
@@ -434,7 +461,7 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
         glassPane.repaint();
     }
 
-    /** Convenience: open sized to trigger side-by-side and right-aligned. */
+    // Convenience: open sized to trigger side-by-side and right-aligned.
     public void openRightAligned(JComponent glassPane) {
         if (getParent() != glassPane) glassPane.add(this);
 
@@ -458,7 +485,7 @@ public class InfoOverlayPanel extends JPanel implements ThemeAware {
         if (p != null) p.repaint();
     }
 
-    // === Aspect-preserving banner component ===
+    // Aspect-preserving banner component
     private static final class BannerImage extends JComponent {
         private BufferedImage img;
         private boolean allowUpscale = false;
