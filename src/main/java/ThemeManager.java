@@ -14,7 +14,6 @@ public final class ThemeManager {
 
     private Theme current = Theme.LIGHT;
 
-    // Weak refs so panels/popovers can be GC'd if they go away
     private final List<WeakReference<Component>> registered = new ArrayList<>();
 
     private ThemeManager() {}
@@ -23,28 +22,19 @@ public final class ThemeManager {
         return current;
     }
 
-    /** Convenience: the full palette for the current theme. */
     public Theme.Palette palette() {
         return current.palette;
     }
 
-    /**
-     * Register a root component (frame/panel/overlay/etc). Theme will be applied immediately.
-     * Call this once when the UI element is created/shown.
-     */
     public void register(Component c) {
         if (c == null) return;
-
-        // Avoid duplicates + clean dead refs while we're here
         cleanupAndDedupe(c);
-
         registered.add(new WeakReference<>(c));
-        applyThemeToComponentTree(c); // apply immediately
+        applyThemeToComponentTree(c);
     }
 
     public void unregister(Component c) {
         if (c == null) return;
-
         for (Iterator<WeakReference<Component>> it = registered.iterator(); it.hasNext(); ) {
             Component x = it.next().get();
             if (x == null || x == c) it.remove();
@@ -52,14 +42,13 @@ public final class ThemeManager {
     }
 
     public void toggleTheme() {
-        setTheme(current.next()); // LIGHT <-> DARK
+        setTheme(current.next());
     }
 
     public void setTheme(Theme t) {
         if (t == null) return;
         if (t == current) return;
 
-        // Always apply on the Swing EDT
         if (!SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater(() -> setTheme(t));
             return;
@@ -81,10 +70,7 @@ public final class ThemeManager {
     }
 
     private void applyThemeToComponentTree(Component root) {
-        // Apply recursively to standard Swing components using BASE palette
         applyRecursively(root);
-
-        // Give custom components a hook (overlays/popovers/custom painting)
         refreshThemeTree(root);
 
         if (root instanceof JComponent jc) {
@@ -96,58 +82,72 @@ public final class ThemeManager {
     }
 
     private void applyRecursively(Component c) {
+        applyRecursively(c, false);
+    }
+
+    private void applyRecursively(Component c, boolean insideThemeAware) {
         if (c == null) return;
 
-        Theme.Palette.Base b = current.palette.base;
-
-        // ---- Baseline styling rules (BASE palette only) ----
-        if (c instanceof JPanel || c instanceof JLayeredPane || c instanceof JRootPane) {
-            c.setBackground(b.appBg);
-            c.setForeground(b.text);
-
-        } else if (c instanceof JLabel label) {
-            label.setForeground(b.text);
-
-        } else if (c instanceof AbstractButton btn) {
-            btn.setBackground(b.controlBg);
-            btn.setForeground(b.text);
-
-            // Only set a border if it doesn't already have a "special" border
-            if (btn instanceof JComponent jc) {
-                maybeApplyLineBorder(jc, b.controlBorder);
-            }
-
-        } else if (c instanceof JTextComponent tc) {
-            tc.setBackground(b.inputBg);
-            tc.setForeground(b.text);
-            tc.setCaretColor(b.text);
-
-            if (tc instanceof JComponent jc) {
-                maybeApplyLineBorder(jc, b.inputBorder);
-            }
-
-        } else if (c instanceof JList<?> list) {
-            list.setBackground(b.listBg);
-            list.setForeground(b.text);
-            list.setSelectionBackground(b.listSelectionBg);
-
-        } else {
-            // Default foreground for other components
-            c.setForeground(b.text);
+        // If this component is ThemeAware, it manages its own children's styling.
+        // Apply only top-level background, then let refreshTheme() handle the rest.
+        boolean selfIsThemeAware = (c instanceof ThemeAware);
+        if (selfIsThemeAware && insideThemeAware) {
+            return;
         }
 
-        // Recurse
+        // If we're inside a ThemeAware parent, don't override child colours/fonts,
+        // the parent's refreshTheme() will set them correctly.
+        if (!insideThemeAware) {
+            Theme.Palette.Base b = current.palette.base;
+            Theme.Palette.Fonts f = current.palette.fonts;
+
+            if (c instanceof JPanel || c instanceof JLayeredPane || c instanceof JRootPane) {
+                c.setBackground(b.appBg);
+                c.setForeground(b.text);
+
+            } else if (c instanceof JLabel label) {
+                label.setForeground(b.text);
+                label.setFont(f.body);
+
+            } else if (c instanceof AbstractButton btn) {
+                btn.setBackground(b.controlBg);
+                btn.setForeground(b.text);
+                btn.setFont(f.button);
+
+                if (btn instanceof JComponent jc) {
+                    maybeApplyLineBorder(jc, b.controlBorder);
+                }
+
+            } else if (c instanceof JTextComponent tc) {
+                tc.setBackground(b.inputBg);
+                tc.setForeground(b.text);
+                tc.setCaretColor(b.text);
+                tc.setFont(f.body);
+
+                if (tc instanceof JComponent jc) {
+                    maybeApplyLineBorder(jc, b.inputBorder);
+                }
+
+            } else if (c instanceof JList<?> list) {
+                list.setBackground(b.listBg);
+                list.setForeground(b.text);
+                list.setSelectionBackground(b.listSelectionBg);
+                list.setFont(f.body);
+
+            } else {
+                c.setForeground(b.text);
+            }
+        }
+
+        // Recurse into children, but mark that we're inside a ThemeAware subtree
+        boolean childFlag = insideThemeAware || selfIsThemeAware;
         if (c instanceof Container container) {
             for (Component child : container.getComponents()) {
-                applyRecursively(child);
+                applyRecursively(child, childFlag);
             }
         }
     }
 
-    /**
-     * Calls ThemeAware.refreshTheme() on any ThemeAware components in the tree.
-     * Overlays/popovers implement ThemeAware and apply OVERLAY palette inside refreshTheme().
-     */
     public static void refreshThemeTree(Component c) {
         if (c == null) return;
 
@@ -168,16 +168,11 @@ public final class ThemeManager {
             if (existing == null) {
                 it.remove();
             } else if (existing == incoming) {
-                // already registered — remove old ref so we re-add a fresh one
                 it.remove();
             }
         }
     }
 
-    /**
-     * Avoid stomping on component-specific borders (e.g., custom rounded borders).
-     * If the border is null or a default UIResource, we can safely replace it.
-     */
     private static void maybeApplyLineBorder(JComponent jc, Color borderColor) {
         Border border = jc.getBorder();
         boolean replace =
